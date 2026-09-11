@@ -1,0 +1,41 @@
+/* Placeholder styles. Vhan will replace this screen. */
+.main-menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3vh;
+  background: #1a1033;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
+  padding: 4vh 4vw;
+}
+
+.main-menu-title {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  text-shadow: 2px 2px 0 #000;
+}
+
+.main-menu-text {
+  font-size: clamp(0.55rem, 1.4vw, 0.8rem);
+  color: #ccc;
+  line-height: 1.8;
+}
+
+.main-menu-logout {
+  font-family: inherit;
+  font-size: clamp(0.5rem, 1.3vw, 0.75rem);
+  color: #fff;
+  background: #2e1b5b;
+  border: 3px solid #5a3d8a;
+  border-radius: 12px;
+  padding: 1.5vh 3vw;
+  cursor: pointer;
+}
+
+.main-menu-logout:hover {
+  color: #81c784;
+}
