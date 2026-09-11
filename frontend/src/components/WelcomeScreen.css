@@ -116,7 +116,7 @@
 .welcome-title {
   font-family: 'Press Start 2P', monospace;
   color: #fff;
-  -webkit-text-stroke: 2px #000;
+  -webkit-text-stroke: calc(0.2 * var(--h)) #000;
   text-shadow: 0.25rem 0.25rem 0 #000;
   text-align: center;
   line-height: 1.4;
