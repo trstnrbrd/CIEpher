@@ -1,19 +1,62 @@
 import { assertEquals, assertFalse } from "@std/assert";
-import { createApp } from "./app.ts";
+import type { Accounts } from "./accounts.ts";
+import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
+import type { LoginInput, RegisterInput } from "./schemas.ts";
 
 const FRONTEND = "http://localhost:5173";
+const PLAYER = {
+  id: "11111111-1111-1111-1111-111111111111",
+  username: "player_one",
+  character: null,
+};
+const SESSION = { accessToken: "test-access", refreshToken: "test-refresh" };
+const VALID_REGISTRATION = {
+  username: "player_one",
+  email: "player@example.com",
+  password: "secret123",
+  privacyConsent: true,
+};
+
+// A stand-in for Supabase, so these tests never touch a real database.
+function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
+  return {
+    register: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    ...overrides,
+  };
+}
+
+function testApp(overrides: Partial<AppConfig> = {}) {
+  return createApp({
+    allowedOrigins: [FRONTEND],
+    accounts: fakeAccounts(),
+    ...overrides,
+  });
+}
+
+function postJson(
+  app: ReturnType<typeof createApp>,
+  path: string,
+  body: unknown,
+) {
+  return app.request(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: typeof body === "string" ? body : JSON.stringify(body),
+  });
+}
+
+// ---------- basics ----------
 
 Deno.test("GET /api/health returns ok", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
-  const res = await app.request("/api/health");
+  const res = await testApp().request("/api/health");
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { status: "ok" });
 });
 
 Deno.test("unknown routes return the standard 404 error", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
-  const res = await app.request("/api/nope");
+  const res = await testApp().request("/api/nope");
   assertEquals(res.status, 404);
   assertEquals(await res.json(), {
     error: { code: "NOT_FOUND", message: "That route doesn't exist." },
@@ -21,31 +64,28 @@ Deno.test("unknown routes return the standard 404 error", async () => {
 });
 
 Deno.test("CORS allows the frontend", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
-  const res = await app.request("/api/health", {
+  const res = await testApp().request("/api/health", {
     headers: { Origin: FRONTEND },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), FRONTEND);
 });
 
 Deno.test("CORS blocks other websites", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
-  const res = await app.request("/api/health", {
+  const res = await testApp().request("/api/health", {
     headers: { Origin: "https://evil.example" },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), null);
 });
 
 Deno.test("CORS blocks everyone when no origins are configured", async () => {
-  const app = createApp({ allowedOrigins: [] });
-  const res = await app.request("/api/health", {
+  const res = await testApp({ allowedOrigins: [] }).request("/api/health", {
     headers: { Origin: FRONTEND },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), null);
 });
 
 Deno.test("ApiError is sent to the player as-is", async () => {
-  const app = createApp({ allowedOrigins: [] });
+  const app = testApp();
   app.get("/test-api-error", () => {
     throw new ApiError(
       409,
@@ -64,7 +104,7 @@ Deno.test("ApiError is sent to the player as-is", async () => {
 });
 
 Deno.test("unexpected errors hide their details from the player", async () => {
-  const app = createApp({ allowedOrigins: [] });
+  const app = testApp();
   app.get("/test-crash", () => {
     throw new Error("database password is hunter2");
   });
@@ -89,4 +129,143 @@ Deno.test("unexpected errors hide their details from the player", async () => {
   } finally {
     console.error = originalError;
   }
+});
+
+// ---------- POST /api/auth/register ----------
+
+Deno.test(
+  "register: creates the account and returns session + profile",
+  async () => {
+    let received: RegisterInput | undefined;
+    const app = testApp({
+      accounts: fakeAccounts({
+        register: (input) => {
+          received = input;
+          return Promise.resolve({ session: SESSION, profile: PLAYER });
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
+    assertEquals(res.status, 201);
+    assertEquals(await res.json(), { session: SESSION, profile: PLAYER });
+    assertEquals(received, VALID_REGISTRATION);
+  },
+);
+
+Deno.test("register: rejects a bad username and names the field", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    username: "no spaces!",
+  });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Username must be 3-20 letters, numbers, or underscores.",
+      field: "username",
+    },
+  });
+});
+
+Deno.test("register: rejects a password without a number", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    password: "onlyletters",
+  });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.field, "password");
+});
+
+Deno.test("register: requires privacy consent", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    privacyConsent: false,
+  });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.field, "privacyConsent");
+});
+
+Deno.test("register: broken JSON is a 400, not a crash", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", "{not json");
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.code, "VALIDATION_ERROR");
+});
+
+Deno.test("register: a taken username comes back as 409", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      register: () => {
+        throw new ApiError(
+          409,
+          "USERNAME_TAKEN",
+          "That username is already taken.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
+  assertEquals(res.status, 409);
+  const body = await res.json();
+  assertEquals(body.error.code, "USERNAME_TAKEN");
+});
+
+// ---------- POST /api/auth/login ----------
+
+Deno.test("login: returns session + profile", async () => {
+  let received: LoginInput | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: (input) => {
+        received = input;
+        return Promise.resolve({ session: SESSION, profile: PLAYER });
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "secret123",
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { session: SESSION, profile: PLAYER });
+  assertEquals(received, { username: "player_one", password: "secret123" });
+});
+
+Deno.test(
+  "login: a missing password is a 400 that names the field",
+  async () => {
+    const res = await postJson(testApp(), "/api/auth/login", {
+      username: "player_one",
+    });
+    assertEquals(res.status, 400);
+    const body = await res.json();
+    assertEquals(body.error.field, "password");
+  },
+);
+
+Deno.test("login: wrong username or password comes back as 401", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: () => {
+        throw new ApiError(
+          401,
+          "INVALID_CREDENTIALS",
+          "Wrong username or password.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "wrong-pass1",
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "INVALID_CREDENTIALS",
+      message: "Wrong username or password.",
+    },
+  });
 });
