@@ -31,8 +31,8 @@ function WelcomeScreen() {
         </div>
 
         <div className="welcome-content">
-          <h1 className="welcome-title welcome-subtitle">Welcome to</h1>
-          <h1 className="welcome-title welcome-main-title">Ciepher</h1>
+          <h1 className="welcome-title welcome-subtitle">WELCOME TO</h1>
+          <h1 className="welcome-title welcome-main-title">CIEPHER</h1>
         </div>
         <button className="start-button" onClick={handleStart}>
           START

@@ -116,17 +116,14 @@
 .welcome-title {
   font-family: 'Press Start 2P', monospace;
   color: #fff;
-  text-shadow:
-    3px 3px 0 #000,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000;
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 0.25rem 0.25rem 0 #000;
   text-align: center;
   line-height: 1.4;
 }
 
 .welcome-subtitle {
-  font-size: calc(10 * var(--h));
+  font-size: calc(7 * var(--h));
 }
 
 .welcome-main-title {
@@ -170,7 +167,7 @@
 
 @media (max-width: 768px) {
   .welcome-subtitle {
-    font-size: 5vh;
+    font-size: 4vh;
   }
   .welcome-main-title {
     font-size: 8vh;
@@ -184,7 +181,7 @@
 
 @media (max-width: 480px) {
   .welcome-subtitle {
-    font-size: 4vh;
+    font-size: 3vh;
   }
   .welcome-main-title {
     font-size: 6vh;
@@ -195,11 +192,7 @@
     border-radius: 6px;
   }
   .welcome-title {
-    text-shadow:
-      2px 2px 0 #000,
-      -1px -1px 0 #000,
-      1px -1px 0 #000,
-      -1px 1px 0 #000;
+    text-shadow: 0.2rem 0.2rem 0 #000;
   }
 }
 
