@@ -2,7 +2,7 @@ import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Accounts } from "./accounts.ts";
 import { ApiError, handleError, handleNotFound } from "./errors.ts";
-import { parse, registerSchema } from "./schemas.ts";
+import { loginSchema, parse, registerSchema } from "./schemas.ts";
 
 export type AppConfig = {
   // Websites allowed to call this API from a browser, e.g. Vhan's local Vite app.
@@ -36,6 +36,12 @@ export function createApp({ allowedOrigins, accounts }: AppConfig) {
     const input = parse(registerSchema, await readJson(c));
     const result = await accounts.register(input);
     return c.json(result, 201);
+  });
+
+  app.post("/auth/login", async (c) => {
+    const input = parse(loginSchema, await readJson(c));
+    const result = await accounts.login(input);
+    return c.json(result, 200);
   });
 
   app.notFound(handleNotFound);

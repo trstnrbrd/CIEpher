@@ -2,7 +2,7 @@ import { assertEquals, assertFalse } from "@std/assert";
 import type { Accounts } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
-import type { RegisterInput } from "./schemas.ts";
+import type { LoginInput, RegisterInput } from "./schemas.ts";
 
 const FRONTEND = "http://localhost:5173";
 const PLAYER = {
@@ -22,6 +22,7 @@ const VALID_REGISTRATION = {
 function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
   return {
     register: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
     ...overrides,
   };
 }
@@ -209,4 +210,62 @@ Deno.test("register: a taken username comes back as 409", async () => {
   assertEquals(res.status, 409);
   const body = await res.json();
   assertEquals(body.error.code, "USERNAME_TAKEN");
+});
+
+// ---------- POST /api/auth/login ----------
+
+Deno.test("login: returns session + profile", async () => {
+  let received: LoginInput | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: (input) => {
+        received = input;
+        return Promise.resolve({ session: SESSION, profile: PLAYER });
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "secret123",
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { session: SESSION, profile: PLAYER });
+  assertEquals(received, { username: "player_one", password: "secret123" });
+});
+
+Deno.test(
+  "login: a missing password is a 400 that names the field",
+  async () => {
+    const res = await postJson(testApp(), "/api/auth/login", {
+      username: "player_one",
+    });
+    assertEquals(res.status, 400);
+    const body = await res.json();
+    assertEquals(body.error.field, "password");
+  },
+);
+
+Deno.test("login: wrong username or password comes back as 401", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: () => {
+        throw new ApiError(
+          401,
+          "INVALID_CREDENTIALS",
+          "Wrong username or password.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "wrong-pass1",
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "INVALID_CREDENTIALS",
+      message: "Wrong username or password.",
+    },
+  });
 });

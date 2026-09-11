@@ -28,6 +28,22 @@ export const registerSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
+// Login only checks that both fields are there. Whether they're right is
+// decided by Supabase Auth, with one generic error for either mistake.
+export const loginSchema = z.object({
+  username: z
+    .string({ error: "Username is required." })
+    .trim()
+    .min(1, "Username is required.")
+    .max(50, "Username is too long."),
+  password: z
+    .string({ error: "Password is required." })
+    .min(1, "Password is required.")
+    .max(72, "Password is too long."),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+
 // Checks a request body against a schema. If it's invalid, throws a 400 that
 // names the first wrong field, so the frontend can highlight it.
 export function parse<T>(schema: z.ZodType<T>, body: unknown): T {

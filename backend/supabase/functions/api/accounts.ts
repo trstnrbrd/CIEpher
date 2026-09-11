@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { ApiError } from "./errors.ts";
-import type { RegisterInput } from "./schemas.ts";
+import type { LoginInput, RegisterInput } from "./schemas.ts";
 
 export type Profile = {
   id: string;
@@ -14,6 +14,7 @@ export type AuthResult = { session: Session; profile: Profile };
 // not on Supabase directly, so tests can pass a fake instead.
 export type Accounts = {
   register(input: RegisterInput): Promise<AuthResult>;
+  login(input: LoginInput): Promise<AuthResult>;
 };
 
 export type SupabaseConfig = {
@@ -87,7 +88,32 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
       }
 
       // 3. Log the new player in.
-      const session = await signIn(config, email, password);
+      const { session } = await signIn(config, email, password);
+      return { session, profile };
+    },
+
+    async login({ username, password }) {
+      // 1. Find the email for this username. Only the API can call this
+      // database function (see the login_email_lookup migration).
+      const { data: email, error: lookupError } = await admin.rpc(
+        "login_email_for_username",
+        { p_username: username },
+      );
+      if (lookupError) throw lookupError;
+      // Unknown username: the same error as a wrong password, on purpose,
+      // so nobody can find out which usernames exist.
+      if (!email) throw invalidCredentials();
+
+      // 2. Supabase Auth checks the password.
+      const { session, userId } = await signIn(config, email, password);
+
+      // 3. Load the player's profile.
+      const { data: profile, error: profileError } = await admin
+        .from("profiles")
+        .select("id, username, character")
+        .eq("id", userId)
+        .single();
+      if (profileError) throw profileError;
       return { session, profile };
     },
   };
@@ -97,16 +123,35 @@ async function signIn(
   config: SupabaseConfig,
   email: string,
   password: string,
-): Promise<Session> {
+): Promise<{ session: Session; userId: string }> {
   // A fresh client for every sign-in, so sessions never mix between players.
   const client = createClient(config.url, config.anonKey, serverOptions);
   const { data, error } = await client.auth.signInWithPassword({
     email,
     password,
   });
+  if (error?.code === "invalid_credentials") throw invalidCredentials();
+  if (error?.code === "over_request_rate_limit") {
+    throw new ApiError(
+      429,
+      "TOO_MANY_ATTEMPTS",
+      "Too many attempts. Please wait a few minutes and try again.",
+    );
+  }
   if (error) throw error;
   return {
-    accessToken: data.session.access_token,
-    refreshToken: data.session.refresh_token,
+    session: {
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+    },
+    userId: data.user.id,
   };
+}
+
+function invalidCredentials() {
+  return new ApiError(
+    401,
+    "INVALID_CREDENTIALS",
+    "Wrong username or password.",
+  );
 }
