@@ -1,0 +1,18 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts",
+    "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "deno": "2.9.6",
+    "supabase": "2.117.0"
+  }
+}
