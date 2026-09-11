@@ -1,0 +1,130 @@
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.login-card {
+  background: #2e1b5b;
+  border: 3px solid #5a3d8a;
+  border-radius: 16px;
+  padding: 4vh 4vw;
+  width: min(90vw, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.6;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+
+.login-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.55rem, 1.4vw, 0.8rem);
+  color: #ccc;
+  margin-top: 0.5vh;
+}
+
+.login-input {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+  width: 100%;
+  padding: 1.2vh 1.5vw;
+  border: 2px solid #5a3d8a;
+  border-radius: 50px;
+  background: #1a1033;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.login-input::placeholder {
+  color: #6b5a8a;
+}
+
+.login-input:focus {
+  border-color: #7c4dff;
+  box-shadow: 0 0 8px rgba(124, 77, 255, 0.4);
+}
+
+.login-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5vh;
+  width: 100%;
+}
+
+.login-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.5rem, 1.3vw, 0.75rem);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1vh 1vw;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.login-enter {
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.login-enter:hover {
+  color: #81c784;
+  text-shadow: 0 0 8px rgba(129, 199, 132, 0.6);
+}
+
+.login-signup {
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.login-signup:hover {
+  color: #81c784;
+  text-shadow: 0 0 8px rgba(129, 199, 132, 0.6);
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 3vh 5vw;
+    border-radius: 12px;
+  }
+
+  .login-actions {
+    flex-direction: column;
+    gap: 1.5vh;
+  }
+}
