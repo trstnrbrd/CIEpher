@@ -1,0 +1,5 @@
+# Client files: never commit
+Documents/*.pdf
+
+# Local-only Claude instructions (Tristan's machine)
+CLAUDE.md
