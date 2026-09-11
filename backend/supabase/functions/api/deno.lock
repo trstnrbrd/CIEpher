@@ -1,11 +1,22 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1.0.19": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@supabase/functions-js@2": "2.116.0",
     "npm:hono@4.13.7": "4.13.7",
     "npm:openai@^4.52.5": "4.104.0"
   },
   "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    },
     "@supabase/functions-js@2.116.0": {
       "integrity": "4c0ae3a9deda4c198c08f98a8975229244c9c6b3750aeb03993dc6db96ba7006",
       "dependencies": [
@@ -222,6 +233,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/assert@1.0.19",
       "jsr:@supabase/functions-js@2",
       "npm:hono@4.13.7"
     ]

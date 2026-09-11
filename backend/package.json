@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts",
+    "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/"
   },
   "keywords": [],
   "author": "",
