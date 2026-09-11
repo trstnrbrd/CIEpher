@@ -1,18 +1,35 @@
 import { useState, type FormEvent } from 'react'
+import { ApiError, login, type Profile } from '../api/client'
 import './LoginCard.css'
 
 interface LoginCardProps {
   onClose: () => void
   onSignUp: () => void
+  onLoggedIn: (profile: Profile) => void
 }
 
-function LoginCard({ onClose, onSignUp }: LoginCardProps) {
+function LoginCard({ onClose, onSignUp, onLoggedIn }: LoginCardProps) {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const handleEnter = (e: FormEvent): void => {
+  const handleEnter = async (e: FormEvent): Promise<void> => {
     e.preventDefault()
-    console.log('Login:', { username, password })
+    setError('')
+    setLoading(true)
+    try {
+      const profile = await login(username, password)
+      onLoggedIn(profile)
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'Something went wrong. Please try again.',
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSignUp = (): void => {
@@ -43,9 +60,19 @@ function LoginCard({ onClose, onSignUp }: LoginCardProps) {
             placeholder="Enter password"
           />
 
+          {error && (
+            <p className="login-error" role="alert">
+              {error}
+            </p>
+          )}
+
           <div className="login-actions">
-            <button type="submit" className="login-btn login-enter">
-              ENTER
+            <button
+              type="submit"
+              className="login-btn login-enter"
+              disabled={loading}
+            >
+              {loading ? '...' : 'ENTER'}
             </button>
             <button
               type="button"

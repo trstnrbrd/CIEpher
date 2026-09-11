@@ -1,11 +1,16 @@
 import { useState } from 'react'
+import type { Profile } from '../api/client'
 import LoginCard from './LoginCard'
 import RegisterCard from './RegisterCard'
 import './WelcomeScreen.css'
 
 type AuthView = 'login' | 'register' | null
 
-function WelcomeScreen() {
+interface WelcomeScreenProps {
+  onLoggedIn: (profile: Profile) => void
+}
+
+function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
   const [authView, setAuthView] = useState<AuthView>(null)
 
   const handleStart = (): void => {
@@ -40,7 +45,11 @@ function WelcomeScreen() {
       </div>
 
       {authView === 'login' && (
-        <LoginCard onClose={handleCloseLogin} onSignUp={() => setAuthView('register')} />
+        <LoginCard
+          onClose={handleCloseLogin}
+          onSignUp={() => setAuthView('register')}
+          onLoggedIn={onLoggedIn}
+        />
       )}
       {authView === 'register' && (
         <RegisterCard onBack={() => setAuthView('login')} onClose={handleCloseLogin} />

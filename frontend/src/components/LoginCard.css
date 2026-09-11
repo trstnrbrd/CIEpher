@@ -97,6 +97,20 @@
   transition: color 0.2s, text-shadow 0.2s;
 }
 
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.login-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1.1vw, 0.6rem);
+  color: #ff8a80;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 0.5vh;
+}
+
 .login-enter {
   color: #fff;
   text-shadow: 1px 1px 0 #000;
