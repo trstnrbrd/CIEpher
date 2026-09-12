@@ -10,8 +10,12 @@
 }
 
 @keyframes regFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .register-card {
@@ -31,8 +35,14 @@
 }
 
 @keyframes regSlideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .back-button {
@@ -48,7 +58,10 @@
   padding: 0.5rem;
   line-height: 1;
   text-shadow: 2px 2px 0 #000;
-  transition: color 0.2s, text-shadow 0.2s, transform 0.15s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s,
+    transform 0.15s;
 }
 
 .back-button:hover {
@@ -81,6 +94,9 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
+  /* Each box keeps its own height, even when the box next to it has a red
+     message underneath (otherwise Year Level and Gender stretch). */
+  align-items: start;
 }
 
 .input-field,
@@ -149,12 +165,17 @@
   color: #92e334;
   cursor: pointer;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.1s ease,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .btn-submit:hover {
   border-color: #92e334;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), 0 0 12px rgba(146, 227, 52, 0.4);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.2),
+    0 0 12px rgba(146, 227, 52, 0.4);
 }
 
 .btn-submit:active {
@@ -171,7 +192,9 @@
   cursor: pointer;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 #000;
-  transition: color 0.2s, text-shadow 0.2s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
 }
 
 .btn-login:hover {
@@ -196,4 +219,70 @@
   .btn-submit {
     text-align: center;
   }
+}
+
+/* ---------- registration feedback (connected to the API) ---------- */
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* One input plus the red message under it. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* A field that spans both columns of the grid (the consent checkbox). */
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+/* The input that's empty or wrong. */
+.input-error,
+.input-error:focus {
+  border-color: #ff8a80;
+}
+
+.field-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  color: #ff8a80;
+  line-height: 1.5;
+}
+
+/* Errors that don't belong to one field, e.g. "can't reach the server". */
+.register-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1vw, 0.65rem);
+  color: #ff8a80;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+/* "I agree to the privacy notice". */
+.consent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 0.9vw, 0.7rem);
+  line-height: 1.6;
+  color: #fff;
+  cursor: pointer;
+}
+
+.consent-row input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: #92e334;
+  cursor: pointer;
+}
+
+.consent-error {
+  color: #ff8a80;
 }

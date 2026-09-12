@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { ApiError, login, type Profile } from '../api/client'
 import './LoginCard.css'
 
@@ -6,15 +6,24 @@ interface LoginCardProps {
   onClose: () => void
   onSignUp: () => void
   onLoggedIn: (profile: Profile) => void
+  // Set right after registering: fills in the username and shows a welcome.
+  registeredUsername?: string
 }
 
-function LoginCard({ onClose, onSignUp, onLoggedIn }: LoginCardProps) {
-  const [username, setUsername] = useState<string>('')
+function LoginCard({
+  onClose,
+  onSignUp,
+  onLoggedIn,
+  registeredUsername = '',
+}: LoginCardProps) {
+  const [username, setUsername] = useState<string>(registeredUsername)
   const [password, setPassword] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
-  const handleEnter = async (e: FormEvent): Promise<void> => {
+  const handleEnter = async (
+    e: SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -40,6 +49,12 @@ function LoginCard({ onClose, onSignUp, onLoggedIn }: LoginCardProps) {
     <div className="login-overlay" onClick={onClose}>
       <div className="login-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="login-title">LOGIN YOUR ACCOUNT</h2>
+
+        {registeredUsername && !error && (
+          <p className="login-notice" role="status">
+            Account created! Log in to start playing.
+          </p>
+        )}
 
         <form className="login-form" onSubmit={handleEnter}>
           <label className="login-label">Username</label>

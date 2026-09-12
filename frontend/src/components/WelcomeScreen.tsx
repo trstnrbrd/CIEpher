@@ -12,13 +12,27 @@ interface WelcomeScreenProps {
 
 function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
   const [authView, setAuthView] = useState<AuthView>(null)
+  // Set right after registering, so the login card can welcome the new player.
+  const [newUsername, setNewUsername] = useState<string>('')
 
   const handleStart = (): void => {
     setAuthView('login')
   }
 
   const handleCloseLogin = (): void => {
+    setNewUsername('')
     setAuthView(null)
+  }
+
+  const handleSignUp = (): void => {
+    setNewUsername('')
+    setAuthView('register')
+  }
+
+  // The client's flow: after registering, go back to login and sign in.
+  const handleRegistered = (profile: Profile): void => {
+    setNewUsername(profile.username)
+    setAuthView('login')
   }
 
   return (
@@ -47,12 +61,17 @@ function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
       {authView === 'login' && (
         <LoginCard
           onClose={handleCloseLogin}
-          onSignUp={() => setAuthView('register')}
+          onSignUp={handleSignUp}
           onLoggedIn={onLoggedIn}
+          registeredUsername={newUsername}
         />
       )}
       {authView === 'register' && (
-        <RegisterCard onBack={() => setAuthView('login')} onClose={handleCloseLogin} />
+        <RegisterCard
+          onBack={() => setAuthView('login')}
+          onClose={handleCloseLogin}
+          onRegistered={handleRegistered}
+        />
       )}
     </>
   )
