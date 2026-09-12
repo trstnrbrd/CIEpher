@@ -61,6 +61,17 @@ export function buildProgress(
   return { chapters };
 }
 
+// One mission's status, or undefined if that mission doesn't exist.
+export function findMission(
+  progress: Progress,
+  chapter: number,
+  mission: number,
+): MissionStatus | undefined {
+  return progress.chapters
+    .find((c) => c.id === chapter)
+    ?.missions.find((m) => m.number === mission);
+}
+
 function keyOf({ chapter, mission }: MissionKey): string {
   return `${chapter}-${mission}`;
 }

@@ -9,6 +9,7 @@ import {
   loginSchema,
   parse,
   registerSchema,
+  submitSchema,
 } from "./schemas.ts";
 
 // What the login check (requirePlayer) hands to the routes after it.
@@ -83,6 +84,12 @@ export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
   app.get("/progress", requirePlayer, async (c) => {
     const progress = await game.getProgress(c.get("player"));
     return c.json(progress);
+  });
+
+  app.post("/missions/submit", requirePlayer, async (c) => {
+    const input = parse(submitSchema, await readJson(c));
+    const result = await game.submitAnswer(c.get("player"), input);
+    return c.json(result);
   });
 
   app.notFound(handleNotFound);

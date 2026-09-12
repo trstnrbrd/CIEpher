@@ -32,7 +32,7 @@ export type SupabaseConfig = {
 };
 
 // Server code must never save or auto-refresh sessions.
-const serverOptions = {
+export const serverOptions = {
   auth: { persistSession: false, autoRefreshToken: false },
 };
 

@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { buildProgress, type MissionKey } from "./progress.ts";
+import { buildProgress, findMission, type MissionKey } from "./progress.ts";
 
 // The game as it is today: the prologue (0) has 3 missions, and chapters 1-7
 // have none yet.
@@ -80,4 +80,18 @@ Deno.test("the order of the database rows doesn't matter", () => {
     chaptersAfter([], shuffledMissions, shuffledChapters),
     chaptersAfter([]),
   );
+});
+
+Deno.test("findMission finds a mission's status, if it exists", () => {
+  const progress = buildProgress(CHAPTERS, PROLOGUE, []);
+  assertEquals(findMission(progress, 0, 1), {
+    number: 1,
+    unlocked: true,
+    completed: false,
+  });
+  assertEquals(findMission(progress, 0, 2)?.unlocked, false);
+  assertEquals(findMission(progress, 0, 9), undefined);
+  // Chapter 1 exists but has no missions yet.
+  assertEquals(findMission(progress, 1, 1), undefined);
+  assertEquals(findMission(progress, 42, 1), undefined);
 });
