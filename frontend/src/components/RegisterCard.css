@@ -126,6 +126,11 @@
   border-color: #92e334;
 }
 
+/* The eye button inside the password boxes (PasswordInput). */
+.input-field + .password-toggle {
+  color: #1a1033;
+}
+
 .select-wrapper {
   position: relative;
   width: 100%;

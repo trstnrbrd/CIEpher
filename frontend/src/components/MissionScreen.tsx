@@ -16,7 +16,10 @@ interface MissionScreenProps {
   character: Character
   onBack: () => void
   onChapter: () => void
+  // The EXIT button (asks "Log out?" first).
   onExit: () => void
+  // The session ended (401): straight back to Login, nothing to ask.
+  onUnauthorized: () => void
   onOpenMission: (chapter: number, mission: number) => void
 }
 
@@ -31,6 +34,7 @@ function MissionScreen({
   onBack,
   onChapter,
   onExit,
+  onUnauthorized,
   onOpenMission,
 }: MissionScreenProps) {
   // The prologue opens with the character's intro: play it before mission 1.
@@ -52,7 +56,7 @@ function MissionScreen({
       setProgress(p)
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        onExit()
+        onUnauthorized()
       }
     }
   }
@@ -66,7 +70,7 @@ function MissionScreen({
       .catch((err) => {
         if (!active) return
         if (err instanceof ApiError && err.status === 401) {
-          onExit()
+          onUnauthorized()
           return
         }
         setServerError(
@@ -78,7 +82,7 @@ function MissionScreen({
     return () => {
       active = false
     }
-  }, [onExit])
+  }, [onUnauthorized])
 
   // The prologue opens with the character's intro before mission 1. Only
   // mission 1 mounts it, so missions 2+ skip straight to the exercise.
@@ -122,7 +126,7 @@ function MissionScreen({
     } catch (err) {
       // The session ended: back to Login, like the progress checks above.
       if (err instanceof ApiError && err.status === 401) {
-        onExit()
+        onUnauthorized()
         return
       }
       if (err instanceof ApiError) {

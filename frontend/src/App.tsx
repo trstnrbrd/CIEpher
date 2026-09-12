@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useState } from 'react'
 import { getMe, logout, type Profile } from './api/client'
 import { configError } from './api/supabase'
 import ChapterSelect from './components/ChapterSelect'
 import CharacterSelect from './components/CharacterSelect'
+import ConfirmDialog from './components/ConfirmDialog'
 import HomeScreen from './components/HomeScreen'
 import MissionScreen from './components/MissionScreen'
 import WelcomeScreen from './components/WelcomeScreen'
@@ -23,6 +24,8 @@ function App() {
   // True until we know whether a saved session exists. If the client can't be
   // configured, there's nothing to check, so start resolved.
   const [checking, setChecking] = useState<boolean>(!configError)
+  // True while the "Log out?" question is on screen.
+  const [confirmingLogout, setConfirmingLogout] = useState<boolean>(false)
 
   // After a page refresh supabase-js still has the session, so pick the
   // player back up instead of asking them to log in again. A 15s cap keeps a
@@ -58,13 +61,20 @@ function App() {
     setProfile(saved)
   }
 
+  // Logs out right away. Used when the session has already ended (401), so
+  // there's nothing to ask.
   const handleLogout = useCallback(async (): Promise<void> => {
+    setConfirmingLogout(false)
     await logout()
     setProfile(null)
     // Lab PCs are shared: the next player must start on the home screen,
     // never on the last player's chapter or mission.
     setView({ screen: 'home' })
   }, [])
+
+  // The LOG OUT and EXIT buttons ask first.
+  const askToLogout = useCallback((): void => setConfirmingLogout(true), [])
+  const cancelLogout = useCallback((): void => setConfirmingLogout(false), [])
 
   if (checking) {
     return <div className="boot-screen">Loading…</div>
@@ -91,17 +101,17 @@ function App() {
   const openMission = (chapter: number, mission: number): void =>
     setView({ screen: 'mission', chapter, mission })
 
+  let screen: ReactNode
   if (view.screen === 'chapters') {
-    return (
+    screen = (
       <ChapterSelect
         onBack={() => setView({ screen: 'home' })}
         onExit={handleLogout}
         onOpenMission={openMission}
       />
     )
-  }
-  if (view.screen === 'mission') {
-    return (
+  } else if (view.screen === 'mission') {
+    screen = (
       <MissionScreen
         // A new key per mission gives each one a fresh screen, so the last
         // mission's "CORRECT!" and answer don't carry over.
@@ -111,17 +121,35 @@ function App() {
         character={profile.character}
         onBack={goToChapters}
         onChapter={goToChapters}
-        onExit={handleLogout}
+        onExit={askToLogout}
+        onUnauthorized={handleLogout}
         onOpenMission={openMission}
       />
     )
+  } else {
+    screen = (
+      <HomeScreen
+        profile={profile}
+        onLogout={askToLogout}
+        onPlay={() => setView({ screen: 'chapters' })}
+      />
+    )
   }
+
   return (
-    <HomeScreen
-      profile={profile}
-      onLogout={handleLogout}
-      onPlay={() => setView({ screen: 'chapters' })}
-    />
+    <>
+      {screen}
+      {confirmingLogout && (
+        <ConfirmDialog
+          title="LOG OUT?"
+          message="Are you sure you want to log out? Your progress is already saved."
+          cancelLabel="NO, STAY"
+          confirmLabel="YES, LOG OUT"
+          onCancel={cancelLogout}
+          onConfirm={() => void handleLogout()}
+        />
+      )}
+    </>
   )
 }
 
