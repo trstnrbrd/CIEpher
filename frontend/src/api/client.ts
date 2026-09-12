@@ -97,9 +97,11 @@ export async function login(
   return result.profile
 }
 
+// Registering doesn't log the player in: the client's flow sends them back to
+// the login screen to sign in with their new account. Any session the API
+// returns is ignored on purpose.
 export async function register(input: RegisterInput): Promise<Profile> {
   const result = await request<AuthResult>('POST', '/auth/register', input)
-  await startSession(result.session)
   return result.profile
 }
 
