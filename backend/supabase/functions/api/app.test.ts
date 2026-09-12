@@ -11,8 +11,9 @@ const fakeSession: UserSession = {
   user: { id: "user-123", email: "player@example.com" },
 };
 
-function fakeAuth(): AuthProvider & { lastSignUp?: SignUpInput } {
-  const auth: AuthProvider & { lastSignUp?: SignUpInput } = {
+function fakeAuth(): AuthProvider & { lastSignUp?: SignUpInput; lastCharacter?: string } {
+  let character: string | null = null;
+  const auth: AuthProvider & { lastSignUp?: SignUpInput; lastCharacter?: string } = {
     async signIn(username: string, password: string) {
       if (username === "nobody") {
         throw new ApiError(401, "INVALID_CREDENTIALS", "Wrong username or password.");
@@ -22,6 +23,28 @@ function fakeAuth(): AuthProvider & { lastSignUp?: SignUpInput } {
     async signUp(input: SignUpInput) {
       auth.lastSignUp = input;
       return fakeSession;
+    },
+    async getProfile(accessToken: string) {
+      if (accessToken !== "access-123") {
+        throw new ApiError(
+          401,
+          "UNAUTHORIZED",
+          "Your session has expired. Please log in again.",
+        );
+      }
+      return { id: "user-123", username: "player_1", character };
+    },
+    async setCharacter(accessToken: string, next: string) {
+      if (accessToken !== "access-123") {
+        throw new ApiError(
+          401,
+          "UNAUTHORIZED",
+          "Your session has expired. Please log in again.",
+        );
+      }
+      auth.lastCharacter = next;
+      character = next;
+      return { id: "user-123", username: "player_1", character: next };
     },
   };
   return auth;
@@ -229,6 +252,96 @@ Deno.test("POST /api/auth/sign-in sends auth errors to the player as-is", async 
     error: {
       code: "INVALID_CREDENTIALS",
       message: "Wrong username or password.",
+    },
+  });
+});
+
+Deno.test("GET /api/auth/me returns the profile for a valid token", async () => {
+  const app = appWith(fakeAuth());
+  const res = await app.request("/api/auth/me", {
+    headers: { authorization: "Bearer access-123" },
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    profile: { id: "user-123", username: "player_1", character: null },
+  });
+});
+
+Deno.test("GET /api/auth/me rejects a missing token", async () => {
+  const app = appWith(fakeAuth());
+  const res = await app.request("/api/auth/me");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "UNAUTHORIZED",
+      message: "Please log in first.",
+    },
+  });
+});
+
+Deno.test("GET /api/auth/me rejects an expired token", async () => {
+  const app = appWith(fakeAuth());
+  const res = await app.request("/api/auth/me", {
+    headers: { authorization: "Bearer expired-token" },
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "UNAUTHORIZED",
+      message: "Your session has expired. Please log in again.",
+    },
+  });
+});
+
+Deno.test("PUT /api/auth/character stores the chosen character", async () => {
+  const auth = fakeAuth();
+  const app = appWith(auth);
+  const res = await app.request("/api/auth/character", {
+    method: "PUT",
+    headers: {
+      authorization: "Bearer access-123",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ character: "boy" }),
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    profile: { id: "user-123", username: "player_1", character: "boy" },
+  });
+  assertEquals(auth.lastCharacter, "boy");
+});
+
+Deno.test("PUT /api/auth/character rejects any value other than boy/girl", async () => {
+  const app = appWith(fakeAuth());
+  const res = await app.request("/api/auth/character", {
+    method: "PUT",
+    headers: {
+      authorization: "Bearer access-123",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ character: "robot" }),
+  });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Character must be 'boy' or 'girl'.",
+    },
+  });
+});
+
+Deno.test("PUT /api/auth/character rejects a missing token", async () => {
+  const app = appWith(fakeAuth());
+  const res = await app.request("/api/auth/character", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ character: "boy" }),
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "UNAUTHORIZED",
+      message: "Please log in first.",
     },
   });
 });

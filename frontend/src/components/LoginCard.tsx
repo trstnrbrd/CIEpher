@@ -1,18 +1,32 @@
 import { useState, type FormEvent } from 'react'
+import { signIn, saveSession } from '../api/client'
 import './LoginCard.css'
 
 interface LoginCardProps {
   onClose: () => void
   onSignUp: () => void
+  onLoginSuccess: () => Promise<void>
 }
 
-function LoginCard({ onClose, onSignUp }: LoginCardProps) {
+function LoginCard({ onClose, onSignUp, onLoginSuccess }: LoginCardProps) {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const handleEnter = (e: FormEvent): void => {
+  const handleEnter = async (e: FormEvent): Promise<void> => {
     e.preventDefault()
-    console.log('Login:', { username, password })
+    setError(null)
+    setLoading(true)
+    try {
+      const session = await signIn(username, password)
+      saveSession(session)
+      await onLoginSuccess()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSignUp = (): void => {
@@ -43,9 +57,11 @@ function LoginCard({ onClose, onSignUp }: LoginCardProps) {
             placeholder="Enter password"
           />
 
+          {error && <p className="login-error">{error}</p>}
+
           <div className="login-actions">
-            <button type="submit" className="login-btn login-enter">
-              ENTER
+            <button type="submit" className="login-btn login-enter" disabled={loading}>
+              {loading ? 'WAIT...' : 'ENTER'}
             </button>
             <button
               type="button"

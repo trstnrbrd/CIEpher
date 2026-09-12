@@ -1,24 +1,15 @@
-import { useState } from 'react'
-import LoginCard from './LoginCard'
-import RegisterCard from './RegisterCard'
 import './WelcomeScreen.css'
 
-type AuthView = 'login' | 'register' | null
+interface WelcomeScreenProps {
+  onStart: () => void
+  loading?: boolean
+  dimmed?: boolean
+}
 
-function WelcomeScreen() {
-  const [authView, setAuthView] = useState<AuthView>(null)
-
-  const handleStart = (): void => {
-    setAuthView('login')
-  }
-
-  const handleCloseLogin = (): void => {
-    setAuthView(null)
-  }
-
+function WelcomeScreen({ onStart, loading = false, dimmed = false }: WelcomeScreenProps) {
   return (
     <>
-      <div className={`welcome-screen ${authView ? 'blurred' : ''}`}>
+      <div className={`welcome-screen ${dimmed ? 'blurred' : ''}`}>
         <div className="welcome-bg" />
         <div className="welcome-overlay" />
 
@@ -34,17 +25,13 @@ function WelcomeScreen() {
           <h1 className="welcome-title welcome-subtitle">WELCOME TO</h1>
           <h1 className="welcome-title welcome-main-title">CIEPHER</h1>
         </div>
-        <button className="start-button" onClick={handleStart}>
-          START
-        </button>
-      </div>
 
-      {authView === 'login' && (
-        <LoginCard onClose={handleCloseLogin} onSignUp={() => setAuthView('register')} />
-      )}
-      {authView === 'register' && (
-        <RegisterCard onBack={() => setAuthView('login')} onClose={handleCloseLogin} />
-      )}
+        {!loading && (
+          <button className="start-button" onClick={onStart}>
+            START
+          </button>
+        )}
+      </div>
     </>
   )
 }

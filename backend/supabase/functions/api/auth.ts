@@ -23,12 +23,29 @@ export type UserSession = {
   user: { id: string; email: string };
 };
 
+// Public player data returned by GET /auth/me.
+export type Profile = {
+  id: string;
+  username: string;
+  character: string | null;
+};
+
 // The routes depend on this interface, not on Supabase directly, so tests can
 // swap in a fake implementation.
 export type AuthProvider = {
   signUp(input: SignUpInput): Promise<UserSession>;
   signIn(username: string, password: string): Promise<UserSession>;
+  getProfile(accessToken: string): Promise<Profile>;
+  setCharacter(accessToken: string, character: string): Promise<Profile>;
 };
+
+function unauthorized(): ApiError {
+  return new ApiError(
+    401,
+    "UNAUTHORIZED",
+    "Your session has expired. Please log in again.",
+  );
+}
 
 async function goTrue(
   env: AuthEnv,
@@ -95,6 +112,74 @@ async function deleteAuthUser(env: AuthEnv, userId: string): Promise<void> {
       authorization: `Bearer ${env.serviceRoleKey}`,
     },
   });
+}
+
+// Reads the caller's own profile row using their token. RLS on the profiles
+// table only lets a player see (and update) their own row.
+async function fetchOwnProfile(
+  env: AuthEnv,
+  accessToken: string,
+): Promise<Profile | null> {
+  const res = await fetch(
+    `${env.supabaseUrl}/rest/v1/profiles?select=id,username,character&limit=1`,
+    {
+      headers: {
+        apikey: env.anonKey,
+        authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+  if (res.status === 401 || res.status === 403) {
+    throw unauthorized();
+  }
+  if (!res.ok) {
+    throw new ApiError(
+      500,
+      "INTERNAL_ERROR",
+      "Could not load your profile.",
+    );
+  }
+  const rows = await res.json().catch(() => []);
+  return Array.isArray(rows) && rows.length > 0
+    ? (rows[0] as Profile)
+    : null;
+}
+
+async function updateOwnCharacter(
+  env: AuthEnv,
+  accessToken: string,
+  character: string,
+): Promise<Profile> {
+  // Confirms the token is valid and gives us the row id for the PATCH filter.
+  const profile = await fetchOwnProfile(env, accessToken);
+  if (!profile) {
+    throw unauthorized();
+  }
+  const res = await fetch(
+    `${env.supabaseUrl}/rest/v1/profiles?id=eq.${profile.id}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: env.anonKey,
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+        prefer: "return=representation",
+      },
+      body: JSON.stringify({ character }),
+    },
+  );
+  if (res.status === 401 || res.status === 403) {
+    throw unauthorized();
+  }
+  if (!res.ok) {
+    throw new ApiError(
+      500,
+      "INTERNAL_ERROR",
+      "Could not save your character.",
+    );
+  }
+  const rows = (await res.json()) as Profile[];
+  return rows[0];
 }
 
 // Signs in with the supplied credentials and returns the created session.
@@ -208,6 +293,18 @@ export function supabaseAuthProvider(env: AuthEnv): AuthProvider {
         );
       }
       return await exchangeCredentialsForSession(env, profile.email, password);
+    },
+
+    async getProfile(accessToken) {
+      const profile = await fetchOwnProfile(env, accessToken);
+      if (!profile) {
+        throw unauthorized();
+      }
+      return profile;
+    },
+
+    async setCharacter(accessToken, character) {
+      return await updateOwnCharacter(env, accessToken, character);
     },
   };
 }

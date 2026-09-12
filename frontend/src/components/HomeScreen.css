@@ -1,0 +1,72 @@
+.home-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  overflow: hidden;
+}
+
+.home-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/src/assets/background opening.jpg') center/cover no-repeat;
+  z-index: 0;
+}
+
+.home-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
+}
+
+.home-title,
+.home-welcome,
+.home-character,
+.home-logout {
+  position: relative;
+  z-index: 2;
+}
+
+.home-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  color: #fff;
+  -webkit-text-stroke: calc(0.2 * var(--h)) #000;
+  text-shadow: 0.25rem 0.25rem 0 #000;
+}
+
+.home-welcome,
+.home-character {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.6rem, 1.6vw, 1rem);
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.home-logout {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+  color: #fff;
+  background: #b0392e;
+  border: 4px solid #7a241c;
+  border-radius: 12px;
+  padding: 1.5vh 3vw;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+  box-shadow: 0 4px 0 #7a241c, 0 6px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+}
+
+.home-logout:hover {
+  background: #d04437;
+  border-color: #933027;
+  transform: translateY(-2px);
+}

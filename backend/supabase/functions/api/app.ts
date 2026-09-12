@@ -77,6 +77,14 @@ async function jsonBody(c: Context): Promise<Record<string, unknown>> {
   return (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
 }
 
+function bearerToken(authorization: string | undefined): string {
+  const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() ?? "";
+  if (token === "") {
+    throw new ApiError(401, "UNAUTHORIZED", "Please log in first.");
+  }
+  return token;
+}
+
 // Builds the whole API. Settings come in as arguments (not read from the
 // environment here), so tests can create an app with any settings they need.
 export function createApp({ allowedOrigins, auth }: AppConfig) {
@@ -111,6 +119,27 @@ export function createApp({ allowedOrigins, auth }: AppConfig) {
     const input = validateSignUp(body);
     const session = await auth.signUp(input);
     return c.json(toSessionResponse(session), 201);
+  });
+
+  app.get("/auth/me", async (c) => {
+    const accessToken = bearerToken(c.req.header("authorization"));
+    const profile = await auth.getProfile(accessToken);
+    return c.json({ profile });
+  });
+
+  app.put("/auth/character", async (c) => {
+    const accessToken = bearerToken(c.req.header("authorization"));
+    const body = await jsonBody(c);
+    const character = stringField(body.character, "character");
+    if (character !== "boy" && character !== "girl") {
+      throw new ApiError(
+        400,
+        "VALIDATION_ERROR",
+        "Character must be 'boy' or 'girl'.",
+      );
+    }
+    const profile = await auth.setCharacter(accessToken, character);
+    return c.json({ profile });
   });
 
   app.notFound(handleNotFound);

@@ -87,6 +87,18 @@
   width: 100%;
 }
 
+.login-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1.1vw, 0.65rem);
+  color: #ff8a80;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .login-btn {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(0.5rem, 1.3vw, 0.75rem);
