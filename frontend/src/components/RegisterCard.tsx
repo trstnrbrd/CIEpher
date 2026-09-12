@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type SubmitEvent } from 'react'
 import { ApiError, register, type Profile } from '../api/client'
+import PasswordInput from './PasswordInput'
 import './RegisterCard.css'
 
 interface RegisterCardProps {
@@ -187,9 +188,8 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
             />
 
             <div className="field">
-              <input
+              <PasswordInput
                 className={inputClass('password')}
-                type="password"
                 placeholder="Password"
                 autoComplete="new-password"
                 maxLength={72}
@@ -201,9 +201,8 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
             </div>
 
             <div className="field">
-              <input
+              <PasswordInput
                 className={inputClass('confirmPassword')}
-                type="password"
                 placeholder="Confirm password"
                 autoComplete="new-password"
                 maxLength={72}
