@@ -2,8 +2,8 @@ import { assertEquals } from "@std/assert";
 import { buildProgress, findMission, type MissionKey } from "./progress.ts";
 
 // The game as it is today: the prologue (0) has 3 missions, and chapters 1-7
-// have none yet.
-const CHAPTERS = [0, 1, 2, 3, 4, 5, 6, 7];
+// and the epilogue (8) have none yet.
+const CHAPTERS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const PROLOGUE: MissionKey[] = [1, 2, 3].map((mission) => ({
   chapter: 0,
   mission,
@@ -54,7 +54,7 @@ Deno.test("finishing the prologue opens chapter 1, and only chapter 1", () => {
   assertEquals(chapters[1].completed, false);
   assertEquals(
     chapters.slice(2).map((c) => c.unlocked),
-    [false, false, false, false, false, false],
+    [false, false, false, false, false, false, false],
   );
 });
 
@@ -75,7 +75,7 @@ Deno.test("a chapter opens only after the whole previous chapter", () => {
 
 Deno.test("the order of the database rows doesn't matter", () => {
   const shuffledMissions = [PROLOGUE[2], PROLOGUE[0], PROLOGUE[1]];
-  const shuffledChapters = [3, 0, 7, 1, 2, 6, 4, 5];
+  const shuffledChapters = [3, 0, 7, 1, 8, 2, 6, 4, 5];
   assertEquals(
     chaptersAfter([], shuffledMissions, shuffledChapters),
     chaptersAfter([]),

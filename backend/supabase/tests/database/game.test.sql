@@ -49,10 +49,10 @@ set local role postgres;
 set local role authenticated;
 set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
 
--- 3. Players see the prologue (0) and chapters 1-7.
+-- 3. Players see the prologue (0), chapters 1-7 and the epilogue (8).
 select results_eq(
   'select id::int from public.chapters order by id',
-  array[0, 1, 2, 3, 4, 5, 6, 7],
+  array[0, 1, 2, 3, 4, 5, 6, 7, 8],
   'players can read the chapters'
 );
 
