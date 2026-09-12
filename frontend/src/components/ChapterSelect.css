@@ -1,0 +1,200 @@
+.chapter-select {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.chapter-select::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('/src/assets/background opening.jpg') no-repeat center;
+  background-size: cover;
+  image-rendering: pixelated;
+  z-index: -2;
+}
+
+.chapter-select::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 28, 0.82);
+  z-index: -1;
+}
+
+.chapter-content {
+  width: min(880px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 40px 20px 96px;
+}
+
+.chapter-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 26px;
+  color: #ffffff;
+  text-shadow: 3px 3px 0 #000000;
+  margin: 0;
+}
+
+.chapter-progress {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #ffe066;
+  margin: 0;
+}
+
+.chapter-loading {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #000000;
+}
+
+.chapter-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #ff8a8a;
+  max-width: 520px;
+  line-height: 1.8;
+  margin: 0;
+  text-align: center;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.chapter-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 150px;
+  padding: 18px 12px;
+  background: #1d2b52;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 5px 0 #000000;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffffff;
+}
+
+.chapter-card:hover:not(.locked) {
+  background: #2b4a8c;
+  transform: translateY(-2px);
+}
+
+.chapter-card.locked {
+  background: #20202e;
+  border-color: #555566;
+  color: #6b6b7c;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.chapter-card.completed {
+  border-color: #39d353;
+}
+
+.chapter-number {
+  font-size: 34px;
+  color: #ffe066;
+  text-shadow: 2px 2px 0 #000000;
+}
+
+.chapter-card.locked .chapter-number {
+  color: #5f5f72;
+  text-shadow: none;
+}
+
+.chapter-card.completed .chapter-number {
+  color: #39d353;
+}
+
+.chapter-label {
+  font-size: 12px;
+  text-align: center;
+}
+
+.chapter-status {
+  font-size: 9px;
+}
+
+.chapter-card.completed .chapter-status {
+  color: #39d353;
+}
+
+.chapter-card.locked .chapter-status {
+  color: #8a8a9c;
+}
+
+.chapter-commands {
+  display: flex;
+  gap: 12px;
+}
+
+.pixel-button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+  background: #2b6dd4;
+  border: 3px solid #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 0 #000000;
+  padding: 14px 28px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.pixel-button:hover {
+  background: #3f86ff;
+}
+
+.pixel-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #000000;
+}
+
+@media (max-width: 620px) {
+  .chapter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chapter-content {
+    padding: 24px 14px 40px;
+    gap: 14px;
+  }
+
+  .chapter-title {
+    font-size: 20px;
+  }
+
+  .chapter-card {
+    min-height: 120px;
+    gap: 8px;
+    padding: 12px 8px;
+  }
+
+  .chapter-number {
+    font-size: 26px;
+  }
+
+  .chapter-label {
+    font-size: 10px;
+  }
+
+  .chapter-status {
+    font-size: 8px;
+  }
+}

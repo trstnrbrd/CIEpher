@@ -19,6 +19,13 @@ export const registerSchema = z.object({
     .string({ error: "Password is required." })
     .min(8, "Password must be at least 8 characters.")
     .max(72, "Password must be at most 72 characters.")
+    // Supabase Auth (bcrypt) counts bytes, not characters: an accented or
+    // multibyte password of 72 characters could be rejected as "too weak".
+    // Match GoTrue exactly so validation and storage agree.
+    .refine(
+      (password) => new TextEncoder().encode(password).length <= 72,
+      "Password is too long.",
+    )
     .regex(/[A-Za-z]/, "Password must include a letter and a number.")
     .regex(/[0-9]/, "Password must include a letter and a number."),
   privacyConsent: z.literal(true, {

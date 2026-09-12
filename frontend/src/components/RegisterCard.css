@@ -25,6 +25,8 @@
   border-radius: 16px;
   padding: 5vh 4vw;
   width: min(92vw, 800px);
+  max-height: 96dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -5,11 +5,49 @@
 }
 
 :root {
-  --h: 1vh;
+  /* 1dvh when the browser supports it (mobile URL bars), else 1vh. */
+  --h: min(1vh, 1dvh);
 }
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Full-viewport screens: use the dynamic viewport height on mobile so the
+   browser's URL bar never leaves content cut off behind it. */
+@supports (height: 100dvh) {
+  .welcome-screen,
+  .character-select,
+  .post-select-welcome,
+  .home-screen,
+  .chapter-select,
+  .mission-screen,
+  .login-overlay,
+  .register-overlay {
+    height: 100dvh;
+  }
+}
+
+.boot-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #fff;
+  background: #1a1c2c;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.boot-error {
+  color: #ff6b6b;
 }

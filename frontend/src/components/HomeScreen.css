@@ -29,6 +29,7 @@
 .home-title,
 .home-welcome,
 .home-character,
+.home-play,
 .home-logout {
   position: relative;
   z-index: 2;
@@ -48,6 +49,40 @@
   font-size: clamp(0.6rem, 1.6vw, 1rem);
   color: #fff;
   text-shadow: 2px 2px 0 #000;
+}
+
+.home-play {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.7rem, 1.8vw, 1.1rem);
+  color: #fff;
+  background: #2b6dd4;
+  border: 4px solid #1c4ba3;
+  border-radius: 12px;
+  padding: 2vh 4vw;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+  box-shadow: 0 4px 0 #1c4ba3, 0 6px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+}
+
+.home-play:hover {
+  background: #3f86ff;
+  border-color: #265cc4;
+  transform: translateY(-2px);
+}
+
+/* Phone / short screens: tighter spacing and touch-friendly buttons. */
+@media (max-height: 560px) {
+  .home-screen {
+    gap: 2.5vh;
+  }
+
+  .home-play,
+  .home-logout {
+    padding-top: 1.6vh;
+    padding-bottom: 1.6vh;
+  }
 }
 
 .home-logout {

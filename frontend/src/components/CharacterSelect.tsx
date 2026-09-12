@@ -5,6 +5,8 @@ import {
   type Character,
   type Profile,
 } from '../api/client'
+import boyImg from '../assets/boy.png'
+import girlImg from '../assets/girl.png'
 import './CharacterSelect.css'
 
 interface CharacterSelectProps {
@@ -12,17 +14,35 @@ interface CharacterSelectProps {
   onUnauthorized: () => void
 }
 
+const CHARACTERS: { value: Character; img: string; name: string; alt: string }[] =
+  [
+    { value: 'boy', img: boyImg, name: 'BOY', alt: 'Boy' },
+    { value: 'girl', img: girlImg, name: 'GIRL', alt: 'Girl' },
+  ]
+
 function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
-  const [selected, setSelected] = useState<Character | null>(null)
+  const [index, setIndex] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const current = CHARACTERS[index]
+
+  // Left and right both circle through the two characters: from boy, one
+  // click right goes to girl, one click left also goes to girl.
+  const move = (step: number): void => {
+    setError(null)
+    setIndex((i) => (i + step + CHARACTERS.length) % CHARACTERS.length)
+  }
+
+  const handlePrev = (): void => move(-1)
+  const handleNext = (): void => move(1)
+
   const handleSave = async (): Promise<void> => {
-    if (!selected || saving) return
+    if (saving) return
     setSaving(true)
     setError(null)
     try {
-      const profile = await setCharacter(selected)
+      const profile = await setCharacter(current.value)
       onSaved(profile)
     } catch (err) {
       // The session ended (e.g. logged out elsewhere): back to login.
@@ -44,27 +64,32 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
     <div className="character-select">
       <h2 className="character-title">CHOOSE YOUR CHARACTER</h2>
 
-      <div className="character-options">
+      <div className="character-carousel">
         <button
           type="button"
-          className={`character-option ${selected === 'boy' ? 'selected' : ''}`}
-          onClick={() => setSelected('boy')}
+          className="character-arrow"
+          onClick={handlePrev}
+          aria-label="Previous character"
         >
-          <span className="character-emoji" aria-hidden="true">
-            👦
-          </span>
-          <span className="character-name">BOY</span>
+          {'<'}
         </button>
+
+        <div className="character-card">
+          <img
+            className="character-image"
+            src={current.img}
+            alt={current.alt}
+          />
+          <span className="character-name">{current.name}</span>
+        </div>
 
         <button
           type="button"
-          className={`character-option ${selected === 'girl' ? 'selected' : ''}`}
-          onClick={() => setSelected('girl')}
+          className="character-arrow"
+          onClick={handleNext}
+          aria-label="Next character"
         >
-          <span className="character-emoji" aria-hidden="true">
-            👧
-          </span>
-          <span className="character-name">GIRL</span>
+          {'>'}
         </button>
       </div>
 
@@ -74,7 +99,7 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
         type="button"
         className="character-save"
         onClick={handleSave}
-        disabled={!selected || saving}
+        disabled={saving}
       >
         {saving ? 'SAVING...' : 'SELECT'}
       </button>

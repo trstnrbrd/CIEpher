@@ -113,12 +113,24 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
       );
       if (lookupError) throw lookupError;
       // Unknown usernames count as a wrong password too, with the same
-      // error, so nobody can find out which usernames exist.
-      if (!email) throw await recordWrongPassword(admin, username);
+      // error, so nobody can find out which usernames exist. Log which
+      // branch fired (without the username: it's personal data) so a login
+      // that keeps failing can be diagnosed from the function logs.
+      if (!email) {
+        console.warn(
+          "login: email lookup found nothing (unknown username or missing profile)",
+        );
+        throw await recordWrongPassword(admin, username);
+      }
 
       // 3. Supabase Auth checks the password.
       const signedIn = await signIn(config, email, password);
-      if (!signedIn) throw await recordWrongPassword(admin, username);
+      if (!signedIn) {
+        console.warn(
+          "login: password rejected by Supabase Auth",
+        );
+        throw await recordWrongPassword(admin, username);
+      }
 
       // 4. Correct password: forget any earlier wrong ones.
       const { error: clearError } = await admin.rpc("clear_login_failures", {

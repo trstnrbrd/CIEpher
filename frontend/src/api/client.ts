@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
 // Talks to the backend API. Every request and response here follows
@@ -98,10 +99,21 @@ async function request<T>(
   return data as T
 }
 
+function requireSupabase(): SupabaseClient {
+  if (!supabase) {
+    throw new ApiError(
+      0,
+      'CONFIG_ERROR',
+      'Ciepher is not configured. Check the browser console and .env.local.',
+    )
+  }
+  return supabase
+}
+
 // Hands the session to supabase-js, which keeps the player logged in.
 async function startSession(session: Session | null): Promise<void> {
   if (!session) return
-  const { error } = await supabase.auth.setSession({
+  const { error } = await requireSupabase().auth.setSession({
     access_token: session.accessToken,
     refresh_token: session.refreshToken,
   })
@@ -137,13 +149,13 @@ export async function register(input: RegisterInput): Promise<Profile> {
 // Logs out and forgets the saved session. Lab computers are shared, so the
 // next player must never inherit the last player's login.
 export async function logout(): Promise<void> {
-  await supabase.auth.signOut()
+  await requireSupabase().auth.signOut()
 }
 
 // The logged-in player's access token. supabase-js refreshes it before it
 // expires, so this is always the current one.
 async function currentAccessToken(): Promise<string> {
-  const { data } = await supabase.auth.getSession()
+  const { data } = await requireSupabase().auth.getSession()
   const token = data.session?.access_token
   if (!token) {
     throw new ApiError(401, 'UNAUTHORIZED', 'Please log in again.')

@@ -1,41 +1,121 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getMe, logout, type Profile } from './api/client'
+import { configError } from './api/supabase'
+import ChapterSelect from './components/ChapterSelect'
 import CharacterSelect from './components/CharacterSelect'
 import HomeScreen from './components/HomeScreen'
+import MissionScreen from './components/MissionScreen'
 import WelcomeScreen from './components/WelcomeScreen'
 import './App.css'
+
+// Where the logged-in game screen is. The mission screen is the only one
+// with the BACK / CHAPTER / EXIT nav bar.
+type GameView =
+  | { screen: 'home' }
+  | { screen: 'chapters' }
+  | { screen: 'mission'; chapter: number; mission: number }
 
 function App() {
   // The logged-in player, or null while on the welcome screen.
   const [profile, setProfile] = useState<Profile | null>(null)
-  // True until we know whether a saved session exists.
-  const [checking, setChecking] = useState<boolean>(true)
+  // Which game screen to show once the player has a character.
+  const [view, setView] = useState<GameView>({ screen: 'home' })
+  // True until we know whether a saved session exists. If the client can't be
+  // configured, there's nothing to check, so start resolved.
+  const [checking, setChecking] = useState<boolean>(!configError)
 
   // After a page refresh supabase-js still has the session, so pick the
-  // player back up instead of asking them to log in again.
+  // player back up instead of asking them to log in again. A 5s cap keeps a
+  // hanging boot check from leaving a blank page.
   useEffect(() => {
-    getMe()
-      .then(setProfile)
-      .catch(() => setProfile(null))
-      .finally(() => setChecking(false))
+    if (configError) {
+      return
+    }
+    let active = true
+    const boot = Promise.race([
+      getMe(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('boot timed out')), 5000),
+      ),
+    ])
+    boot
+      .then((p) => {
+        if (active) setProfile(p)
+      })
+      .catch(() => {
+        if (active) setProfile(null)
+      })
+      .finally(() => {
+        if (active) setChecking(false)
+      })
+    return () => {
+      active = false
+    }
   }, [])
 
-  const handleLogout = async (): Promise<void> => {
-    await logout()
-    setProfile(null)
+  const handleSavedCharacter = (saved: Profile): void => {
+    setProfile(saved)
   }
 
-  if (checking) return null
+  const handleLogout = useCallback(async (): Promise<void> => {
+    await logout()
+    setProfile(null)
+  }, [])
+
+  if (checking) {
+    return <div className="boot-screen">Loading…</div>
+  }
+  if (configError) {
+    return (
+      <div className="boot-screen boot-error">{configError}</div>
+    )
+  }
   if (!profile) {
     return <WelcomeScreen onLoggedIn={setProfile} />
   }
   // New players pick a character first: it's null until they do.
   if (profile.character === null) {
     return (
-      <CharacterSelect onSaved={setProfile} onUnauthorized={handleLogout} />
+      <CharacterSelect
+        onSaved={handleSavedCharacter}
+        onUnauthorized={handleLogout}
+      />
     )
   }
-  return <HomeScreen profile={profile} onLogout={handleLogout} />
+  // The intro with the chosen character plays inside the prologue now.
+  const goToChapters = (): void => setView({ screen: 'chapters' })
+  const openMission = (chapter: number, mission: number): void =>
+    setView({ screen: 'mission', chapter, mission })
+
+  if (view.screen === 'chapters') {
+    return (
+      <ChapterSelect
+        onBack={() => setView({ screen: 'home' })}
+        onExit={handleLogout}
+        onOpenMission={openMission}
+      />
+    )
+  }
+  if (view.screen === 'mission') {
+    return (
+      <MissionScreen
+        chapter={view.chapter}
+        mission={view.mission}
+        character={profile.character}
+        onBack={goToChapters}
+        onChapter={goToChapters}
+        onExit={handleLogout}
+        onOpenMission={openMission}
+      />
+    )
+  }
+  return (
+    <HomeScreen
+      profile={profile}
+      onLogout={handleLogout}
+      onPlay={() => setView({ screen: 'chapters' })}
+    />
+  )
 }
 
 export default App
