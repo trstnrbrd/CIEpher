@@ -205,10 +205,10 @@ Success, **200** (this player has finished prologue mission 1):
 }
 ```
 
-The real response lists chapters 0 to 7; chapters 2 to 7 look like chapter 1 here.
+The real response lists chapters 0 to 8 (8 is the epilogue); chapters 2 to 8 look like chapter 1 here.
 
 - Chapter `0` is the prologue. Missions are numbered from 1, in play order.
-- Chapters 1 to 7 have `"missions": []` until the client sends their content.
+- Chapters 1 to 8 have `"missions": []` until the client sends their content.
 - **The server decides what's unlocked.** Never work it out in the frontend:
   - The prologue is always unlocked.
   - Inside a chapter, missions unlock one at a time, in order.
