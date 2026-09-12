@@ -91,6 +91,11 @@
   box-shadow: 0 0 8px rgba(124, 77, 255, 0.4);
 }
 
+/* The eye button inside the password box (PasswordInput). */
+.login-input + .password-toggle {
+  color: #b9a6e6;
+}
+
 .login-actions {
   display: flex;
   justify-content: space-between;

@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from 'react'
 import { ApiError, login, type Profile } from '../api/client'
+import PasswordInput from './PasswordInput'
 import './LoginCard.css'
 
 interface LoginCardProps {
@@ -67,9 +68,8 @@ function LoginCard({
           />
 
           <label className="login-label">Password</label>
-          <input
+          <PasswordInput
             className="login-input"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
