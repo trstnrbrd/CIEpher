@@ -1,6 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { ApiError } from "./errors.ts";
-import type { Character, LoginInput, RegisterInput } from "./schemas.ts";
+import type {
+  Character,
+  ForgotPasswordInput,
+  LoginInput,
+  RegisterInput,
+} from "./schemas.ts";
 
 export type Profile = {
   id: string;
@@ -19,6 +24,9 @@ export type Player = { id: string; accessToken: string };
 export type Accounts = {
   register(input: RegisterInput): Promise<AuthResult>;
   login(input: LoginInput): Promise<AuthResult>;
+  // Emails a reset link to the account's address if the username exists.
+  // Never tells the caller whether it does.
+  requestPasswordReset(input: ForgotPasswordInput): Promise<void>;
   // The player's user id if the access token is valid, or null if it isn't.
   verifyToken(accessToken: string): Promise<string | null>;
   getProfile(player: Player): Promise<Profile>;
@@ -126,9 +134,7 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
       // 3. Supabase Auth checks the password.
       const signedIn = await signIn(config, email, password);
       if (!signedIn) {
-        console.warn(
-          "login: password rejected by Supabase Auth",
-        );
+        console.warn("login: password rejected by Supabase Auth");
         throw await recordWrongPassword(admin, username);
       }
 
@@ -146,6 +152,27 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
         .single();
       if (profileError) throw profileError;
       return { session: signedIn.session, profile };
+    },
+
+    async requestPasswordReset({ username }) {
+      // The same lookup as login (only the API can call it).
+      const { data: email, error: lookupError } = await admin.rpc(
+        "login_email_for_username",
+        { p_username: username },
+      );
+      if (lookupError) throw lookupError;
+      // Unknown username: send nothing, but answer exactly like a known one,
+      // so this can't be used to find out which usernames exist.
+      if (!email) return;
+
+      // Supabase Auth emails the link. It opens the game (the Site URL in the
+      // Auth settings) with a one-time session for setting a new password.
+      const { error } = await admin.auth.resetPasswordForEmail(email);
+      // Logged, but not reported: an error here would reveal that the
+      // username exists. The player can simply ask again later.
+      if (error) {
+        console.error("password reset: email not sent", error.code);
+      }
     },
 
     async verifyToken(accessToken) {

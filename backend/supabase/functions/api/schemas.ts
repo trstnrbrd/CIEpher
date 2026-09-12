@@ -51,6 +51,11 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+// "Forgot password?": the player gives the username they log in with.
+export const forgotPasswordSchema = loginSchema.pick({ username: true });
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
 // The two characters on the Character Select screen.
 export const characterSchema = z.object({
   character: z.enum(["boy", "girl"], {

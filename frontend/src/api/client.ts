@@ -152,6 +152,51 @@ export async function logout(): Promise<void> {
   await requireSupabase().auth.signOut()
 }
 
+// "Forgot password?": asks the server to email a reset link. The answer is
+// the same whether or not the username exists, so there's nothing to return.
+export async function requestPasswordReset(username: string): Promise<void> {
+  await request<{ ok: true }>('POST', '/auth/forgot-password', { username })
+}
+
+// Saves a new password after the player opened a reset link, then logs them
+// out so they sign in with it (like after registering).
+export async function setNewPassword(password: string): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client.auth.updateUser({ password })
+  if (error?.code === 'same_password') {
+    throw new ApiError(
+      400,
+      'VALIDATION_ERROR',
+      'Use a different password from your old one.',
+      'password',
+    )
+  }
+  if (error?.code === 'weak_password') {
+    throw new ApiError(
+      400,
+      'VALIDATION_ERROR',
+      'Password must be 8-72 characters, with a letter and a number.',
+      'password',
+    )
+  }
+  if (error?.name === 'AuthRetryableFetchError') {
+    throw new ApiError(
+      0,
+      'NETWORK_ERROR',
+      "Can't reach the server. Check your connection and try again.",
+    )
+  }
+  if (error) {
+    // Almost always: the link's one-time session is gone.
+    throw new ApiError(
+      401,
+      'UNAUTHORIZED',
+      'This reset link has expired. Ask for a new one.',
+    )
+  }
+  await client.auth.signOut()
+}
+
 // The logged-in player's access token. supabase-js refreshes it before it
 // expires, so this is always the current one.
 async function currentAccessToken(): Promise<string> {

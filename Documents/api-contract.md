@@ -143,6 +143,26 @@ Success, **200**: `session` + `profile`, the same shape as register, but here `s
 
 After 5 wrong passwords within 15 minutes, that username is locked for 15 minutes. While it's locked, even the right password gets 429. The message says how many minutes are left.
 
+### ✅ `POST /auth/forgot-password`
+
+"Forgot password?" on the login card. In the frontend: `await requestPasswordReset(username)` (the `ForgotPasswordCard` screen already does it).
+
+Request (the same username the player logs in with):
+
+```json
+{ "username": "player_one" }
+```
+
+Success, **200**: `{ "ok": true }`. It's **always the same answer**, whether or not the username exists, so this can't be used to find out who has an account. If it does exist, Supabase emails a reset link to the account's address.
+
+Errors: `400 VALIDATION_ERROR` (`field` is `username`).
+
+- At most one email a minute per player, so nobody can flood an inbox.
+- **The link** opens the game with a one-time session. `src/api/supabase.ts` reads it (`resetLink`), and `App.tsx` shows the **New Password** screen instead of logging in.
+- **Saving:** `await setNewPassword(password)`. It saves the password (8-72 characters, a letter and a number), then logs the player out, so they sign in with the new one. A `401` means the link has expired or was already used: ask for a new one.
+- A link works **once** and expires after 1 hour.
+- If the username was locked by wrong passwords, the lock still runs out after its 15 minutes.
+
 ### ✅ `GET /me` (logged in)
 
 The logged-in player's profile. In the frontend: `const profile = await getMe()`.
@@ -265,4 +285,4 @@ What to do with the result:
 ## Not in the API (use supabase-js directly)
 
 - Logout and keeping the session fresh: see "Sessions".
-- Password reset: later, once the client confirms they want it.
+- Saving the new password after a reset link: `setNewPassword()` talks to Supabase Auth directly. Asking for the link goes through the API (`POST /auth/forgot-password`).
