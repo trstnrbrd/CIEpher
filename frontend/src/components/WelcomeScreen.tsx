@@ -1,19 +1,26 @@
 import { useState } from 'react'
 import type { Profile } from '../api/client'
+import ForgotPasswordCard from './ForgotPasswordCard'
 import LoginCard from './LoginCard'
 import RegisterCard from './RegisterCard'
 import './WelcomeScreen.css'
 
-type AuthView = 'login' | 'register' | null
+type AuthView = 'login' | 'register' | 'forgot' | null
 
 interface WelcomeScreenProps {
   onLoggedIn: (profile: Profile) => void
+  // Open straight on the login card with this message, e.g. after the player
+  // set a new password from a reset link.
+  loginNotice?: string
 }
 
-function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
-  const [authView, setAuthView] = useState<AuthView>(null)
+function WelcomeScreen({ onLoggedIn, loginNotice = '' }: WelcomeScreenProps) {
+  const [authView, setAuthView] = useState<AuthView>(
+    loginNotice ? 'login' : null,
+  )
   // Set right after registering, so the login card can welcome the new player.
   const [newUsername, setNewUsername] = useState<string>('')
+  const [notice, setNotice] = useState<string>(loginNotice)
 
   const handleStart = (): void => {
     setAuthView('login')
@@ -21,12 +28,19 @@ function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
 
   const handleCloseLogin = (): void => {
     setNewUsername('')
+    setNotice('')
     setAuthView(null)
   }
 
   const handleSignUp = (): void => {
     setNewUsername('')
+    setNotice('')
     setAuthView('register')
+  }
+
+  const handleForgot = (): void => {
+    setNotice('')
+    setAuthView('forgot')
   }
 
   // The client's flow: after registering, go back to login and sign in.
@@ -62,8 +76,10 @@ function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
         <LoginCard
           onClose={handleCloseLogin}
           onSignUp={handleSignUp}
+          onForgot={handleForgot}
           onLoggedIn={onLoggedIn}
           registeredUsername={newUsername}
+          notice={notice}
         />
       )}
       {authView === 'register' && (
@@ -71,6 +87,12 @@ function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
           onBack={() => setAuthView('login')}
           onClose={handleCloseLogin}
           onRegistered={handleRegistered}
+        />
+      )}
+      {authView === 'forgot' && (
+        <ForgotPasswordCard
+          onBack={() => setAuthView('login')}
+          onClose={handleCloseLogin}
         />
       )}
     </>

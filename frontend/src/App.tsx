@@ -1,11 +1,12 @@
 import { type ReactNode, useCallback, useEffect, useState } from 'react'
 import { getMe, logout, type Profile } from './api/client'
-import { configError } from './api/supabase'
+import { configError, resetLink } from './api/supabase'
 import ChapterSelect from './components/ChapterSelect'
 import CharacterSelect from './components/CharacterSelect'
 import ConfirmDialog from './components/ConfirmDialog'
 import HomeScreen from './components/HomeScreen'
 import MissionScreen from './components/MissionScreen'
+import NewPasswordScreen from './components/NewPasswordScreen'
 import WelcomeScreen from './components/WelcomeScreen'
 import './App.css'
 
@@ -21,18 +22,27 @@ function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
   // Which game screen to show once the player has a character.
   const [view, setView] = useState<GameView>({ screen: 'home' })
+  // True while the "set a new password" screen from a reset email is open.
+  const [resettingPassword, setResettingPassword] = useState<boolean>(
+    resetLink !== null,
+  )
+  // A message for the login card, e.g. "Password changed!".
+  const [loginNotice, setLoginNotice] = useState<string>('')
   // True until we know whether a saved session exists. If the client can't be
-  // configured, there's nothing to check, so start resolved.
-  const [checking, setChecking] = useState<boolean>(!configError)
+  // configured, or a reset link opened the game, there's nothing to check.
+  const [checking, setChecking] = useState<boolean>(
+    !configError && resetLink === null,
+  )
   // True while the "Log out?" question is on screen.
   const [confirmingLogout, setConfirmingLogout] = useState<boolean>(false)
 
   // After a page refresh supabase-js still has the session, so pick the
   // player back up instead of asking them to log in again. A 15s cap keeps a
   // hanging boot check from leaving a blank page; it's generous because slow
-  // school Wi-Fi shouldn't log players out.
+  // school Wi-Fi shouldn't log players out. Not for a reset link: its
+  // one-time session is only for setting a new password, never for playing.
   useEffect(() => {
-    if (configError) {
+    if (configError || resetLink !== null) {
       return
     }
     let active = true
@@ -76,6 +86,23 @@ function App() {
   const askToLogout = useCallback((): void => setConfirmingLogout(true), [])
   const cancelLogout = useCallback((): void => setConfirmingLogout(false), [])
 
+  // Leaves the reset screen for the login card. The reset link's details are
+  // cleared from the address bar so a refresh doesn't reopen it.
+  const finishReset = (notice: string): void => {
+    window.history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search,
+    )
+    setLoginNotice(notice)
+    setResettingPassword(false)
+  }
+
+  const handleLoggedIn = (loggedIn: Profile): void => {
+    setLoginNotice('')
+    setProfile(loggedIn)
+  }
+
   if (checking) {
     return <div className="boot-screen">Loading…</div>
   }
@@ -84,8 +111,23 @@ function App() {
       <div className="boot-screen boot-error">{configError}</div>
     )
   }
+  if (resettingPassword) {
+    return (
+      <NewPasswordScreen
+        linkExpired={resetLink === 'expired'}
+        onDone={finishReset}
+      />
+    )
+  }
   if (!profile) {
-    return <WelcomeScreen onLoggedIn={setProfile} />
+    return (
+      <WelcomeScreen
+        // A new key when the notice changes, so the screen opens on login.
+        key={loginNotice}
+        onLoggedIn={handleLoggedIn}
+        loginNotice={loginNotice}
+      />
+    )
   }
   // New players pick a character first: it's null until they do.
   if (profile.character === null) {

@@ -25,6 +25,7 @@ function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
     register: () => Promise.resolve({ session: null, profile: PLAYER }),
 
     login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    requestPasswordReset: () => Promise.resolve(),
     // Only "valid-token" belongs to a logged-in player.
     verifyToken: (token) =>
       Promise.resolve(token === "valid-token" ? PLAYER.id : null),
@@ -322,6 +323,38 @@ Deno.test("login: a locked username comes back as 429", async () => {
     error: {
       code: "TOO_MANY_ATTEMPTS",
       message: "Too many failed attempts. Try again in 15 minutes.",
+    },
+  });
+});
+
+// ---------- POST /api/auth/forgot-password ----------
+
+Deno.test("forgot password: always gives the same answer", async () => {
+  let asked: string | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      requestPasswordReset: ({ username }) => {
+        asked = username;
+        return Promise.resolve();
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/forgot-password", {
+    username: "  player_one ",
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { ok: true });
+  assertEquals(asked, "player_one");
+});
+
+Deno.test("forgot password: a missing username is a 400", async () => {
+  const res = await postJson(testApp(), "/api/auth/forgot-password", {});
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Username is required.",
+      field: "username",
     },
   });
 });

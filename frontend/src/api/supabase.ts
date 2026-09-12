@@ -13,5 +13,16 @@ export const configError: string | null =
     ? 'Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. Copy frontend/.env.example to frontend/.env.local.'
     : null
 
+// A password reset email opens the game with "#...type=recovery..." in the
+// address, or with an error code if the link has expired or was already used.
+// Read it before supabase-js below turns the link into a session.
+const linkParams = new URLSearchParams(window.location.hash.slice(1))
+export const resetLink: 'valid' | 'expired' | null =
+  linkParams.get('type') === 'recovery'
+    ? 'valid'
+    : linkParams.has('error_code')
+      ? 'expired'
+      : null
+
 export const supabase: SupabaseClient | null =
   url && publishableKey ? createClient(url, publishableKey) : null

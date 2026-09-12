@@ -104,6 +104,10 @@
   width: 100%;
 }
 
+.login-actions-centered {
+  justify-content: center;
+}
+
 .login-btn {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(0.5rem, 1.3vw, 0.75rem);
@@ -130,12 +134,38 @@
   margin-top: 0.5vh;
 }
 
-/* Shown right after registering. */
+/* Shown right after registering or changing the password. */
 .login-notice {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(0.45rem, 1.1vw, 0.6rem);
   color: #92e334;
   line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+/* "Forgot password?" under the password box. */
+.login-forgot {
+  align-self: flex-end;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1vw, 0.6rem);
+  color: #b9a6e6;
+  background: none;
+  border: none;
+  padding: 0.5vh 0;
+  cursor: pointer;
+}
+
+.login-forgot:hover {
+  color: #fff;
+}
+
+/* A short explanation under a card's title. */
+.login-hint {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1.1vw, 0.6rem);
+  color: #ccc;
+  line-height: 1.8;
   text-align: center;
   margin: 0;
 }

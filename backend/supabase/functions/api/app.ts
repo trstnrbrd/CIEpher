@@ -6,6 +6,7 @@ import { ApiError, handleError, handleNotFound } from "./errors.ts";
 import type { Game } from "./game.ts";
 import {
   characterSchema,
+  forgotPasswordSchema,
   loginSchema,
   parse,
   registerSchema,
@@ -68,6 +69,13 @@ export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
     const input = parse(loginSchema, await readJson(c));
     const result = await accounts.login(input);
     return c.json(result, 200);
+  });
+
+  app.post("/auth/forgot-password", async (c) => {
+    const input = parse(forgotPasswordSchema, await readJson(c));
+    await accounts.requestPasswordReset(input);
+    // The same answer whether or not the username exists.
+    return c.json({ ok: true });
   });
 
   app.get("/me", requirePlayer, async (c) => {

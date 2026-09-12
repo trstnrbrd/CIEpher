@@ -6,16 +6,21 @@ import './LoginCard.css'
 interface LoginCardProps {
   onClose: () => void
   onSignUp: () => void
+  onForgot: () => void
   onLoggedIn: (profile: Profile) => void
   // Set right after registering: fills in the username and shows a welcome.
   registeredUsername?: string
+  // A green message at the top, e.g. after a password change.
+  notice?: string
 }
 
 function LoginCard({
   onClose,
   onSignUp,
+  onForgot,
   onLoggedIn,
   registeredUsername = '',
+  notice = '',
 }: LoginCardProps) {
   const [username, setUsername] = useState<string>(registeredUsername)
   const [password, setPassword] = useState<string>('')
@@ -51,9 +56,9 @@ function LoginCard({
       <div className="login-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="login-title">LOGIN YOUR ACCOUNT</h2>
 
-        {registeredUsername && !error && (
+        {(notice || registeredUsername) && !error && (
           <p className="login-notice" role="status">
-            Account created! Log in to start playing.
+            {notice || 'Account created! Log in to start playing.'}
           </p>
         )}
 
@@ -74,6 +79,9 @@ function LoginCard({
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
           />
+          <button type="button" className="login-forgot" onClick={onForgot}>
+            Forgot password?
+          </button>
 
           {error && (
             <p className="login-error" role="alert">

@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Reset your CIEpher password</title>
+    <!-- The game's pixel font where the email app allows it; a typewriter
+         font everywhere else. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <!-- Sent by Supabase Auth for "Forgot password?". {{ .ConfirmationURL }}
+       is the one-time link. Built with tables and inline styles, because
+       email apps ignore most modern CSS. Colors: the login card's purples
+       and the START button's green. -->
+  <body style="margin: 0; padding: 0; background: #1a1033">
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background: #1a1033"
+    >
+      <tr>
+        <td align="center" style="padding: 32px 16px">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 480px;
+              background: #2e1b5b;
+              border: 3px solid #5a3d8a;
+              border-radius: 16px;
+            "
+          >
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding: 32px 24px 6px;
+                  font-family:
+                    &quot;Press Start 2P&quot;, &quot;Courier New&quot;,
+                    monospace;
+                  font-size: 30px;
+                  font-weight: bold;
+                  line-height: 1.3;
+                  letter-spacing: 3px;
+                  color: #ffffff;
+                  text-shadow: 3px 3px 0 #000000;
+                "
+              >
+                CIEPHER
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding: 10px 24px 0;
+                  font-family:
+                    &quot;Press Start 2P&quot;, &quot;Courier New&quot;,
+                    monospace;
+                  font-size: 13px;
+                  font-weight: bold;
+                  line-height: 1.6;
+                  color: #92e334;
+                "
+              >
+                FORGOT YOUR PASSWORD?
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding: 20px 28px 0;
+                  font-family: &quot;Courier New&quot;, monospace;
+                  font-size: 15px;
+                  line-height: 1.7;
+                  color: #ece6ff;
+                "
+              >
+                No worries, adventurer! Press the button below to set a new
+                password for your CIEpher account.
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 28px 24px 8px">
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                >
+                  <tr>
+                    <td
+                      align="center"
+                      bgcolor="#4CAF50"
+                      style="
+                        background: #4caf50;
+                        border: 4px solid #388e3c;
+                        border-radius: 12px;
+                      "
+                    >
+                      <a
+                        href="{{ .ConfirmationURL }}"
+                        style="
+                          display: inline-block;
+                          padding: 14px 26px;
+                          font-family:
+                            &quot;Press Start 2P&quot;, &quot;Courier New&quot;,
+                            monospace;
+                          font-size: 14px;
+                          font-weight: bold;
+                          letter-spacing: 2px;
+                          color: #ffffff;
+                          text-decoration: none;
+                          text-shadow: 2px 2px 0 #000000;
+                        "
+                        >RESET PASSWORD</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding: 16px 28px 0;
+                  font-family: &quot;Courier New&quot;, monospace;
+                  font-size: 13px;
+                  line-height: 1.6;
+                  color: #b9a6e6;
+                "
+              >
+                This link works once and expires in 1 hour.<br />
+                Didn't ask for this? Just ignore this email: your password stays
+                the same.
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 20px 28px 24px;
+                  font-family: &quot;Courier New&quot;, monospace;
+                  font-size: 12px;
+                  line-height: 1.6;
+                  color: #8f80b8;
+                  word-break: break-all;
+                "
+              >
+                Button not working? Copy this link into your browser:<br />
+                <a href="{{ .ConfirmationURL }}" style="color: #b9a6e6"
+                  >{{ .ConfirmationURL }}</a
+                >
+              </td>
+            </tr>
+            <!-- A strip of pixel grass and dirt, like the ground in the game. -->
+            <tr>
+              <td style="padding: 0; font-size: 0; line-height: 0">
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                >
+                  <tr>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                    <td height="8" style="background: #4cbe3f"></td>
+                    <td height="8" style="background: #3a9a30"></td>
+                  </tr>
+                  <tr>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                    <td height="12" style="background: #8b5a2b"></td>
+                    <td height="12" style="background: #7a4e25"></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <p
+            style="
+              margin: 16px 0 0;
+              font-family: &quot;Courier New&quot;, monospace;
+              font-size: 11px;
+              color: #6b5a8a;
+            "
+          >
+            CIEpher &middot; See how C# control structures really run
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
