@@ -3,7 +3,7 @@ import type { Accounts, Player } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
 import type { Game } from "./game.ts";
-import type { LoginInput, RegisterInput } from "./schemas.ts";
+import type { LoginInput, RegisterInput, SubmitInput } from "./schemas.ts";
 
 const FRONTEND = "http://localhost:5173";
 const PLAYER = {
@@ -50,6 +50,9 @@ const PROGRESS = {
 function fakeGame(overrides: Partial<Game> = {}): Game {
   return {
     getProgress: () => Promise.resolve(PROGRESS),
+    // Only prologue mission 1's real answer is correct.
+    submitAnswer: (_player, input) =>
+      Promise.resolve({ correct: input.answer === "OpenDoor();" }),
     ...overrides,
   };
 }
@@ -422,4 +425,100 @@ Deno.test("progress: returns the logged-in player's progress", async () => {
   assertEquals(res.status, 200);
   assertEquals(await res.json(), PROGRESS);
   assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
+});
+
+// ---------- POST /api/missions/submit ----------
+
+const MISSION_1 = { chapter: 0, mission: 1 };
+
+function submit(body: unknown, token = "valid-token", app = testApp()) {
+  return app.request("/api/missions/submit", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+Deno.test("submit: requires login", async () => {
+  const res = await submit(
+    { ...MISSION_1, answer: "OpenDoor();" },
+    "stolen-or-expired",
+  );
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("submit: a right answer comes back as correct", async () => {
+  let received: { player: Player; input: SubmitInput } | undefined;
+  const app = testApp({
+    game: fakeGame({
+      submitAnswer: (player, input) => {
+        received = { player, input };
+        return Promise.resolve({ correct: true });
+      },
+    }),
+  });
+  const res = await submit(
+    { ...MISSION_1, answer: "  OpenDoor();  " },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { correct: true });
+  // The answer arrives trimmed, for the verified player.
+  assertEquals(received, {
+    player: { id: PLAYER.id, accessToken: "valid-token" },
+    input: { ...MISSION_1, answer: "OpenDoor();" },
+  });
+});
+
+Deno.test("submit: a wrong answer is a normal 200, not an error", async () => {
+  const res = await submit({ ...MISSION_1, answer: "OpenDoor:" });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { correct: false });
+});
+
+Deno.test("submit: an empty answer is a 400 that names the field", async () => {
+  const res = await submit({ ...MISSION_1, answer: "   " });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Type your answer first.",
+      field: "answer",
+    },
+  });
+});
+
+Deno.test("submit: chapter and mission must be whole numbers", async () => {
+  const res = await submit({ chapter: "zero", mission: 1, answer: "x" });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.field, "chapter");
+});
+
+Deno.test("submit: a locked mission comes back as 403", async () => {
+  const app = testApp({
+    game: fakeGame({
+      submitAnswer: () => {
+        throw new ApiError(
+          403,
+          "MISSION_LOCKED",
+          "That mission is still locked.",
+        );
+      },
+    }),
+  });
+  const res = await submit(
+    { chapter: 0, mission: 3, answer: "RideJeep();" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 403);
+  assertEquals(await res.json(), {
+    error: { code: "MISSION_LOCKED", message: "That mission is still locked." },
+  });
 });

@@ -79,7 +79,7 @@ await supabase.auth.setSession({
 });
 ```
 
-- **Calling logged-in endpoints:** use `getMe()`, `setCharacter()` and `getProgress()` from `src/api/client.ts`. They add the current token for you.
+- **Calling logged-in endpoints:** use `getMe()`, `setCharacter()`, `getProgress()` and `submitAnswer()` from `src/api/client.ts`. They add the current token for you.
 - **Logout:** call `logout()` from `src/api/client.ts`, then clear any player data kept in React state. Lab computers are shared, so the next player must not see the last player's data.
 - Don't save tokens yourself (e.g. in `localStorage`). supabase-js already does it safely.
 
@@ -227,6 +227,40 @@ How the game uses it:
 Ask again after each correct answer and when opening Chapter Select, so the screen always matches the server.
 
 Errors: `401 UNAUTHORIZED`: send the player to Login.
+
+### ✅ `POST /missions/submit` (logged in)
+
+Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const { correct } = await submitAnswer(0, 1, typed)`.
+
+Request:
+
+```json
+{ "chapter": 0, "mission": 1, "answer": "OpenDoor();" }
+```
+
+Success, **200**, either `{ "correct": true }` or `{ "correct": false }`. A wrong answer is **not** an error.
+
+How answers are compared (the client's rules):
+
+- **Capitals matter**, like real C#: `opendoor();` is wrong.
+- **Extra spaces don't matter**: `OpenDoor ( ) ;` counts as `OpenDoor();`. But a space inside a name is a mistake: `Open Door();` is wrong.
+- Curly quotes from phone keyboards count as plain quotes.
+- The game never knows the right answer. It shows the two hint choices from its own mission data, and only the server decides.
+
+What to do with the result:
+
+- `correct: true`: **the progress is already saved** (autosave). Show the Program Flow popup, then "progress saved". Call `getProgress()` to see what's unlocked now. After a chapter's last mission, show "chapter complete".
+- `correct: false`: turn the typed answer (or the hint it matches) red and let the player try again. There's no limit on tries.
+- Replaying a finished mission works the same way, but doesn't change the saved progress.
+
+**The TYPE HERE input must have** `autoCapitalize="off" autoCorrect="off" spellCheck={false}`. Otherwise phones turn `if` into `If`, and a right answer is marked wrong.
+
+| Status | code                | What to do                                                                                          |
+| ------ | ------------------- | --------------------------------------------------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR`  | `field` is `answer` ("Type your answer first."): show it. `chapter` or `mission`: a bug in the call |
+| 401    | `UNAUTHORIZED`      | Send the player to Login                                                                            |
+| 403    | `MISSION_LOCKED`    | The screen opened a mission that isn't unlocked yet: refresh with `getProgress()`                   |
+| 404    | `MISSION_NOT_FOUND` | Wrong chapter or mission number: a bug in the mission data                                          |
 
 ## Not in the API (use supabase-js directly)
 

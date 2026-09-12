@@ -53,6 +53,26 @@ export const characterSchema = z.object({
 
 export type Character = z.infer<typeof characterSchema>["character"];
 
+// An answer typed into a mission's challenge (chapter 0 is the prologue).
+// Whether it's right is decided by the database, not here.
+export const submitSchema = z.object({
+  chapter: z
+    .int({ error: "Chapter must be a whole number from 0 to 99." })
+    .min(0, "Chapter must be a whole number from 0 to 99.")
+    .max(99, "Chapter must be a whole number from 0 to 99."),
+  mission: z
+    .int({ error: "Mission must be a whole number from 1 to 99." })
+    .min(1, "Mission must be a whole number from 1 to 99.")
+    .max(99, "Mission must be a whole number from 1 to 99."),
+  answer: z
+    .string({ error: "Type your answer first." })
+    .trim()
+    .min(1, "Type your answer first.")
+    .max(500, "That answer is too long."),
+});
+
+export type SubmitInput = z.infer<typeof submitSchema>;
+
 // Checks a request body against a schema. If it's invalid, throws a 400 that
 // names the first wrong field, so the frontend can highlight it.
 export function parse<T>(schema: z.ZodType<T>, body: unknown): T {

@@ -37,6 +37,9 @@ export type ChapterStatus = {
 
 export type Progress = { chapters: ChapterStatus[] }
 
+// The server's verdict on a typed answer. Only the server knows the answers.
+export type SubmitResult = { correct: boolean }
+
 type Session = { accessToken: string; refreshToken: string }
 type AuthResult = { session: Session | null; profile: Profile }
 
@@ -177,6 +180,22 @@ export async function getProgress(): Promise<Progress> {
     'GET',
     '/progress',
     undefined,
+    await currentAccessToken(),
+  )
+}
+
+// Checks the answer typed into a mission's TYPE HERE box (chapter 0 is the
+// prologue). A correct answer is saved on the server right away, so the
+// "progress saved" popup can show as soon as this returns correct: true.
+export async function submitAnswer(
+  chapter: number,
+  mission: number,
+  answer: string,
+): Promise<SubmitResult> {
+  return request<SubmitResult>(
+    'POST',
+    '/missions/submit',
+    { chapter, mission, answer },
     await currentAccessToken(),
   )
 }
