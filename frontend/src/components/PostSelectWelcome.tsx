@@ -10,6 +10,7 @@ interface PostSelectWelcomeProps {
   onContinue: () => void
 }
 
+// The client's order: intro → how to play (START) → "Are you ready?" (YES).
 type Phase = 'intro' | 'ready' | 'mechanics'
 
 type LineKind = 'heading' | 'body' | 'ready'
@@ -75,16 +76,14 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key !== 'Enter') return
-      if (phase === 'mechanics') {
-        onContinue()
-        return
-      }
       if (phase === 'intro' && done) {
+        setCount(0)
+        setPhase('mechanics')
+      } else if (phase === 'mechanics') {
         setCount(0)
         setPhase('ready')
       } else if (phase === 'ready' && done) {
-        setCount(0)
-        setPhase('mechanics')
+        onContinue()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -98,10 +97,10 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
   const advance = (): void => {
     if (phase === 'intro') {
       setCount(0)
-      setPhase('ready')
-    } else if (phase === 'ready') {
-      setCount(0)
       setPhase('mechanics')
+    } else if (phase === 'mechanics') {
+      setCount(0)
+      setPhase('ready')
     } else onContinue()
   }
 
@@ -155,7 +154,7 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
             <h2 className="howto-title">HOW TO PLAY</h2>
             <p className="howto-body">{HOW_TO_PLAY}</p>
           </div>
-          <button type="button" className="start-button" onClick={onContinue}>
+          <button type="button" className="start-button" onClick={advance}>
             START
           </button>
         </div>
@@ -169,7 +168,7 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
 
       {phase === 'ready' && done && (
         <button type="button" className="tap-next" onClick={advance}>
-          TAP TO NEXT <span className="tap-caret">&#9660;</span>
+          YES
         </button>
       )}
     </div>

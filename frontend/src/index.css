@@ -5,8 +5,15 @@
 }
 
 :root {
-  /* 1dvh when the browser supports it (mobile URL bars), else 1vh. */
-  --h: min(1vh, 1dvh);
+  /* 1vh everywhere, and 1dvh (which follows mobile URL bars) where the browser
+     supports it. Older browsers would drop a min() with dvh in it entirely. */
+  --h: 1vh;
+}
+
+@supports (height: 1dvh) {
+  :root {
+    --h: min(1vh, 1dvh);
+  }
 }
 
 html,
