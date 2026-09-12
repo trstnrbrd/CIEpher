@@ -177,7 +177,10 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
 }
 
 // A client that acts as the logged-in player, so RLS applies to every query.
-function asPlayer(config: SupabaseConfig, player: Player): SupabaseClient {
+export function asPlayer(
+  config: SupabaseConfig,
+  player: Player,
+): SupabaseClient {
   return createClient(config.url, config.anonKey, {
     ...serverOptions,
     global: { headers: { Authorization: `Bearer ${player.accessToken}` } },

@@ -1,4 +1,4 @@
-# Ciepher API contract
+# CIEpher API contract
 
 How the game (frontend) talks to the backend. **Tristan** owns this document. Don't rely on anything that isn't written here; ask Tristan first.
 
@@ -79,7 +79,7 @@ await supabase.auth.setSession({
 });
 ```
 
-- **Calling logged-in endpoints:** use `getMe()` and `setCharacter()` from `src/api/client.ts`. They add the current token for you.
+- **Calling logged-in endpoints:** use `getMe()`, `setCharacter()` and `getProgress()` from `src/api/client.ts`. They add the current token for you.
 - **Logout:** call `logout()` from `src/api/client.ts`, then clear any player data kept in React state. Lab computers are shared, so the next player must not see the last player's data.
 - Don't save tokens yourself (e.g. in `localStorage`). supabase-js already does it safely.
 
@@ -180,6 +180,53 @@ Success, **200**: `{ "profile": { ... } }`, the updated profile.
 | 401    | `UNAUTHORIZED`     | Send the player to Login                                  |
 
 The player can only change their **own** character. The server takes who they are from the token, never from the request.
+
+### ✅ `GET /progress` (logged in)
+
+Where the player is in the game. In the frontend: `const progress = await getProgress()`.
+
+Success, **200** (this player has finished prologue mission 1):
+
+```json
+{
+  "chapters": [
+    {
+      "id": 0,
+      "unlocked": true,
+      "completed": false,
+      "missions": [
+        { "number": 1, "unlocked": true, "completed": true },
+        { "number": 2, "unlocked": true, "completed": false },
+        { "number": 3, "unlocked": false, "completed": false }
+      ]
+    },
+    { "id": 1, "unlocked": false, "completed": false, "missions": [] }
+  ]
+}
+```
+
+The real response lists chapters 0 to 7; chapters 2 to 7 look like chapter 1 here.
+
+- Chapter `0` is the prologue. Missions are numbered from 1, in play order.
+- Chapters 1 to 7 have `"missions": []` until the client sends their content.
+- **The server decides what's unlocked.** Never work it out in the frontend:
+  - The prologue is always unlocked.
+  - Inside a chapter, missions unlock one at a time, in order.
+  - A chapter unlocks when the whole chapter before it is `completed`.
+
+How the game uses it:
+
+| Screen             | Use                                                                                                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| After login        | No mission `completed` yet: show the intro screens, then the prologue. Prologue not done: resume at its first `unlocked` mission that isn't `completed`. Prologue done: Chapter Select. |
+| Progress checklist | Each chapter's `missions[].completed`                                                                                                                                                   |
+| Chapter Select     | `unlocked` chapters can be played; the others show a lock                                                                                                                               |
+| Inside a chapter   | Start at the first `unlocked` mission that isn't `completed` (or mission 1 to replay a finished chapter)                                                                                |
+| Code Journal       | Lesson N is unlocked when chapter N is `completed`                                                                                                                                      |
+
+Ask again after each correct answer and when opening Chapter Select, so the screen always matches the server.
+
+Errors: `401 UNAUTHORIZED`: send the player to Login.
 
 ## Not in the API (use supabase-js directly)
 

@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
 import type { Accounts, Player } from "./accounts.ts";
 import { ApiError, handleError, handleNotFound } from "./errors.ts";
+import type { Game } from "./game.ts";
 import {
   characterSchema,
   loginSchema,
@@ -18,11 +19,13 @@ export type AppConfig = {
   allowedOrigins: string[];
   // Player accounts: the real Supabase version in index.ts, a fake in tests.
   accounts: Accounts;
+  // The game itself (progress, then answers): the same, real or fake.
+  game: Game;
 };
 
 // Builds the whole API. Settings come in as arguments (not read from the
 // environment here), so tests can create an app with any settings they need.
-export function createApp({ allowedOrigins, accounts }: AppConfig) {
+export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
   const app = new Hono<Env>().basePath("/api");
 
   // Lets only logged-in players through: the request must carry a valid
@@ -75,6 +78,11 @@ export function createApp({ allowedOrigins, accounts }: AppConfig) {
     const { character } = parse(characterSchema, await readJson(c));
     const profile = await accounts.setCharacter(c.get("player"), character);
     return c.json({ profile });
+  });
+
+  app.get("/progress", requirePlayer, async (c) => {
+    const progress = await game.getProgress(c.get("player"));
+    return c.json(progress);
   });
 
   app.notFound(handleNotFound);
