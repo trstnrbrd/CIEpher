@@ -1,5 +1,9 @@
 begin;
+-- Act as postgres, as locally. On staging the CLI connects as a helper login
+-- role that only gets postgres's rights after switching to it.
+set local role postgres;
 create extension if not exists pgtap with schema extensions;
+set local search_path = public, extensions;
 select plan(10);
 
 -- 1. Players can't read the table directly.
@@ -10,7 +14,7 @@ select throws_ok(
   null,
   'players cannot read login failures'
 );
-reset role;
+set local role postgres;
 
 -- The rest runs as the API.
 set local role service_role;
@@ -61,7 +65,7 @@ select is(
   0,
   'not locked after clearing'
 );
-reset role;
+set local role postgres;
 
 -- 6. Old wrong passwords expire: 4 failures from 16 minutes ago don't count.
 insert into public.login_failures (username_key, failed_count, first_failed_at)
@@ -72,7 +76,7 @@ select is(
   0,
   'failures older than 15 minutes are forgotten'
 );
-reset role;
+set local role postgres;
 
 -- 7. A lock ends by itself.
 update public.login_failures
@@ -84,7 +88,7 @@ select is(
   0,
   'an expired lock no longer blocks'
 );
-reset role;
+set local role postgres;
 
 select * from finish();
 rollback;

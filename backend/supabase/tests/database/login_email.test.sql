@@ -1,5 +1,9 @@
 begin;
+-- Act as postgres, as locally. On staging the CLI connects as a helper login
+-- role that only gets postgres's rights after switching to it.
+set local role postgres;
 create extension if not exists pgtap with schema extensions;
+set local search_path = public, extensions;
 select plan(4);
 
 -- A test player. Everything here is rolled back at the end.
@@ -16,7 +20,7 @@ select throws_ok(
   null,
   'anonymous visitors cannot look up emails'
 );
-reset role;
+set local role postgres;
 
 -- 2. Logged-in players can't either.
 set local role authenticated;
@@ -26,7 +30,7 @@ select throws_ok(
   null,
   'logged-in players cannot look up emails'
 );
-reset role;
+set local role postgres;
 
 -- 3-4. The API (service_role) can, ignoring capitals.
 set local role service_role;
@@ -40,7 +44,7 @@ select is(
   null,
   'unknown usernames return nothing'
 );
-reset role;
+set local role postgres;
 
 select * from finish();
 rollback;
