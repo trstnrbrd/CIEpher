@@ -2,7 +2,7 @@
 
 How the game (frontend) talks to the backend. **Tristan** owns this document. Don't rely on anything that isn't written here; ask Tristan first.
 
-- **Last updated:** 2026-09-11
+- **Last updated:** 2026-09-12
 - **Status legend:** 🚧 being built · ✅ ready to use
 
 Until an endpoint is ✅, build against the example responses below (mock data).
@@ -52,7 +52,7 @@ Any endpoint can return:
 
 ## Sessions (how "logged in" works)
 
-Register and login return a `session`:
+Login returns a `session`:
 
 ```json
 { "accessToken": "eyJ...", "refreshToken": "abc..." }
@@ -75,7 +75,7 @@ await supabase.auth.setSession({
 
 ### 🚧 `POST /auth/register`
 
-Creates the account and the player's profile, and logs them in.
+Creates the account and the player's profile. It does **not** log the player in: send them back to Login to sign in (the client's flow).
 
 Request:
 
@@ -101,7 +101,7 @@ Success, **201**:
 
 ```json
 {
-  "session": { "accessToken": "eyJ...", "refreshToken": "abc..." },
+  "session": null,
   "profile": {
     "id": "3f0c9d2e-...",
     "username": "player_one",
@@ -110,7 +110,7 @@ Success, **201**:
 }
 ```
 
-If the client later turns on email verification, `session` will be `null`. Then show "Check your email to confirm your account".
+`session` is always `null` for register.
 
 Errors: `400 VALIDATION_ERROR`, `409 USERNAME_TAKEN`, `409 EMAIL_TAKEN`.
 
@@ -122,12 +122,14 @@ Request (the username isn't case-sensitive):
 { "username": "player_one", "password": "secret123" }
 ```
 
-Success, **200**: same shape as register (`session` + `profile`).
+Success, **200**: `session` + `profile`, the same shape as register, but here `session` is always filled in.
 
 | Status | code                  | Show the player                                                                                 |
 | ------ | --------------------- | ----------------------------------------------------------------------------------------------- |
 | 401    | `INVALID_CREDENTIALS` | "Wrong username or password." (the same message whether or not the username exists, on purpose) |
-| 429    | `TOO_MANY_ATTEMPTS`   | "Too many failed attempts. Try again in 15 minutes."                                            |
+| 429    | `TOO_MANY_ATTEMPTS`   | Show `message`, e.g. "Too many failed attempts. Try again in 15 minutes."                       |
+
+After 5 wrong passwords within 15 minutes, that username is locked for 15 minutes. While it's locked, even the right password gets 429. The message says how many minutes are left.
 
 ### 🚧 `GET /me` (logged in)
 
