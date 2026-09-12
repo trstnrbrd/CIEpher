@@ -1,5 +1,9 @@
 begin;
+-- Act as postgres, as locally. On staging the CLI connects as a helper login
+-- role that only gets postgres's rights after switching to it.
+set local role postgres;
 create extension if not exists pgtap with schema extensions;
+set local search_path = public, extensions;
 select plan(7);
 
 -- Test players. Everything here is rolled back at the end.
@@ -20,7 +24,7 @@ select throws_ok(
   null,
   'anonymous visitors cannot read profiles'
 );
-reset role;
+set local role postgres;
 
 -- From here on, act as player A.
 set local role authenticated;
@@ -51,7 +55,7 @@ select throws_ok(
 update public.profiles set character = 'boy' where id = '22222222-2222-2222-2222-222222222222';
 
 -- Check the results as the database admin.
-reset role;
+set local role postgres;
 
 -- 5. Player B's profile is untouched.
 select is(

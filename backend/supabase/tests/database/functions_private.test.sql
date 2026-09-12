@@ -1,5 +1,9 @@
 begin;
+-- Act as postgres, as locally. On staging the CLI connects as a helper login
+-- role that only gets postgres's rights after switching to it.
+set local role postgres;
 create extension if not exists pgtap with schema extensions;
+set local search_path = public, extensions;
 select plan(1);
 
 -- Functions in the public schema can be called by anyone through Supabase's API
