@@ -10,8 +10,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .login-card {
@@ -29,8 +33,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-title {
@@ -66,7 +76,9 @@
   background: #1a1033;
   color: #fff;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   box-sizing: border-box;
 }
 
@@ -87,18 +99,6 @@
   width: 100%;
 }
 
-.login-error {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.45rem, 1.1vw, 0.65rem);
-  color: #ff8a80;
-  text-shadow: 1px 1px 0 #000;
-}
-
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .login-btn {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(0.5rem, 1.3vw, 0.75rem);
@@ -106,7 +106,33 @@
   border: none;
   cursor: pointer;
   padding: 1vh 1vw;
-  transition: color 0.2s, text-shadow 0.2s;
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.login-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1.1vw, 0.6rem);
+  color: #ff8a80;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 0.5vh;
+}
+
+/* Shown right after registering. */
+.login-notice {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.45rem, 1.1vw, 0.6rem);
+  color: #92e334;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
 }
 
 .login-enter {

@@ -1,15 +1,43 @@
+import { useState } from 'react'
+import type { Profile } from '../api/client'
+import LoginCard from './LoginCard'
+import RegisterCard from './RegisterCard'
 import './WelcomeScreen.css'
 
+type AuthView = 'login' | 'register' | null
+
 interface WelcomeScreenProps {
-  onStart: () => void
-  loading?: boolean
-  dimmed?: boolean
+  onLoggedIn: (profile: Profile) => void
 }
 
-function WelcomeScreen({ onStart, loading = false, dimmed = false }: WelcomeScreenProps) {
+function WelcomeScreen({ onLoggedIn }: WelcomeScreenProps) {
+  const [authView, setAuthView] = useState<AuthView>(null)
+  // Set right after registering, so the login card can welcome the new player.
+  const [newUsername, setNewUsername] = useState<string>('')
+
+  const handleStart = (): void => {
+    setAuthView('login')
+  }
+
+  const handleCloseLogin = (): void => {
+    setNewUsername('')
+    setAuthView(null)
+  }
+
+  const handleSignUp = (): void => {
+    setNewUsername('')
+    setAuthView('register')
+  }
+
+  // The client's flow: after registering, go back to login and sign in.
+  const handleRegistered = (profile: Profile): void => {
+    setNewUsername(profile.username)
+    setAuthView('login')
+  }
+
   return (
     <>
-      <div className={`welcome-screen ${dimmed ? 'blurred' : ''}`}>
+      <div className={`welcome-screen ${authView ? 'blurred' : ''}`}>
         <div className="welcome-bg" />
         <div className="welcome-overlay" />
 
@@ -25,13 +53,26 @@ function WelcomeScreen({ onStart, loading = false, dimmed = false }: WelcomeScre
           <h1 className="welcome-title welcome-subtitle">WELCOME TO</h1>
           <h1 className="welcome-title welcome-main-title">CIEPHER</h1>
         </div>
-
-        {!loading && (
-          <button className="start-button" onClick={onStart}>
-            START
-          </button>
-        )}
+        <button className="start-button" onClick={handleStart}>
+          START
+        </button>
       </div>
+
+      {authView === 'login' && (
+        <LoginCard
+          onClose={handleCloseLogin}
+          onSignUp={handleSignUp}
+          onLoggedIn={onLoggedIn}
+          registeredUsername={newUsername}
+        />
+      )}
+      {authView === 'register' && (
+        <RegisterCard
+          onBack={() => setAuthView('login')}
+          onClose={handleCloseLogin}
+          onRegistered={handleRegistered}
+        />
+      )}
     </>
   )
 }

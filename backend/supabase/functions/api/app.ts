@@ -1,94 +1,45 @@
-import { Hono, type Context } from "hono";
+import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
-import { handleError, handleNotFound, ApiError } from "./errors.ts";
-import type { AuthProvider, SignUpInput, UserSession } from "./auth.ts";
+import { createMiddleware } from "hono/factory";
+import type { Accounts, Player } from "./accounts.ts";
+import { ApiError, handleError, handleNotFound } from "./errors.ts";
+import type { Game } from "./game.ts";
+import {
+  characterSchema,
+  loginSchema,
+  parse,
+  registerSchema,
+} from "./schemas.ts";
+
+// What the login check (requirePlayer) hands to the routes after it.
+type Env = { Variables: { player: Player } };
 
 export type AppConfig = {
   // Websites allowed to call this API from a browser, e.g. Vhan's local Vite app.
   allowedOrigins: string[];
-  // Auth implementation. Supplied by the entrypoint so tests can fake it.
-  auth: AuthProvider;
+  // Player accounts: the real Supabase version in index.ts, a fake in tests.
+  accounts: Accounts;
+  // The game itself (progress, then answers): the same, real or fake.
+  game: Game;
 };
-
-function stringField(value: unknown, name: string): string {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new ApiError(400, "VALIDATION_ERROR", `${name} is required.`);
-  }
-  return value.trim();
-}
-
-function validateSignUp(body: Record<string, unknown>): SignUpInput {
-  const username = stringField(body.username, "username");
-  const email = stringField(body.email, "email");
-  const password = stringField(body.password, "password");
-
-  if (username.length < 3 || username.length > 20) {
-    throw new ApiError(
-      400,
-      "VALIDATION_ERROR",
-      "Username must be between 3 and 20 characters.",
-    );
-  }
-  if (!/^[A-Za-z0-9_]+$/.test(username)) {
-    throw new ApiError(
-      400,
-      "VALIDATION_ERROR",
-      "Username can only contain letters, numbers and underscores.",
-    );
-  }
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    throw new ApiError(400, "VALIDATION_ERROR", "That email doesn't look valid.");
-  }
-  if (password.length < 8) {
-    throw new ApiError(
-      400,
-      "VALIDATION_ERROR",
-      "Password must be at least 8 characters.",
-    );
-  }
-  if (!/(?=.*[A-Za-z])(?=.*\d)/.test(password)) {
-    throw new ApiError(
-      400,
-      "VALIDATION_ERROR",
-      "Password must contain letters and numbers.",
-    );
-  }
-  if (body.consent !== true) {
-    throw new ApiError(
-      400,
-      "CONSENT_REQUIRED",
-      "You must agree to the Privacy Notice to create an account.",
-    );
-  }
-
-  const gender = typeof body.gender === "string" ? body.gender.trim() : "";
-  const yearLevel = typeof body.yearLevel === "string" ? body.yearLevel.trim() : "";
-  return {
-    username,
-    email,
-    password,
-    gender,
-    yearLevel,
-    privacyConsent: true,
-  };
-}
-
-async function jsonBody(c: Context): Promise<Record<string, unknown>> {
-  return (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
-}
-
-function bearerToken(authorization: string | undefined): string {
-  const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() ?? "";
-  if (token === "") {
-    throw new ApiError(401, "UNAUTHORIZED", "Please log in first.");
-  }
-  return token;
-}
 
 // Builds the whole API. Settings come in as arguments (not read from the
 // environment here), so tests can create an app with any settings they need.
-export function createApp({ allowedOrigins, auth }: AppConfig) {
-  const app = new Hono().basePath("/api");
+export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
+  const app = new Hono<Env>().basePath("/api");
+
+  // Lets only logged-in players through: the request must carry a valid
+  // access token ("Authorization: Bearer <token>").
+  const requirePlayer = createMiddleware<Env>(async (c, next) => {
+    const header = c.req.header("authorization") ?? "";
+    const accessToken = header.match(/^Bearer\s+(.+)$/i)?.[1] ?? "";
+    const id = accessToken ? await accounts.verifyToken(accessToken) : null;
+    if (!id) {
+      throw new ApiError(401, "UNAUTHORIZED", "Please log in again.");
+    }
+    c.set("player", { id, accessToken });
+    await next();
+  });
 
   app.use(
     "*",
@@ -106,40 +57,32 @@ export function createApp({ allowedOrigins, auth }: AppConfig) {
 
   app.get("/health", (c) => c.json({ status: "ok" }));
 
-  app.post("/auth/sign-in", async (c) => {
-    const body = await jsonBody(c);
-    const username = stringField(body.username, "username");
-    const password = stringField(body.password, "password");
-    const session = await auth.signIn(username, password);
-    return c.json(toSessionResponse(session), 200);
+  app.post("/auth/register", async (c) => {
+    const input = parse(registerSchema, await readJson(c));
+    const result = await accounts.register(input);
+    return c.json(result, 201);
   });
 
-  app.post("/auth/sign-up", async (c) => {
-    const body = await jsonBody(c);
-    const input = validateSignUp(body);
-    const session = await auth.signUp(input);
-    return c.json(toSessionResponse(session), 201);
+  app.post("/auth/login", async (c) => {
+    const input = parse(loginSchema, await readJson(c));
+    const result = await accounts.login(input);
+    return c.json(result, 200);
   });
 
-  app.get("/auth/me", async (c) => {
-    const accessToken = bearerToken(c.req.header("authorization"));
-    const profile = await auth.getProfile(accessToken);
+  app.get("/me", requirePlayer, async (c) => {
+    const profile = await accounts.getProfile(c.get("player"));
     return c.json({ profile });
   });
 
-  app.put("/auth/character", async (c) => {
-    const accessToken = bearerToken(c.req.header("authorization"));
-    const body = await jsonBody(c);
-    const character = stringField(body.character, "character");
-    if (character !== "boy" && character !== "girl") {
-      throw new ApiError(
-        400,
-        "VALIDATION_ERROR",
-        "Character must be 'boy' or 'girl'.",
-      );
-    }
-    const profile = await auth.setCharacter(accessToken, character);
+  app.put("/me/character", requirePlayer, async (c) => {
+    const { character } = parse(characterSchema, await readJson(c));
+    const profile = await accounts.setCharacter(c.get("player"), character);
     return c.json({ profile });
+  });
+
+  app.get("/progress", requirePlayer, async (c) => {
+    const progress = await game.getProgress(c.get("player"));
+    return c.json(progress);
   });
 
   app.notFound(handleNotFound);
@@ -148,13 +91,15 @@ export function createApp({ allowedOrigins, auth }: AppConfig) {
   return app;
 }
 
-function toSessionResponse(session: UserSession) {
-  return {
-    access_token: session.accessToken,
-    refresh_token: session.refreshToken,
-    user: {
-      id: session.user.id,
-      email: session.user.email,
-    },
-  };
+// Reads the JSON body, turning broken JSON into a 400 instead of a crash.
+async function readJson(c: Context): Promise<unknown> {
+  try {
+    return await c.req.json();
+  } catch {
+    throw new ApiError(
+      400,
+      "VALIDATION_ERROR",
+      "The request body must be valid JSON.",
+    );
+  }
 }

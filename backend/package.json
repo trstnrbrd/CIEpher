@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts",
-    "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/"
+    "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/",
+    "lint": "deno lint --config supabase/functions/api/deno.json supabase/functions/api/",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db"
   },
   "keywords": [],
   "author": "",

@@ -1,77 +1,90 @@
 import { assertEquals, assertFalse } from "@std/assert";
-import { createApp } from "./app.ts";
+import type { Accounts, Player } from "./accounts.ts";
+import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
-import type { AuthProvider, SignUpInput, UserSession } from "./auth.ts";
+import type { Game } from "./game.ts";
+import type { LoginInput, RegisterInput } from "./schemas.ts";
 
 const FRONTEND = "http://localhost:5173";
-
-const fakeSession: UserSession = {
-  accessToken: "access-123",
-  refreshToken: "refresh-123",
-  user: { id: "user-123", email: "player@example.com" },
+const PLAYER = {
+  id: "11111111-1111-1111-1111-111111111111",
+  username: "player_one",
+  character: null,
+};
+const SESSION = { accessToken: "test-access", refreshToken: "test-refresh" };
+const VALID_REGISTRATION = {
+  username: "player_one",
+  email: "player@example.com",
+  password: "secret123",
+  privacyConsent: true,
 };
 
-function fakeAuth(): AuthProvider & { lastSignUp?: SignUpInput; lastCharacter?: string } {
-  let character: string | null = null;
-  const auth: AuthProvider & { lastSignUp?: SignUpInput; lastCharacter?: string } = {
-    async signIn(username: string, password: string) {
-      if (username === "nobody") {
-        throw new ApiError(401, "INVALID_CREDENTIALS", "Wrong username or password.");
-      }
-      return { ...fakeSession, user: { ...fakeSession.user, email: `${username}@example.com` } };
-    },
-    async signUp(input: SignUpInput) {
-      auth.lastSignUp = input;
-      return fakeSession;
-    },
-    async getProfile(accessToken: string) {
-      if (accessToken !== "access-123") {
-        throw new ApiError(
-          401,
-          "UNAUTHORIZED",
-          "Your session has expired. Please log in again.",
-        );
-      }
-      return { id: "user-123", username: "player_1", character };
-    },
-    async setCharacter(accessToken: string, next: string) {
-      if (accessToken !== "access-123") {
-        throw new ApiError(
-          401,
-          "UNAUTHORIZED",
-          "Your session has expired. Please log in again.",
-        );
-      }
-      auth.lastCharacter = next;
-      character = next;
-      return { id: "user-123", username: "player_1", character: next };
-    },
+// A stand-in for Supabase, so these tests never touch a real database.
+function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
+  return {
+    register: () => Promise.resolve({ session: null, profile: PLAYER }),
+
+    login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    // Only "valid-token" belongs to a logged-in player.
+    verifyToken: (token) =>
+      Promise.resolve(token === "valid-token" ? PLAYER.id : null),
+    getProfile: () => Promise.resolve(PLAYER),
+    setCharacter: (_player, character) =>
+      Promise.resolve({ ...PLAYER, character }),
+    ...overrides,
   };
-  return auth;
 }
 
-function appWith(auth: AuthProvider) {
-  return createApp({ allowedOrigins: [FRONTEND], auth });
+// A new player's progress: only the prologue's first mission is open.
+const PROGRESS = {
+  chapters: [
+    {
+      id: 0,
+      unlocked: true,
+      completed: false,
+      missions: [{ number: 1, unlocked: true, completed: false }],
+    },
+  ],
+};
+
+function fakeGame(overrides: Partial<Game> = {}): Game {
+  return {
+    getProgress: () => Promise.resolve(PROGRESS),
+    ...overrides,
+  };
 }
 
-function postJson(app: ReturnType<typeof createApp>, path: string, body: unknown) {
-  return app.request(path, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
+function testApp(overrides: Partial<AppConfig> = {}) {
+  return createApp({
+    allowedOrigins: [FRONTEND],
+    accounts: fakeAccounts(),
+    game: fakeGame(),
+    ...overrides,
   });
 }
 
+function postJson(
+  app: ReturnType<typeof createApp>,
+  path: string,
+  body: unknown,
+) {
+  return app.request(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: typeof body === "string" ? body : JSON.stringify(body),
+  });
+}
+
+// ---------- basics ----------
+
 Deno.test("GET /api/health returns ok", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/health");
+  const res = await testApp().request("/api/health");
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { status: "ok" });
 });
 
 Deno.test("unknown routes return the standard 404 error", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/nope");
+  const res = await testApp().request("/api/nope");
   assertEquals(res.status, 404);
   assertEquals(await res.json(), {
     error: { code: "NOT_FOUND", message: "That route doesn't exist." },
@@ -79,31 +92,28 @@ Deno.test("unknown routes return the standard 404 error", async () => {
 });
 
 Deno.test("CORS allows the frontend", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/health", {
+  const res = await testApp().request("/api/health", {
     headers: { Origin: FRONTEND },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), FRONTEND);
 });
 
 Deno.test("CORS blocks other websites", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/health", {
+  const res = await testApp().request("/api/health", {
     headers: { Origin: "https://evil.example" },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), null);
 });
 
 Deno.test("CORS blocks everyone when no origins are configured", async () => {
-  const app = createApp({ allowedOrigins: [], auth: fakeAuth() });
-  const res = await app.request("/api/health", {
+  const res = await testApp({ allowedOrigins: [] }).request("/api/health", {
     headers: { Origin: FRONTEND },
   });
   assertEquals(res.headers.get("Access-Control-Allow-Origin"), null);
 });
 
 Deno.test("ApiError is sent to the player as-is", async () => {
-  const app = appWith(fakeAuth());
+  const app = testApp();
   app.get("/test-api-error", () => {
     throw new ApiError(
       409,
@@ -122,7 +132,7 @@ Deno.test("ApiError is sent to the player as-is", async () => {
 });
 
 Deno.test("unexpected errors hide their details from the player", async () => {
-  const app = appWith(fakeAuth());
+  const app = testApp();
   app.get("/test-crash", () => {
     throw new Error("database password is hunter2");
   });
@@ -149,103 +159,135 @@ Deno.test("unexpected errors hide their details from the player", async () => {
   }
 });
 
-Deno.test("POST /api/auth/sign-up accepts a valid registration with consent", async () => {
-  const auth = fakeAuth();
-  const app = appWith(auth);
-  const res = await postJson(app, "/api/auth/sign-up", {
-    username: "player_1",
-    email: "player@example.com",
-    password: "secret123",
-    gender: "male",
-    yearLevel: "3",
-    consent: true,
-  });
-  assertEquals(res.status, 201);
-  assertEquals(await res.json(), {
-    access_token: "access-123",
-    refresh_token: "refresh-123",
-    user: { id: "user-123", email: "player@example.com" },
-  });
-  assertEquals(auth.lastSignUp, {
-    username: "player_1",
-    email: "player@example.com",
-    password: "secret123",
-    gender: "male",
-    yearLevel: "3",
-    privacyConsent: true,
-  });
-});
+// ---------- POST /api/auth/register ----------
 
-Deno.test("POST /api/auth/sign-up rejects a registration without consent", async () => {
-  const app = appWith(fakeAuth());
-  const res = await postJson(app, "/api/auth/sign-up", {
-    username: "player_1",
-    email: "player@example.com",
-    password: "secret123",
-    consent: false,
-  });
-  assertEquals(res.status, 400);
-  assertEquals(await res.json(), {
-    error: {
-      code: "CONSENT_REQUIRED",
-      message: "You must agree to the Privacy Notice to create an account.",
-    },
-  });
-});
+Deno.test(
+  "register: creates the account and returns the profile, not logged in",
+  async () => {
+    let received: RegisterInput | undefined;
+    const app = testApp({
+      accounts: fakeAccounts({
+        register: (input) => {
+          received = input;
+          return Promise.resolve({ session: null, profile: PLAYER });
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
+    assertEquals(res.status, 201);
+    assertEquals(await res.json(), { session: null, profile: PLAYER });
+    assertEquals(received, VALID_REGISTRATION);
+  },
+);
 
-Deno.test("POST /api/auth/sign-up rejects a too-short username", async () => {
-  const app = appWith(fakeAuth());
-  const res = await postJson(app, "/api/auth/sign-up", {
-    username: "ab",
-    email: "player@example.com",
-    password: "secret123",
-    consent: true,
+Deno.test("register: rejects a bad username and names the field", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    username: "no spaces!",
   });
   assertEquals(res.status, 400);
   assertEquals(await res.json(), {
     error: {
       code: "VALIDATION_ERROR",
-      message: "Username must be between 3 and 20 characters.",
+      message: "Username must be 3-20 letters, numbers, or underscores.",
+      field: "username",
     },
   });
 });
 
-Deno.test("POST /api/auth/sign-up rejects illegal username characters", async () => {
-  const app = appWith(fakeAuth());
-  const res = await postJson(app, "/api/auth/sign-up", {
-    username: "player.name",
-    email: "player@example.com",
-    password: "secret123",
-    consent: true,
+Deno.test("register: rejects a password without a number", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    password: "onlyletters",
   });
   assertEquals(res.status, 400);
-  assertEquals(await res.json(), {
-    error: {
-      code: "VALIDATION_ERROR",
-      message: "Username can only contain letters, numbers and underscores.",
-    },
-  });
+  const body = await res.json();
+  assertEquals(body.error.field, "password");
 });
 
-Deno.test("POST /api/auth/sign-in returns a session for a valid player", async () => {
-  const app = appWith(fakeAuth());
-  const res = await postJson(app, "/api/auth/sign-in", {
-    username: "player_1",
+Deno.test("register: requires privacy consent", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    privacyConsent: false,
+  });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.field, "privacyConsent");
+});
+
+Deno.test("register: broken JSON is a 400, not a crash", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", "{not json");
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.code, "VALIDATION_ERROR");
+});
+
+Deno.test("register: a taken username comes back as 409", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      register: () => {
+        throw new ApiError(
+          409,
+          "USERNAME_TAKEN",
+          "That username is already taken.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
+  assertEquals(res.status, 409);
+  const body = await res.json();
+  assertEquals(body.error.code, "USERNAME_TAKEN");
+});
+
+// ---------- POST /api/auth/login ----------
+
+Deno.test("login: returns session + profile", async () => {
+  let received: LoginInput | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: (input) => {
+        received = input;
+        return Promise.resolve({ session: SESSION, profile: PLAYER });
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
     password: "secret123",
   });
   assertEquals(res.status, 200);
-  assertEquals(await res.json(), {
-    access_token: "access-123",
-    refresh_token: "refresh-123",
-    user: { id: "user-123", email: "player_1@example.com" },
-  });
+  assertEquals(await res.json(), { session: SESSION, profile: PLAYER });
+  assertEquals(received, { username: "player_one", password: "secret123" });
 });
 
-Deno.test("POST /api/auth/sign-in sends auth errors to the player as-is", async () => {
-  const app = appWith(fakeAuth());
-  const res = await postJson(app, "/api/auth/sign-in", {
-    username: "nobody",
-    password: "wrong",
+Deno.test(
+  "login: a missing password is a 400 that names the field",
+  async () => {
+    const res = await postJson(testApp(), "/api/auth/login", {
+      username: "player_one",
+    });
+    assertEquals(res.status, 400);
+    const body = await res.json();
+    assertEquals(body.error.field, "password");
+  },
+);
+
+Deno.test("login: wrong username or password comes back as 401", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: () => {
+        throw new ApiError(
+          401,
+          "INVALID_CREDENTIALS",
+          "Wrong username or password.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "wrong-pass1",
   });
   assertEquals(res.status, 401);
   assertEquals(await res.json(), {
@@ -256,92 +298,128 @@ Deno.test("POST /api/auth/sign-in sends auth errors to the player as-is", async 
   });
 });
 
-Deno.test("GET /api/auth/me returns the profile for a valid token", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/auth/me", {
-    headers: { authorization: "Bearer access-123" },
+Deno.test("login: a locked username comes back as 429", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: () => {
+        throw new ApiError(
+          429,
+          "TOO_MANY_ATTEMPTS",
+          "Too many failed attempts. Try again in 15 minutes.",
+        );
+      },
+    }),
   });
-  assertEquals(res.status, 200);
-  assertEquals(await res.json(), {
-    profile: { id: "user-123", username: "player_1", character: null },
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "secret123",
   });
-});
-
-Deno.test("GET /api/auth/me rejects a missing token", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/auth/me");
-  assertEquals(res.status, 401);
-  assertEquals(await res.json(), {
-    error: {
-      code: "UNAUTHORIZED",
-      message: "Please log in first.",
-    },
-  });
-});
-
-Deno.test("GET /api/auth/me rejects an expired token", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/auth/me", {
-    headers: { authorization: "Bearer expired-token" },
-  });
-  assertEquals(res.status, 401);
+  assertEquals(res.status, 429);
   assertEquals(await res.json(), {
     error: {
-      code: "UNAUTHORIZED",
-      message: "Your session has expired. Please log in again.",
+      code: "TOO_MANY_ATTEMPTS",
+      message: "Too many failed attempts. Try again in 15 minutes.",
     },
   });
 });
 
-Deno.test("PUT /api/auth/character stores the chosen character", async () => {
-  const auth = fakeAuth();
-  const app = appWith(auth);
-  const res = await app.request("/api/auth/character", {
-    method: "PUT",
-    headers: {
-      authorization: "Bearer access-123",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ character: "boy" }),
+// ---------- logged-in routes: GET /api/me, PUT /api/me/character ----------
+
+const UNAUTHORIZED = {
+  error: { code: "UNAUTHORIZED", message: "Please log in again." },
+};
+
+Deno.test("me: without a token is 401", async () => {
+  const res = await testApp().request("/api/me");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("me: with an invalid token is 401", async () => {
+  const res = await testApp().request("/api/me", {
+    headers: { authorization: "Bearer stolen-or-expired" },
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("me: returns the logged-in player's profile", async () => {
+  let asked: Player | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      getProfile: (player) => {
+        asked = player;
+        return Promise.resolve(PLAYER);
+      },
+    }),
+  });
+  const res = await app.request("/api/me", {
+    headers: { authorization: "Bearer valid-token" },
   });
   assertEquals(res.status, 200);
-  assertEquals(await res.json(), {
-    profile: { id: "user-123", username: "player_1", character: "boy" },
-  });
-  assertEquals(auth.lastCharacter, "boy");
+  assertEquals(await res.json(), { profile: PLAYER });
+  assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
 });
 
-Deno.test("PUT /api/auth/character rejects any value other than boy/girl", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/auth/character", {
+function putCharacter(body: unknown, token = "valid-token") {
+  return testApp().request("/api/me/character", {
     method: "PUT",
     headers: {
-      authorization: "Bearer access-123",
       "content-type": "application/json",
+      authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ character: "robot" }),
+    body: JSON.stringify(body),
   });
+}
+
+Deno.test("character: saves boy or girl", async () => {
+  const res = await putCharacter({ character: "girl" });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    profile: { ...PLAYER, character: "girl" },
+  });
+});
+
+Deno.test("character: rejects anything else and names the field", async () => {
+  const res = await putCharacter({ character: "dragon" });
   assertEquals(res.status, 400);
   assertEquals(await res.json(), {
     error: {
       code: "VALIDATION_ERROR",
-      message: "Character must be 'boy' or 'girl'.",
+      message: 'Character must be "boy" or "girl".',
+      field: "character",
     },
   });
 });
 
-Deno.test("PUT /api/auth/character rejects a missing token", async () => {
-  const app = appWith(fakeAuth());
-  const res = await app.request("/api/auth/character", {
-    method: "PUT",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ character: "boy" }),
-  });
+Deno.test("character: requires login", async () => {
+  const res = await putCharacter({ character: "boy" }, "stolen-or-expired");
   assertEquals(res.status, 401);
-  assertEquals(await res.json(), {
-    error: {
-      code: "UNAUTHORIZED",
-      message: "Please log in first.",
-    },
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+// ---------- GET /api/progress ----------
+
+Deno.test("progress: requires login", async () => {
+  const res = await testApp().request("/api/progress");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("progress: returns the logged-in player's progress", async () => {
+  let asked: Player | undefined;
+  const app = testApp({
+    game: fakeGame({
+      getProgress: (player) => {
+        asked = player;
+        return Promise.resolve(PROGRESS);
+      },
+    }),
   });
+  const res = await app.request("/api/progress", {
+    headers: { authorization: "Bearer valid-token" },
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), PROGRESS);
+  assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
 });

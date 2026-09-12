@@ -1,7 +1,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
+import { supabaseAccounts } from "./accounts.ts";
 import { createApp } from "./app.ts";
-import { supabaseAuthProvider } from "./auth.ts";
-import { ApiError } from "./errors.ts";
+import { supabaseGame } from "./game.ts";
 
 // Comma-separated list from the environment, e.g. "http://localhost:5173".
 const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
@@ -9,31 +9,24 @@ const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Supabase gives every function these settings automatically.
+const supabase = {
+  url: requireEnv("SUPABASE_URL"),
+  anonKey: requireEnv("SUPABASE_ANON_KEY"),
+  serviceRoleKey: requireEnv("SUPABASE_SERVICE_ROLE_KEY"),
+};
+
+Deno.serve(
+  createApp({
+    allowedOrigins,
+    accounts: supabaseAccounts(supabase),
+    game: supabaseGame(supabase),
+  }).fetch,
+);
+
+// Stop at startup if a setting is missing, instead of failing on a player's request.
 function requireEnv(name: string): string {
-  const value = Deno.env.get(name) ?? "";
-  if (value === "") {
-    throw new ApiError(
-      500,
-      "MISSING_ENV",
-      `Server is missing required environment variable: ${name}`,
-    );
-  }
+  const value = Deno.env.get(name);
+  if (!value) throw new Error(`Missing environment variable: ${name}`);
   return value;
 }
-
-// The actual Supabase backend. The anonymous key is fine for auth calls; the
-// service role key is used to write the profile row on sign-up.
-const supabaseUrl = requireEnv("SUPABASE_URL");
-const anonKey = requireEnv("SUPABASE_ANON_KEY");
-const serviceRoleKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
-
-const app = createApp({
-  allowedOrigins,
-  auth: supabaseAuthProvider({
-    supabaseUrl,
-    anonKey,
-    serviceRoleKey,
-  }),
-});
-
-Deno.serve(app.fetch);

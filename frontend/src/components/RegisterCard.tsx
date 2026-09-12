@@ -1,86 +1,152 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type ChangeEvent, type SubmitEvent } from 'react'
+import { ApiError, register, type Profile } from '../api/client'
 import './RegisterCard.css'
 
 interface RegisterCardProps {
   onBack: () => void
   onClose: () => void
+  onRegistered: (profile: Profile) => void
 }
 
-function RegisterCard({ onBack, onClose }: RegisterCardProps) {
+// The inputs that can show a red message under them.
+const FIELDS = [
+  'username',
+  'email',
+  'password',
+  'confirmPassword',
+  'privacyConsent',
+] as const
+type Field = (typeof FIELDS)[number]
+type FieldErrors = Partial<Record<Field, string>>
+
+function isField(value: string | undefined): value is Field {
+  return FIELDS.includes(value as Field)
+}
+
+// API errors that don't name a field still belong under one.
+const FIELD_FOR_CODE: Record<string, Field> = {
+  USERNAME_TAKEN: 'username',
+  EMAIL_TAKEN: 'email',
+}
+
+// The red message under an input, if it has one.
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null
+  return (
+    <span className="field-error" role="alert">
+      {message}
+    </span>
+  )
+}
+
+function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
   const [username, setUsername] = useState<string>('')
   const [gender, setGender] = useState<string>('')
   const [email, setEmail] = useState<string>('')
   const [yearLevel, setYearLevel] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [consent, setConsent] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [privacyConsent, setPrivacyConsent] = useState<boolean>(false)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [formError, setFormError] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault()
-    setError(null)
+  // Empty or mismatched fields, checked before anything is sent. The API
+  // checks everything again; this is only so players get instant feedback.
+  const findProblems = (): FieldErrors => {
+    const problems: FieldErrors = {}
+    if (!username.trim()) problems.username = 'Please enter a username.'
+    if (!email.trim()) problems.email = 'Please enter your email.'
+    if (!password) problems.password = 'Please enter a password.'
+    if (!confirmPassword) {
+      problems.confirmPassword = 'Please confirm your password.'
+    } else if (password !== confirmPassword) {
+      // Only checked here: the API never receives the second password.
+      problems.confirmPassword = "Passwords don't match."
+    }
+    if (!privacyConsent) {
+      problems.privacyConsent = 'You must agree to the privacy notice.'
+    }
+    return problems
+  }
 
-    if (!consent) {
-      setError('You must agree to the Privacy Notice to create an account.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
+  const handleSubmit = async (
+    e: SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    e.preventDefault()
+    setFormError('')
+
+    const problems = findProblems()
+    setFieldErrors(problems)
+    if (Object.keys(problems).length > 0) return
 
     setLoading(true)
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:54321/functions/v1/api'}/api/auth/sign-up`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-          gender,
-          yearLevel,
-          consent: true,
-        }),
+      // gender and yearLevel aren't sent yet: waiting on the client
+      // (see Documents/api-contract.md).
+      const profile = await register({
+        username,
+        email,
+        password,
+        privacyConsent,
       })
-      const data = await res.json().catch(() => null)
-      if (!res.ok) {
-        setError(data?.error?.message ?? 'Could not create your account. Please try again.')
+      onRegistered(profile)
+    } catch (err) {
+      if (!(err instanceof ApiError)) {
+        setFormError('Something went wrong. Please try again.')
         return
       }
-      onBack()
-    } catch {
-      setError('Could not reach the server. Please try again later.')
+      const field = err.field ?? FIELD_FOR_CODE[err.code]
+      if (isField(field)) {
+        setFieldErrors({ [field]: err.message })
+      } else {
+        setFormError(err.message)
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  // Typing in a field clears its red message.
+  const clearError = (field: Field): void => {
+    setFieldErrors((errors) => ({ ...errors, [field]: undefined }))
+  }
+
+  const edit =
+    (field: Field, setValue: (value: string) => void) =>
+    (e: ChangeEvent<HTMLInputElement>): void => {
+      setValue(e.target.value)
+      clearError(field)
+    }
+
+  const inputClass = (field: Field): string =>
+    fieldErrors[field] ? 'input-field input-error' : 'input-field'
+
   return (
     <div className="register-overlay" onClick={onClose}>
-      <div
-        className="register-card"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="register-card" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="back-button" onClick={onBack}>
           ←
         </button>
 
         <h2 className="register-title">Register</h2>
 
-        <form className="register-form" onSubmit={handleSubmit}>
+        {/* noValidate: we show our own red messages instead of the browser's
+            "Please fill out this field" bubbles. */}
+        <form className="register-form" onSubmit={handleSubmit} noValidate>
           <div className="form-grid">
-            <div className="field-wrap">
+            <div className="field">
               <input
-                className="input-field"
+                className={inputClass('username')}
                 type="text"
                 placeholder="Username"
+                autoComplete="username"
+                maxLength={20}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
+                onChange={edit('username', setUsername)}
+                aria-invalid={Boolean(fieldErrors.username)}
               />
-              <p className="field-hint">3–20 letters, numbers or _</p>
+              <FieldError message={fieldErrors.username} />
             </div>
 
             <div className="select-wrapper">
@@ -88,7 +154,6 @@ function RegisterCard({ onBack, onClose }: RegisterCardProps) {
                 className="select-field"
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                required
               >
                 <option value="" disabled hidden>
                   Gender
@@ -100,14 +165,18 @@ function RegisterCard({ onBack, onClose }: RegisterCardProps) {
               <span className="select-arrow">v</span>
             </div>
 
-            <input
-              className="input-field"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className="field">
+              <input
+                className={inputClass('email')}
+                type="email"
+                placeholder="Email"
+                autoComplete="email"
+                value={email}
+                onChange={edit('email', setEmail)}
+                aria-invalid={Boolean(fieldErrors.email)}
+              />
+              <FieldError message={fieldErrors.email} />
+            </div>
 
             <input
               className="input-field"
@@ -115,53 +184,69 @@ function RegisterCard({ onBack, onClose }: RegisterCardProps) {
               placeholder="Year Level"
               value={yearLevel}
               onChange={(e) => setYearLevel(e.target.value)}
-              required
             />
 
-            <input
-              className="input-field"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-            />
-
-            <input
-              className="input-field"
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={8}
-            />
-          </div>
-
-          <div className="consent-block">
-            <p className="privacy-notice">
-              Your personal information (name, email, year level) is collected to
-              create and manage your Ciepher account. It is stored securely and
-              will never be sold, in compliance with the Data Privacy Act of 2012.
-            </p>
-            <label className="consent-label">
+            <div className="field">
               <input
-                type="checkbox"
-                className="consent-checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                required
+                className={inputClass('password')}
+                type="password"
+                placeholder="Password"
+                autoComplete="new-password"
+                maxLength={72}
+                value={password}
+                onChange={edit('password', setPassword)}
+                aria-invalid={Boolean(fieldErrors.password)}
               />
-              <span>I agree to the collection and processing of my personal data as described in the Privacy Notice.</span>
-            </label>
+              <FieldError message={fieldErrors.password} />
+            </div>
+
+            <div className="field">
+              <input
+                className={inputClass('confirmPassword')}
+                type="password"
+                placeholder="Confirm password"
+                autoComplete="new-password"
+                maxLength={72}
+                value={confirmPassword}
+                onChange={edit('confirmPassword', setConfirmPassword)}
+                aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              />
+              <FieldError message={fieldErrors.confirmPassword} />
+            </div>
+
+            {/* Required by the Data Privacy Act. The API rejects the
+                registration without it. TODO: link the privacy notice. */}
+            <div className="field field-wide">
+              <label
+                className={
+                  fieldErrors.privacyConsent
+                    ? 'consent-row consent-error'
+                    : 'consent-row'
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={privacyConsent}
+                  onChange={(e) => {
+                    setPrivacyConsent(e.target.checked)
+                    clearError('privacyConsent')
+                  }}
+                />
+                <span>I agree to the privacy notice</span>
+              </label>
+              <FieldError message={fieldErrors.privacyConsent} />
+            </div>
           </div>
 
-          {error && <p className="reg-error">{error}</p>}
+          {formError && (
+            <p className="register-error" role="alert">
+              {formError}
+            </p>
+          )}
 
           <div className="reg-actions">
             <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Please wait...' : 'Submit'}
+              {loading ? '...' : 'SUBMIT'}
             </button>
             <button type="button" className="btn-login" onClick={onBack}>
               LOGIN
