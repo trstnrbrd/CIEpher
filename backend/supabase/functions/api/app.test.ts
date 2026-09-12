@@ -1,18 +1,53 @@
 import { assertEquals, assertFalse } from "@std/assert";
 import { createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
+import type { AuthProvider, SignUpInput, UserSession } from "./auth.ts";
 
 const FRONTEND = "http://localhost:5173";
 
+const fakeSession: UserSession = {
+  accessToken: "access-123",
+  refreshToken: "refresh-123",
+  user: { id: "user-123", email: "player@example.com" },
+};
+
+function fakeAuth(): AuthProvider & { lastSignUp?: SignUpInput } {
+  const auth: AuthProvider & { lastSignUp?: SignUpInput } = {
+    async signIn(username: string, password: string) {
+      if (username === "nobody") {
+        throw new ApiError(401, "INVALID_CREDENTIALS", "Wrong username or password.");
+      }
+      return { ...fakeSession, user: { ...fakeSession.user, email: `${username}@example.com` } };
+    },
+    async signUp(input: SignUpInput) {
+      auth.lastSignUp = input;
+      return fakeSession;
+    },
+  };
+  return auth;
+}
+
+function appWith(auth: AuthProvider) {
+  return createApp({ allowedOrigins: [FRONTEND], auth });
+}
+
+function postJson(app: ReturnType<typeof createApp>, path: string, body: unknown) {
+  return app.request(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 Deno.test("GET /api/health returns ok", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
+  const app = appWith(fakeAuth());
   const res = await app.request("/api/health");
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { status: "ok" });
 });
 
 Deno.test("unknown routes return the standard 404 error", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
+  const app = appWith(fakeAuth());
   const res = await app.request("/api/nope");
   assertEquals(res.status, 404);
   assertEquals(await res.json(), {
@@ -21,7 +56,7 @@ Deno.test("unknown routes return the standard 404 error", async () => {
 });
 
 Deno.test("CORS allows the frontend", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
+  const app = appWith(fakeAuth());
   const res = await app.request("/api/health", {
     headers: { Origin: FRONTEND },
   });
@@ -29,7 +64,7 @@ Deno.test("CORS allows the frontend", async () => {
 });
 
 Deno.test("CORS blocks other websites", async () => {
-  const app = createApp({ allowedOrigins: [FRONTEND] });
+  const app = appWith(fakeAuth());
   const res = await app.request("/api/health", {
     headers: { Origin: "https://evil.example" },
   });
@@ -37,7 +72,7 @@ Deno.test("CORS blocks other websites", async () => {
 });
 
 Deno.test("CORS blocks everyone when no origins are configured", async () => {
-  const app = createApp({ allowedOrigins: [] });
+  const app = createApp({ allowedOrigins: [], auth: fakeAuth() });
   const res = await app.request("/api/health", {
     headers: { Origin: FRONTEND },
   });
@@ -45,7 +80,7 @@ Deno.test("CORS blocks everyone when no origins are configured", async () => {
 });
 
 Deno.test("ApiError is sent to the player as-is", async () => {
-  const app = createApp({ allowedOrigins: [] });
+  const app = appWith(fakeAuth());
   app.get("/test-api-error", () => {
     throw new ApiError(
       409,
@@ -64,7 +99,7 @@ Deno.test("ApiError is sent to the player as-is", async () => {
 });
 
 Deno.test("unexpected errors hide their details from the player", async () => {
-  const app = createApp({ allowedOrigins: [] });
+  const app = appWith(fakeAuth());
   app.get("/test-crash", () => {
     throw new Error("database password is hunter2");
   });
@@ -89,4 +124,111 @@ Deno.test("unexpected errors hide their details from the player", async () => {
   } finally {
     console.error = originalError;
   }
+});
+
+Deno.test("POST /api/auth/sign-up accepts a valid registration with consent", async () => {
+  const auth = fakeAuth();
+  const app = appWith(auth);
+  const res = await postJson(app, "/api/auth/sign-up", {
+    username: "player_1",
+    email: "player@example.com",
+    password: "secret123",
+    gender: "male",
+    yearLevel: "3",
+    consent: true,
+  });
+  assertEquals(res.status, 201);
+  assertEquals(await res.json(), {
+    access_token: "access-123",
+    refresh_token: "refresh-123",
+    user: { id: "user-123", email: "player@example.com" },
+  });
+  assertEquals(auth.lastSignUp, {
+    username: "player_1",
+    email: "player@example.com",
+    password: "secret123",
+    gender: "male",
+    yearLevel: "3",
+    privacyConsent: true,
+  });
+});
+
+Deno.test("POST /api/auth/sign-up rejects a registration without consent", async () => {
+  const app = appWith(fakeAuth());
+  const res = await postJson(app, "/api/auth/sign-up", {
+    username: "player_1",
+    email: "player@example.com",
+    password: "secret123",
+    consent: false,
+  });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "CONSENT_REQUIRED",
+      message: "You must agree to the Privacy Notice to create an account.",
+    },
+  });
+});
+
+Deno.test("POST /api/auth/sign-up rejects a too-short username", async () => {
+  const app = appWith(fakeAuth());
+  const res = await postJson(app, "/api/auth/sign-up", {
+    username: "ab",
+    email: "player@example.com",
+    password: "secret123",
+    consent: true,
+  });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Username must be between 3 and 20 characters.",
+    },
+  });
+});
+
+Deno.test("POST /api/auth/sign-up rejects illegal username characters", async () => {
+  const app = appWith(fakeAuth());
+  const res = await postJson(app, "/api/auth/sign-up", {
+    username: "player.name",
+    email: "player@example.com",
+    password: "secret123",
+    consent: true,
+  });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Username can only contain letters, numbers and underscores.",
+    },
+  });
+});
+
+Deno.test("POST /api/auth/sign-in returns a session for a valid player", async () => {
+  const app = appWith(fakeAuth());
+  const res = await postJson(app, "/api/auth/sign-in", {
+    username: "player_1",
+    password: "secret123",
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    access_token: "access-123",
+    refresh_token: "refresh-123",
+    user: { id: "user-123", email: "player_1@example.com" },
+  });
+});
+
+Deno.test("POST /api/auth/sign-in sends auth errors to the player as-is", async () => {
+  const app = appWith(fakeAuth());
+  const res = await postJson(app, "/api/auth/sign-in", {
+    username: "nobody",
+    password: "wrong",
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), {
+    error: {
+      code: "INVALID_CREDENTIALS",
+      message: "Wrong username or password.",
+    },
+  });
 });

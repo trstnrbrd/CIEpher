@@ -7,6 +7,7 @@ create table public.profiles (
   email text,
   gender text,
   year_level text,
+  privacy_consent boolean not null check (privacy_consent),
   created_at timestamptz not null default now()
 );
 

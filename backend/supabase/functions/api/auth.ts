@@ -14,6 +14,7 @@ export type SignUpInput = {
   password: string;
   gender?: string;
   yearLevel?: string;
+  privacyConsent: boolean;
 };
 
 export type UserSession = {
@@ -174,6 +175,7 @@ export function supabaseAuthProvider(env: AuthEnv): AuthProvider {
         email: created.email,
         gender: input.gender ?? "",
         year_level: input.yearLevel ?? "",
+        privacy_consent: input.privacyConsent,
       });
       if (profile.status === 409) {
         // Undo the auth user so no orphan account is left behind.

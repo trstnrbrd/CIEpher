@@ -83,6 +83,19 @@
   width: 100%;
 }
 
+.field-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-hint {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 6px;
+  letter-spacing: 0;
+}
+
 .input-field,
 .select-field {
   width: 100%;
@@ -177,6 +190,79 @@
 .btn-login:hover {
   color: #92e334;
   text-shadow: 0 0 10px rgba(146, 227, 52, 0.6);
+}
+
+.consent-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.privacy-notice {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 2;
+  letter-spacing: 0;
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: #fff;
+  line-height: 2;
+  letter-spacing: 0;
+}
+
+.consent-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border: 3px solid #5de8f7;
+  border-radius: 4px;
+  background: #ffffef;
+  cursor: pointer;
+  position: relative;
+  margin-top: 4px;
+}
+
+.consent-checkbox:checked {
+  background: #92e334;
+  border-color: #92e334;
+}
+
+.consent-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 5px;
+  height: 8px;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.reg-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: #ff6b6b;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: 2;
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 650px) {

@@ -14,5 +14,8 @@
   "devDependencies": {
     "deno": "2.9.6",
     "supabase": "2.117.0"
+  },
+  "allowScripts": {
+    "deno@2.9.6": true
   }
 }

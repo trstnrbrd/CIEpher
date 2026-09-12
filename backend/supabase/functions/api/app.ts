@@ -22,18 +22,18 @@ function validateSignUp(body: Record<string, unknown>): SignUpInput {
   const email = stringField(body.email, "email");
   const password = stringField(body.password, "password");
 
-  if (username.length < 3 || username.length > 24) {
+  if (username.length < 3 || username.length > 20) {
     throw new ApiError(
       400,
       "VALIDATION_ERROR",
-      "Username must be between 3 and 24 characters.",
+      "Username must be between 3 and 20 characters.",
     );
   }
-  if (!/^[\w.-]+$/.test(username)) {
+  if (!/^[A-Za-z0-9_]+$/.test(username)) {
     throw new ApiError(
       400,
       "VALIDATION_ERROR",
-      "Username can only contain letters, numbers, dots, dashes and underscores.",
+      "Username can only contain letters, numbers and underscores.",
     );
   }
   if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -53,13 +53,27 @@ function validateSignUp(body: Record<string, unknown>): SignUpInput {
       "Password must contain letters and numbers.",
     );
   }
+  if (body.consent !== true) {
+    throw new ApiError(
+      400,
+      "CONSENT_REQUIRED",
+      "You must agree to the Privacy Notice to create an account.",
+    );
+  }
 
   const gender = typeof body.gender === "string" ? body.gender.trim() : "";
   const yearLevel = typeof body.yearLevel === "string" ? body.yearLevel.trim() : "";
-  return { username, email, password, gender, yearLevel };
+  return {
+    username,
+    email,
+    password,
+    gender,
+    yearLevel,
+    privacyConsent: true,
+  };
 }
 
-async function jsonBody(c: Parameters<Parameters<Hono["post"]>[1]>[0]): Promise<Record<string, unknown>> {
+async function jsonBody(c: Context): Promise<Record<string, unknown>> {
   return (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
 }
 
