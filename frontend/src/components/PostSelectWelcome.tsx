@@ -32,7 +32,8 @@ const READY_LINES: Line[] = [
 ]
 
 // Start index of each line in the combined character count.
-const STARTS: Record<Phase, number[]> = { intro: [], ready: [] }
+const STARTS: Record<Phase, number[]> = { intro: [], ready: [], mechanics: [] }
+
 let run = 0
 for (const line of INTRO_LINES) {
   STARTS.intro.push(run)
@@ -116,13 +117,20 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
     }
   }
 
-  const sprite = phase === 'mechanics'
-    ? (character === 'boy' ? boyImg : girlImg)
-    : welcomerImg
+  const sprite =
+    phase === 'mechanics'
+      ? character === 'boy'
+        ? boyImg
+        : girlImg
+      : welcomerImg
 
   return (
     <div className="post-select-welcome">
-      <img className="welcome-person" src={sprite} alt={phase === 'mechanics' ? character : 'welcomer'} />
+      <img
+        className="welcome-person"
+        src={sprite}
+        alt={phase === 'mechanics' ? character : 'welcomer'}
+      />
 
       {phase !== 'mechanics' ? (
         <button type="button" className="speech-bubble" onClick={skip}>
