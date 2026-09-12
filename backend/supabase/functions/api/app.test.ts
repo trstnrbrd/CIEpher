@@ -2,6 +2,7 @@ import { assertEquals, assertFalse } from "@std/assert";
 import type { Accounts, Player } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
+import type { Game } from "./game.ts";
 import type { LoginInput, RegisterInput } from "./schemas.ts";
 
 const FRONTEND = "http://localhost:5173";
@@ -34,10 +35,30 @@ function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
   };
 }
 
+// A new player's progress: only the prologue's first mission is open.
+const PROGRESS = {
+  chapters: [
+    {
+      id: 0,
+      unlocked: true,
+      completed: false,
+      missions: [{ number: 1, unlocked: true, completed: false }],
+    },
+  ],
+};
+
+function fakeGame(overrides: Partial<Game> = {}): Game {
+  return {
+    getProgress: () => Promise.resolve(PROGRESS),
+    ...overrides,
+  };
+}
+
 function testApp(overrides: Partial<AppConfig> = {}) {
   return createApp({
     allowedOrigins: [FRONTEND],
     accounts: fakeAccounts(),
+    game: fakeGame(),
     ...overrides,
   });
 }
@@ -375,4 +396,30 @@ Deno.test("character: requires login", async () => {
   const res = await putCharacter({ character: "boy" }, "stolen-or-expired");
   assertEquals(res.status, 401);
   assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+// ---------- GET /api/progress ----------
+
+Deno.test("progress: requires login", async () => {
+  const res = await testApp().request("/api/progress");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("progress: returns the logged-in player's progress", async () => {
+  let asked: Player | undefined;
+  const app = testApp({
+    game: fakeGame({
+      getProgress: (player) => {
+        asked = player;
+        return Promise.resolve(PROGRESS);
+      },
+    }),
+  });
+  const res = await app.request("/api/progress", {
+    headers: { authorization: "Bearer valid-token" },
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), PROGRESS);
+  assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
 });

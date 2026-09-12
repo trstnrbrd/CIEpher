@@ -20,6 +20,23 @@ export type RegisterInput = {
   privacyConsent: boolean
 }
 
+// Where the player is in the game. The prologue is chapter 0. The server
+// decides what's unlocked; the game never works it out itself.
+export type MissionStatus = {
+  number: number
+  unlocked: boolean
+  completed: boolean
+}
+
+export type ChapterStatus = {
+  id: number
+  unlocked: boolean
+  completed: boolean
+  missions: MissionStatus[]
+}
+
+export type Progress = { chapters: ChapterStatus[] }
+
 type Session = { accessToken: string; refreshToken: string }
 type AuthResult = { session: Session | null; profile: Profile }
 
@@ -151,4 +168,15 @@ export async function setCharacter(character: Character): Promise<Profile> {
     await currentAccessToken(),
   )
   return profile
+}
+
+// Which chapters and missions are unlocked and completed. Drives resuming,
+// the progress checklist, Chapter Select and the Code Journal.
+export async function getProgress(): Promise<Progress> {
+  return request<Progress>(
+    'GET',
+    '/progress',
+    undefined,
+    await currentAccessToken(),
+  )
 }
