@@ -41,10 +41,12 @@ function ChapterSelect({ onBack, onExit, onOpenMission }: ChapterSelectProps) {
     }
   }, [onExit])
 
+  // Where a chapter opens: the first mission that's open but not finished yet
+  // (resume), or mission 1 to replay a finished chapter.
   const firstMissionOf = (chapter: number, unlocked: boolean) => {
     const status = progress?.chapters.find((c) => c.id === chapter)
-    const unlockedMission = status?.missions.find((m) => m.unlocked)
-    return unlocked ? unlockedMission?.number ?? 1 : null
+    const nextMission = status?.missions.find((m) => m.unlocked && !m.completed)
+    return unlocked ? nextMission?.number ?? 1 : null
   }
 
   const resume = progress?.chapters.find((c) => c.unlocked && !c.completed)

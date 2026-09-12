@@ -25,8 +25,9 @@ function App() {
   const [checking, setChecking] = useState<boolean>(!configError)
 
   // After a page refresh supabase-js still has the session, so pick the
-  // player back up instead of asking them to log in again. A 5s cap keeps a
-  // hanging boot check from leaving a blank page.
+  // player back up instead of asking them to log in again. A 15s cap keeps a
+  // hanging boot check from leaving a blank page; it's generous because slow
+  // school Wi-Fi shouldn't log players out.
   useEffect(() => {
     if (configError) {
       return
@@ -35,7 +36,7 @@ function App() {
     const boot = Promise.race([
       getMe(),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('boot timed out')), 5000),
+        setTimeout(() => reject(new Error('boot timed out')), 15000),
       ),
     ])
     boot
@@ -60,6 +61,9 @@ function App() {
   const handleLogout = useCallback(async (): Promise<void> => {
     await logout()
     setProfile(null)
+    // Lab PCs are shared: the next player must start on the home screen,
+    // never on the last player's chapter or mission.
+    setView({ screen: 'home' })
   }, [])
 
   if (checking) {
@@ -99,6 +103,9 @@ function App() {
   if (view.screen === 'mission') {
     return (
       <MissionScreen
+        // A new key per mission gives each one a fresh screen, so the last
+        // mission's "CORRECT!" and answer don't carry over.
+        key={`${view.chapter}-${view.mission}`}
         chapter={view.chapter}
         mission={view.mission}
         character={profile.character}

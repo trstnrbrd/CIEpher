@@ -120,6 +120,11 @@ function MissionScreen({
         })
       }
     } catch (err) {
+      // The session ended: back to Login, like the progress checks above.
+      if (err instanceof ApiError && err.status === 401) {
+        onExit()
+        return
+      }
       if (err instanceof ApiError) {
         setServerError(err.message)
       } else {
