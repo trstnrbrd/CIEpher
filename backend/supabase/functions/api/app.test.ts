@@ -21,7 +21,8 @@ const VALID_REGISTRATION = {
 // A stand-in for Supabase, so these tests never touch a real database.
 function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
   return {
-    register: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    register: () => Promise.resolve({ session: null, profile: PLAYER }),
+
     login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
     ...overrides,
   };
@@ -134,20 +135,20 @@ Deno.test("unexpected errors hide their details from the player", async () => {
 // ---------- POST /api/auth/register ----------
 
 Deno.test(
-  "register: creates the account and returns session + profile",
+  "register: creates the account and returns the profile, not logged in",
   async () => {
     let received: RegisterInput | undefined;
     const app = testApp({
       accounts: fakeAccounts({
         register: (input) => {
           received = input;
-          return Promise.resolve({ session: SESSION, profile: PLAYER });
+          return Promise.resolve({ session: null, profile: PLAYER });
         },
       }),
     });
     const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
     assertEquals(res.status, 201);
-    assertEquals(await res.json(), { session: SESSION, profile: PLAYER });
+    assertEquals(await res.json(), { session: null, profile: PLAYER });
     assertEquals(received, VALID_REGISTRATION);
   },
 );
@@ -266,6 +267,31 @@ Deno.test("login: wrong username or password comes back as 401", async () => {
     error: {
       code: "INVALID_CREDENTIALS",
       message: "Wrong username or password.",
+    },
+  });
+});
+
+Deno.test("login: a locked username comes back as 429", async () => {
+  const app = testApp({
+    accounts: fakeAccounts({
+      login: () => {
+        throw new ApiError(
+          429,
+          "TOO_MANY_ATTEMPTS",
+          "Too many failed attempts. Try again in 15 minutes.",
+        );
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/login", {
+    username: "player_one",
+    password: "secret123",
+  });
+  assertEquals(res.status, 429);
+  assertEquals(await res.json(), {
+    error: {
+      code: "TOO_MANY_ATTEMPTS",
+      message: "Too many failed attempts. Try again in 15 minutes.",
     },
   });
 });
