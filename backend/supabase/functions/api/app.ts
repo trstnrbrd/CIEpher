@@ -1,8 +1,17 @@
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
-import type { Accounts } from "./accounts.ts";
+import { createMiddleware } from "hono/factory";
+import type { Accounts, Player } from "./accounts.ts";
 import { ApiError, handleError, handleNotFound } from "./errors.ts";
-import { loginSchema, parse, registerSchema } from "./schemas.ts";
+import {
+  characterSchema,
+  loginSchema,
+  parse,
+  registerSchema,
+} from "./schemas.ts";
+
+// What the login check (requirePlayer) hands to the routes after it.
+type Env = { Variables: { player: Player } };
 
 export type AppConfig = {
   // Websites allowed to call this API from a browser, e.g. Vhan's local Vite app.
@@ -14,7 +23,20 @@ export type AppConfig = {
 // Builds the whole API. Settings come in as arguments (not read from the
 // environment here), so tests can create an app with any settings they need.
 export function createApp({ allowedOrigins, accounts }: AppConfig) {
-  const app = new Hono().basePath("/api");
+  const app = new Hono<Env>().basePath("/api");
+
+  // Lets only logged-in players through: the request must carry a valid
+  // access token ("Authorization: Bearer <token>").
+  const requirePlayer = createMiddleware<Env>(async (c, next) => {
+    const header = c.req.header("authorization") ?? "";
+    const accessToken = header.match(/^Bearer\s+(.+)$/i)?.[1] ?? "";
+    const id = accessToken ? await accounts.verifyToken(accessToken) : null;
+    if (!id) {
+      throw new ApiError(401, "UNAUTHORIZED", "Please log in again.");
+    }
+    c.set("player", { id, accessToken });
+    await next();
+  });
 
   app.use(
     "*",
@@ -42,6 +64,17 @@ export function createApp({ allowedOrigins, accounts }: AppConfig) {
     const input = parse(loginSchema, await readJson(c));
     const result = await accounts.login(input);
     return c.json(result, 200);
+  });
+
+  app.get("/me", requirePlayer, async (c) => {
+    const profile = await accounts.getProfile(c.get("player"));
+    return c.json({ profile });
+  });
+
+  app.put("/me/character", requirePlayer, async (c) => {
+    const { character } = parse(characterSchema, await readJson(c));
+    const profile = await accounts.setCharacter(c.get("player"), character);
+    return c.json({ profile });
   });
 
   app.notFound(handleNotFound);

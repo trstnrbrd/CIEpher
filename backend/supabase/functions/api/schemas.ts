@@ -44,6 +44,15 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+// The two characters on the Character Select screen.
+export const characterSchema = z.object({
+  character: z.enum(["boy", "girl"], {
+    error: 'Character must be "boy" or "girl".',
+  }),
+});
+
+export type Character = z.infer<typeof characterSchema>["character"];
+
 // Checks a request body against a schema. If it's invalid, throws a 400 that
 // names the first wrong field, so the frontend can highlight it.
 export function parse<T>(schema: z.ZodType<T>, body: unknown): T {

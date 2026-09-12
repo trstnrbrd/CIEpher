@@ -9,20 +9,32 @@ Until an endpoint is ✅, build against the example responses below (mock data).
 
 ## Basics
 
-|                        |                                             |
-| ---------------------- | ------------------------------------------- |
-| API base URL (local)   | `http://127.0.0.1:54321/functions/v1/api`   |
-| API base URL (staging) | Coming once login/register are ready        |
-| Body format            | JSON. Send `Content-Type: application/json` |
-| Logged-in requests     | Send `Authorization: Bearer <accessToken>`  |
+|                        |                                                             |
+| ---------------------- | ----------------------------------------------------------- |
+| API base URL (local)   | `http://127.0.0.1:54321/functions/v1/api`                   |
+| API base URL (staging) | `https://ljdxoyttpyrvbibazxyv.supabase.co/functions/v1/api` |
+| Body format            | JSON. Send `Content-Type: application/json`                 |
+| Logged-in requests     | Send `Authorization: Bearer <accessToken>`                  |
 
-Keep URLs and keys in `frontend/.env.local`, never in code:
+Keep URLs and keys in `frontend/.env.local`, never in code.
+
+Local (needs Docker and the backend running):
 
 ```
 VITE_API_URL=http://127.0.0.1:54321/functions/v1/api
 VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_PUBLISHABLE_KEY=(Tristan will send this)
 ```
+
+Staging (online, no Docker needed; test accounts only, never real student data):
+
+```
+VITE_API_URL=https://ljdxoyttpyrvbibazxyv.supabase.co/functions/v1/api
+VITE_SUPABASE_URL=https://ljdxoyttpyrvbibazxyv.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=(Tristan will send this)
+```
+
+Tip: put the staging values in `frontend/.env.staging.local` instead, and run `npm run dev -- --mode staging` to use staging. Plain `npm run dev` keeps using `.env.local`.
 
 ### Errors
 
@@ -67,13 +79,13 @@ await supabase.auth.setSession({
 });
 ```
 
-- **Calling logged-in endpoints:** get the current token with `(await supabase.auth.getSession()).data.session?.access_token`.
-- **Logout:** `await supabase.auth.signOut()`, then `queryClient.clear()`. Lab computers are shared, so the next player must not see the last player's data.
+- **Calling logged-in endpoints:** use `getMe()` and `setCharacter()` from `src/api/client.ts`. They add the current token for you.
+- **Logout:** call `logout()` from `src/api/client.ts`, then clear any player data kept in React state. Lab computers are shared, so the next player must not see the last player's data.
 - Don't save tokens yourself (e.g. in `localStorage`). supabase-js already does it safely.
 
 ## Endpoints
 
-### 🚧 `POST /auth/register`
+### ✅ `POST /auth/register`
 
 Creates the account and the player's profile. It does **not** log the player in: send them back to Login to sign in (the client's flow).
 
@@ -114,7 +126,7 @@ Success, **201**:
 
 Errors: `400 VALIDATION_ERROR`, `409 USERNAME_TAKEN`, `409 EMAIL_TAKEN`.
 
-### 🚧 `POST /auth/login`
+### ✅ `POST /auth/login`
 
 Request (the username isn't case-sensitive):
 
@@ -131,7 +143,9 @@ Success, **200**: `session` + `profile`, the same shape as register, but here `s
 
 After 5 wrong passwords within 15 minutes, that username is locked for 15 minutes. While it's locked, even the right password gets 429. The message says how many minutes are left.
 
-### 🚧 `GET /me` (logged in)
+### ✅ `GET /me` (logged in)
+
+The logged-in player's profile. In the frontend: `const profile = await getMe()`.
 
 Success, **200**:
 
@@ -145,10 +159,27 @@ Success, **200**:
 }
 ```
 
-### 🚧 `PUT /me/character` (logged in)
+`character` is `null` until the player picks one on Character Select.
 
-Request: `{ "character": "boy" }` (either `"boy"` or `"girl"`)
+- Right after login you don't need this: `login()` already returns the same profile.
+- Use it when the page reloads while the player is still logged in (supabase-js restores the session, but not the profile).
+
+Errors: `401 UNAUTHORIZED` (not logged in, logged out, or the session ended): send the player to Login.
+
+### ✅ `PUT /me/character` (logged in)
+
+Saves the character picked on Character Select. In the frontend: `const profile = await setCharacter('girl')`.
+
+Request: `{ "character": "boy" }` (exactly `"boy"` or `"girl"`, lowercase)
+
 Success, **200**: `{ "profile": { ... } }`, the updated profile.
+
+| Status | code               | What to do                                                |
+| ------ | ------------------ | --------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR` | `field` is `character`: a bug in the call, not the player |
+| 401    | `UNAUTHORIZED`     | Send the player to Login                                  |
+
+The player can only change their **own** character. The server takes who they are from the token, never from the request.
 
 ## Not in the API (use supabase-js directly)
 
