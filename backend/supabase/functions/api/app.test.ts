@@ -1,5 +1,5 @@
 import { assertEquals, assertFalse } from "@std/assert";
-import type { Accounts } from "./accounts.ts";
+import type { Accounts, Player } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
 import type { LoginInput, RegisterInput } from "./schemas.ts";
@@ -24,6 +24,12 @@ function fakeAccounts(overrides: Partial<Accounts> = {}): Accounts {
     register: () => Promise.resolve({ session: null, profile: PLAYER }),
 
     login: () => Promise.resolve({ session: SESSION, profile: PLAYER }),
+    // Only "valid-token" belongs to a logged-in player.
+    verifyToken: (token) =>
+      Promise.resolve(token === "valid-token" ? PLAYER.id : null),
+    getProfile: () => Promise.resolve(PLAYER),
+    setCharacter: (_player, character) =>
+      Promise.resolve({ ...PLAYER, character }),
     ...overrides,
   };
 }
@@ -294,4 +300,79 @@ Deno.test("login: a locked username comes back as 429", async () => {
       message: "Too many failed attempts. Try again in 15 minutes.",
     },
   });
+});
+
+// ---------- logged-in routes: GET /api/me, PUT /api/me/character ----------
+
+const UNAUTHORIZED = {
+  error: { code: "UNAUTHORIZED", message: "Please log in again." },
+};
+
+Deno.test("me: without a token is 401", async () => {
+  const res = await testApp().request("/api/me");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("me: with an invalid token is 401", async () => {
+  const res = await testApp().request("/api/me", {
+    headers: { authorization: "Bearer stolen-or-expired" },
+  });
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
+});
+
+Deno.test("me: returns the logged-in player's profile", async () => {
+  let asked: Player | undefined;
+  const app = testApp({
+    accounts: fakeAccounts({
+      getProfile: (player) => {
+        asked = player;
+        return Promise.resolve(PLAYER);
+      },
+    }),
+  });
+  const res = await app.request("/api/me", {
+    headers: { authorization: "Bearer valid-token" },
+  });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), { profile: PLAYER });
+  assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
+});
+
+function putCharacter(body: unknown, token = "valid-token") {
+  return testApp().request("/api/me/character", {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+Deno.test("character: saves boy or girl", async () => {
+  const res = await putCharacter({ character: "girl" });
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    profile: { ...PLAYER, character: "girl" },
+  });
+});
+
+Deno.test("character: rejects anything else and names the field", async () => {
+  const res = await putCharacter({ character: "dragon" });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: 'Character must be "boy" or "girl".',
+      field: "character",
+    },
+  });
+});
+
+Deno.test("character: requires login", async () => {
+  const res = await putCharacter({ character: "boy" }, "stolen-or-expired");
+  assertEquals(res.status, 401);
+  assertEquals(await res.json(), UNAUTHORIZED);
 });

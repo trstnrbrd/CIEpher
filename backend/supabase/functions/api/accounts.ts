@@ -1,22 +1,28 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { ApiError } from "./errors.ts";
-import type { LoginInput, RegisterInput } from "./schemas.ts";
+import type { Character, LoginInput, RegisterInput } from "./schemas.ts";
 
 export type Profile = {
   id: string;
   username: string;
-  character: "boy" | "girl" | null;
+  character: Character | null;
 };
 export type Session = { accessToken: string; refreshToken: string };
 // Register never logs the player in (the client's flow sends them back to the
 // login screen), so its session is always null. Login always has one.
 export type AuthResult = { session: Session | null; profile: Profile };
+// A logged-in player, as proven by their access token.
+export type Player = { id: string; accessToken: string };
 
 // Everything the routes need for player accounts. Routes depend on this type,
 // not on Supabase directly, so tests can pass a fake instead.
 export type Accounts = {
   register(input: RegisterInput): Promise<AuthResult>;
   login(input: LoginInput): Promise<AuthResult>;
+  // The player's user id if the access token is valid, or null if it isn't.
+  verifyToken(accessToken: string): Promise<string | null>;
+  getProfile(player: Player): Promise<Profile>;
+  setCharacter(player: Player, character: Character): Promise<Profile>;
 };
 
 export type SupabaseConfig = {
@@ -129,7 +135,53 @@ export function supabaseAccounts(config: SupabaseConfig): Accounts {
       if (profileError) throw profileError;
       return { session: signedIn.session, profile };
     },
+
+    async verifyToken(accessToken) {
+      // Supabase Auth checks the token: signature, expiry, and that the
+      // account still exists.
+      const { data, error } = await admin.auth.getUser(accessToken);
+      // 4xx means a bad, expired or unknown token: the player must log in.
+      // Anything else (e.g. Auth is down) is a real error, not a logout.
+      if (error && error.status !== undefined && error.status < 500) {
+        return null;
+      }
+      if (error) throw error;
+      return data.user.id;
+    },
+
+    async getProfile(player) {
+      // Runs as the player, so the database's own rules (RLS) decide what
+      // they can read: only their own row.
+      const { data: profile, error } = await asPlayer(config, player)
+        .from("profiles")
+        .select("id, username, character")
+        .eq("id", player.id)
+        .single();
+      if (error) throw error;
+      return profile;
+    },
+
+    async setCharacter(player, character) {
+      // Also runs as the player: RLS lets them change their own character
+      // and nothing else in their profile.
+      const { data: profile, error } = await asPlayer(config, player)
+        .from("profiles")
+        .update({ character })
+        .eq("id", player.id)
+        .select("id, username, character")
+        .single();
+      if (error) throw error;
+      return profile;
+    },
   };
+}
+
+// A client that acts as the logged-in player, so RLS applies to every query.
+function asPlayer(config: SupabaseConfig, player: Player): SupabaseClient {
+  return createClient(config.url, config.anonKey, {
+    ...serverOptions,
+    global: { headers: { Authorization: `Bearer ${player.accessToken}` } },
+  });
 }
 
 // Throws a 429 while the username is locked.

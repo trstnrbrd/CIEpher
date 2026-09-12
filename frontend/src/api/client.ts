@@ -5,10 +5,12 @@ import { supabase } from './supabase'
 
 const API_URL = import.meta.env.VITE_API_URL
 
+export type Character = 'boy' | 'girl'
+
 export type Profile = {
   id: string
   username: string
-  character: 'boy' | 'girl' | null
+  character: Character | null
 }
 
 export type RegisterInput = {
@@ -40,12 +42,19 @@ async function request<T>(
   method: 'GET' | 'POST' | 'PUT',
   path: string,
   body?: unknown,
+  accessToken?: string,
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  }
+  // Logged-in routes need to know who's asking.
+  if (accessToken) headers.authorization = `Bearer ${accessToken}`
+
   let res: Response
   try {
     res = await fetch(`${API_URL}${path}`, {
       method,
-      headers: { 'content-type': 'application/json' },
+      headers,
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
@@ -109,4 +118,37 @@ export async function register(input: RegisterInput): Promise<Profile> {
 // next player must never inherit the last player's login.
 export async function logout(): Promise<void> {
   await supabase.auth.signOut()
+}
+
+// The logged-in player's access token. supabase-js refreshes it before it
+// expires, so this is always the current one.
+async function currentAccessToken(): Promise<string> {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) {
+    throw new ApiError(401, 'UNAUTHORIZED', 'Please log in again.')
+  }
+  return token
+}
+
+// The logged-in player's profile, including their chosen character (or null).
+export async function getMe(): Promise<Profile> {
+  const { profile } = await request<{ profile: Profile }>(
+    'GET',
+    '/me',
+    undefined,
+    await currentAccessToken(),
+  )
+  return profile
+}
+
+// Saves the character picked on the Character Select screen.
+export async function setCharacter(character: Character): Promise<Profile> {
+  const { profile } = await request<{ profile: Profile }>(
+    'PUT',
+    '/me/character',
+    { character },
+    await currentAccessToken(),
+  )
+  return profile
 }
