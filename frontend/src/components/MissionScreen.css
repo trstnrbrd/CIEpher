@@ -149,31 +149,11 @@
   border-radius: 6px;
   box-shadow: 0 4px 0 #000000;
   padding: 12px 18px;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
 }
 
-.mission-choice:hover {
-  border-color: #ffe066;
-}
-
-.mission-choice.selected {
-  border-color: #ffe066;
-}
-
-.mission-choice.choice-correct {
-  background: #2e8b43;
-  border-color: #39d353;
-  color: #a7ffb8;
-}
-
-.mission-choice.choice-wrong {
-  background: #8b3030;
-  border-color: #ff5c5c;
-  color: #ffc9c9;
+.mission-choice-hint {
+  opacity: 0.7;
+  cursor: default;
 }
 
 /* The TYPE HERE box plus its red-character overlay. */
@@ -278,6 +258,15 @@
   margin: 0;
   text-align: center;
   line-height: 1.8;
+}
+
+.mission-loading {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #ffe066;
+  text-shadow: 2px 2px 0 #000000;
+  margin: 0;
+  text-align: center;
 }
 
 .mission-next {

@@ -42,5 +42,5 @@ export const OUTSIDE_PAGES: StoryPage[] = [
 // before the RideJeep(); exercise.
 export const JEEP_START_PAGE: StoryPage = {
   bg: jeepneyTerminalImg,
-  lines: ['The jeepney is ready!'],
+  lines: ['The jeepney is ready. Time to head to school.'],
 }

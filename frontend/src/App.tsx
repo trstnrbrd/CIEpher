@@ -50,27 +50,36 @@ function App() {
   // hanging boot check from leaving a blank page; it's generous because slow
   // school Wi-Fi shouldn't log players out. Not for a reset link: its
   // one-time session is only for setting a new password, never for playing.
+  // The loading screen also holds for a short minimum so a fast session
+  // restore never just flashes away.
+  const MIN_BOOT_MS = 700
   useEffect(() => {
     if (configError || resetLink !== null) {
       return
     }
     let active = true
-    const boot = Promise.race([
-      getMe(),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('boot timed out')), 15000),
-      ),
-    ])
-    boot
-      .then((p) => {
-        if (active) setProfile(p)
-      })
-      .catch(() => {
-        if (active) setProfile(null)
-      })
-      .finally(() => {
-        if (active) setChecking(false)
-      })
+    const started = Date.now()
+    ;(async () => {
+      let profile: Profile | null = null
+      let failed = false
+      try {
+        profile = await Promise.race([
+          getMe(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('boot timed out')), 15000),
+          ),
+        ])
+      } catch {
+        failed = true
+      }
+      const remaining = MIN_BOOT_MS - (Date.now() - started)
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining))
+      }
+      if (!active) return
+      setProfile(failed ? null : profile)
+      setChecking(false)
+    })()
     return () => {
       active = false
     }

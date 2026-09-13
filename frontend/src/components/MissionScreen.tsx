@@ -16,6 +16,7 @@ import {
   OUTSIDE_PAGES,
 } from '../storyPages'
 import CoreBreakdown from './CoreBreakdown'
+import SakayAnimation from './SakayAnimation'
 import TaskBar from './TaskBar'
 import { getLesson } from '../lessons'
 import './MissionScreen.css'
@@ -37,24 +38,6 @@ interface MissionScreenProps {
 
 function chapterLabel(id: number): string {
   return id === 0 ? 'PROLOGUE' : `CHAPTER ${id}`
-}
-
-// Matches the server's answer rules for coloring: spacing never matters,
-// curly quotes from phone keyboards count as plain ones, capitals do.
-function normalizeSyntax(s: string): string {
-  return s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, '')
-}
-
-// Which hint choice the typed answer looks like, or null if it matches none.
-function matchingChoice(
-  answer: string,
-  choices: string[],
-): number | null {
-  const normalized = normalizeSyntax(answer)
-  for (let i = 0; i < choices.length; i++) {
-    if (normalizeSyntax(choices[i]) === normalized) return i
-  }
-  return null
 }
 
 // Character diff against the lesson's code: every position that reads
@@ -109,18 +92,16 @@ function MissionScreen({
     null,
   )
   const [serverError, setServerError] = useState<string | null>(null)
-  // The coding challenge (from the lesson data): which hint is selected,
-  // which one turned green/red, where the typed code is wrong, and whether
-  // the wrong answer was cut short.
+  // The coding challenge (from the lesson data): where the typed code is wrong
+  // and whether the wrong answer was cut short.
   const lesson = getLesson(chapter, mission)
-  const [selectedChoice, setSelectedChoice] = useState<number | null>(null)
-  const [choiceOk, setChoiceOk] = useState<number | null>(null)
-  const [choiceBad, setChoiceBad] = useState<number | null>(null)
   const [wrongChars, setWrongChars] = useState<number[]>([])
   const [missingTail, setMissingTail] = useState<boolean>(false)
   // The "UNDERSTAND THE CORE" screen shows after a correct answer, before
   // the green CORRECT! message.
   const [showCore, setShowCore] = useState<boolean>(false)
+  // The "sakay" animation plays after the last prologue puzzle (mission 3).
+  const [showingAnimation, setShowingAnimation] = useState<boolean>(false)
 
   const refreshProgress = async (): Promise<void> => {
     try {
@@ -155,6 +136,20 @@ function MissionScreen({
       active = false
     }
   }, [onUnauthorized])
+
+  // Wait for the player's progress before showing any story or challenge, so
+  // nothing flashes (like the "coming soon" empty state) while it loads. A
+  // failed load falls through to the server error screen instead.
+  if (progress === null && !serverError) {
+    return (
+      <div className="mission-screen">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+        <div className="mission-content">
+          <p className="mission-loading">LOADING…</p>
+        </div>
+      </div>
+    )
+  }
 
   // The prologue opens with the welcome screens, then a short story, before
   // mission 1. Only mission 1 mounts them, so missions 2+ skip straight to
@@ -254,17 +249,11 @@ function MissionScreen({
     setChecking(true)
     setFeedback(null)
     setServerError(null)
-    setChoiceOk(null)
-    setChoiceBad(null)
     try {
       const { correct } = await submitAnswer(chapter, mission, answer)
       if (correct) {
         setWrongChars([])
         setMissingTail(false)
-        const chosen = lesson?.choices
-          ? matchingChoice(answer, lesson.choices)
-          : null
-        if (chosen !== null) setChoiceOk(chosen)
         setAnswer('')
         await refreshProgress()
         if (lesson?.core) {
@@ -280,12 +269,11 @@ function MissionScreen({
         }
       } else if (lesson?.choices) {
         // A wrong syntax: mark the offending characters red and tell the
-        // player none of it ran.
+        // player none of it ran. The player typed it, so the red overlay
+        // shows exactly which characters are wrong.
         const { wrong, missing } = highlightDiff(answer, lesson.code ?? '')
         setWrongChars(wrong)
         setMissingTail(missing)
-        const choice = matchingChoice(answer, lesson.choices)
-        if (choice !== null) setChoiceBad(choice)
         setFeedback({
           ok: false,
           text: 'SYNTAX ERROR: CHECK THE HIGHLIGHTED PART OF YOUR CODE AND TRY AGAIN. THE PROGRAM WILL NOT EXECUTE UNTIL THE CORRECT SYNTAX IS ENTERED.',
@@ -312,36 +300,32 @@ function MissionScreen({
     }
   }
 
-  // Clicking a hint types it into the box and starts the highlight state over.
-  const pickChoice = (choice: number, value: string): void => {
-    setAnswer(value)
-    setSelectedChoice(choice)
-    setWrongChars([])
-    setMissingTail(false)
-    setChoiceOk(null)
-    setChoiceBad(null)
-  }
-
-  // Back to typing by hand: clear the hint pick and the old highlight state.
+  // Typing by hand resets the old highlight state.
   const changeAnswer = (value: string): void => {
     setAnswer(value)
-    setSelectedChoice(null)
     setWrongChars([])
     setMissingTail(false)
-    setChoiceOk(null)
-    setChoiceBad(null)
   }
 
   // The player finished the learning screen. The location only changes after
   // the explanation: mission 1's door swings open and the player goes outside
-  // before the CORRECT! message; the other missions just celebrate.
+  // before the CORRECT! message; mission 3 plays the sakay animation; the
+  // other missions just celebrate.
   const closeCore = (): void => {
     setShowCore(false)
     if (chapter === 0 && mission === 1) {
       setDoorOpen(true)
+    } else if (chapter === 0 && mission === 3) {
+      setShowingAnimation(true)
     } else {
       setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     }
+  }
+
+  // The sakay animation finished (or was skipped): celebrate for real.
+  const closeAnimation = (): void => {
+    setShowingAnimation(false)
+    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
   }
 
   const nextMission = (() => {
@@ -449,23 +433,14 @@ function MissionScreen({
           <div className="mission-challenge">
             <p className="mission-challenge-prompt">{lesson.prompt}</p>
             {lesson.choices && (
-              <div className="mission-choices">
+              <div
+                className="mission-choices"
+                aria-label="Possible answers - type one below"
+              >
                 {lesson.choices.map((choice, i) => (
-                  <button
-                    type="button"
-                    key={i}
-                    className={[
-                      'mission-choice',
-                      selectedChoice === i ? 'selected' : '',
-                      choiceOk === i ? 'choice-correct' : '',
-                      choiceBad === i ? 'choice-wrong' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    onClick={() => pickChoice(i, choice)}
-                  >
+                  <span key={i} className="mission-choice mission-choice-hint">
                     {choice}
-                  </button>
+                  </span>
                 ))}
               </div>
             )}
@@ -550,6 +525,8 @@ function MissionScreen({
           onClose={closeCore}
         />
       )}
+
+      {showingAnimation && <SakayAnimation onFinish={closeAnimation} />}
     </div>
   )
 }
