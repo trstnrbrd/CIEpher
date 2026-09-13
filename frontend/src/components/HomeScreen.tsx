@@ -1,17 +1,27 @@
 import type { Profile } from '../api/client'
 import boyImg from '../assets/boy.png'
 import girlImg from '../assets/girl.png'
+import GameTopBar from './GameTopBar'
 import './HomeScreen.css'
 
 interface HomeScreenProps {
   profile: Profile
   onLogout: () => void
   onPlay: () => void
+  onJournal: () => void
+  onSettings: () => void
 }
 
-function HomeScreen({ profile, onLogout, onPlay }: HomeScreenProps) {
+function HomeScreen({
+  profile,
+  onLogout,
+  onPlay,
+  onJournal,
+  onSettings,
+}: HomeScreenProps) {
   return (
     <div className="home-screen">
+      <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <h1 className="home-title">CIEPHER</h1>
       <p className="home-welcome">Welcome, {profile.username}!</p>
       {profile.character && (

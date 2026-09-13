@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ApiError, getProgress, type Progress } from '../api/client'
+import GameTopBar from './GameTopBar'
 import './ChapterSelect.css'
 
 interface ChapterSelectProps {
   onBack: () => void
   onExit: () => void
   onOpenMission: (chapter: number, mission: number) => void
+  onJournal: () => void
+  onSettings: () => void
 }
 
 function chapterLabel(id: number): string {
@@ -14,7 +17,13 @@ function chapterLabel(id: number): string {
   return `CHAPTER ${id}`
 }
 
-function ChapterSelect({ onBack, onExit, onOpenMission }: ChapterSelectProps) {
+function ChapterSelect({
+  onBack,
+  onExit,
+  onOpenMission,
+  onJournal,
+  onSettings,
+}: ChapterSelectProps) {
   const [progress, setProgress] = useState<Progress | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,6 +66,7 @@ function ChapterSelect({ onBack, onExit, onOpenMission }: ChapterSelectProps) {
   if (error) {
     return (
       <div className="chapter-select">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
         <div className="chapter-content">
           <h2 className="chapter-title">CHAPTERS</h2>
           <p className="chapter-error">{error}</p>
@@ -71,6 +81,7 @@ function ChapterSelect({ onBack, onExit, onOpenMission }: ChapterSelectProps) {
   if (!progress) {
     return (
       <div className="chapter-select">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
         <div className="chapter-content">
           <p className="chapter-loading">LOADING…</p>
         </div>
@@ -80,6 +91,7 @@ function ChapterSelect({ onBack, onExit, onOpenMission }: ChapterSelectProps) {
 
   return (
     <div className="chapter-select">
+      <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <div className="chapter-content">
         <h2 className="chapter-title">SELECT CHAPTER</h2>
         <p className="chapter-progress">

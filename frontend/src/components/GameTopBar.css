@@ -1,0 +1,54 @@
+/* The journal (top-left) and settings (top-right) icons float over the
+   game screens. The bar itself catches no pointer events so everything
+   behind it still works; only the two buttons are clickable. */
+.game-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(11.5 * var(--h));
+  z-index: 60;
+  pointer-events: none;
+}
+
+.top-bar-btn {
+  position: absolute;
+  top: calc(1.6 * var(--h));
+  z-index: 60;
+  pointer-events: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.5));
+  transition: transform 0.15s ease;
+}
+
+.top-bar-btn:hover {
+  transform: translateY(-2px);
+}
+
+.top-bar-btn img {
+  width: calc(9 * var(--h));
+  height: auto;
+  object-fit: contain;
+}
+
+.top-bar-journal {
+  left: calc(1.6 * var(--h));
+}
+
+.top-bar-settings {
+  right: calc(1.6 * var(--h));
+}
+
+.top-bar-btn:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .top-bar-btn img {
+    width: calc(10 * var(--h));
+  }
+}
