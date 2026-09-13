@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding-bottom: 80px;
+  padding-bottom: 24px;
 }
 
 .mission-screen::before {
@@ -42,27 +42,21 @@
   display: block;
 }
 
-/* A lighter dim over the scene so the question card pops but the story
-   location still reads. */
-.mission-scene-bg::after {
-  background: rgba(8, 10, 28, 0.55);
-}
-
 .mission-screen::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(8, 10, 28, 0.84);
+  background: transparent;
   z-index: -1;
 }
 
 .mission-content {
-  width: min(680px, 92vw);
+  width: min(960px, 92vw);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 36px 20px 40px;
+  gap: 14px;
+  padding: 28px 20px 32px;
 }
 
 .mission-header {
@@ -113,47 +107,54 @@
 
 .mission-challenge {
   width: 100%;
-  min-height: 180px;
-  background: #ffffff;
-  border: max(3px, 0.24vw) solid #7b46d6;
-  border-radius: calc(1.6 * var(--h));
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
-  padding: 18px;
+  min-height: 500px;
+  box-sizing: border-box;
+  background: #fffef5;
+  border: 3px solid #ad201d;
+  border-radius: 30px;
+  box-shadow: none;
+  padding: 64px 36px 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 52px;
 }
 
 .mission-challenge-prompt {
   font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  color: #7b46d6;
+  font-size: clamp(13px, 1.7vw, 24px);
+  color: #080808;
   margin: 0;
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .mission-choices {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-around;
+  gap: 24px;
 }
 
 .mission-choice {
   font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  color: #ffffff;
-  background: #10142b;
-  border: 3px solid #4b5790;
-  border-radius: 6px;
-  box-shadow: 0 4px 0 #000000;
-  padding: 12px 18px;
+  font-size: clamp(11px, 1.35vw, 20px);
+  color: #080808;
+  background: #f2ecd6;
+  border: 3px solid #ad201d;
+  border-radius: 999px;
+  box-shadow: none;
+  padding: 14px 30px;
+  min-width: 28%;
+  text-align: center;
 }
 
 .mission-choice-hint {
-  opacity: 0.7;
+  opacity: 1;
   cursor: default;
+}
+
+.mission-choice-wrong {
+  color: #080808;
+  background: #e33d4f;
 }
 
 /* The TYPE HERE box plus its red-character overlay. */
@@ -173,6 +174,11 @@
   caret-color: #ffffff;
 }
 
+.mission-input.highlighted::selection {
+  background: transparent;
+  color: transparent;
+}
+
 .mission-code-overlay {
   position: absolute;
   top: 0;
@@ -181,10 +187,12 @@
   bottom: 0;
   display: flex;
   align-items: center;
-  padding: 17px;
+  box-sizing: border-box;
+  padding: 22px 26px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 14px;
-  color: #ffffff;
+  font-size: clamp(11px, 1.35vw, 20px);
+  line-height: normal;
+  color: #080808;
   white-space: pre;
   pointer-events: none;
   overflow: hidden;
@@ -201,37 +209,45 @@
 .mission-form {
   width: 100%;
   display: flex;
-  gap: 12px;
+  gap: 28px;
   align-items: stretch;
 }
 
 .mission-input {
   flex: 1;
   font-family: 'Press Start 2P', monospace;
-  font-size: 14px;
-  color: #ffffff;
-  background: #10142b;
-  border: 3px solid #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 4px 0 #000000;
-  padding: 14px;
+  font-size: clamp(11px, 1.35vw, 20px);
+  color: #080808;
+  background: #f2ecd6;
+  border: 3px solid #ad201d;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 22px 26px;
   outline: none;
+  min-height: 80px;
+  box-sizing: border-box;
 }
 
 .mission-input:focus {
-  border-color: #ffe066;
+  border-color: #ad201d;
 }
 
 .mission-input::placeholder {
-  color: #5f6a9c;
+  color: #ffffff;
+  opacity: 1;
 }
 
 .mission-execute {
-  background: #3f8c2b;
+  background: #f2ecd6;
+  border: 3px solid #ad201d;
+  border-radius: 999px;
+  box-shadow: none;
+  color: #080808;
+  min-width: 145px;
 }
 
 .mission-execute:hover {
-  background: #53b537;
+  background: #e9dfc0;
 }
 
 .mission-feedback {
@@ -321,7 +337,7 @@
 
   .mission-code-overlay {
     font-size: 13px;
-    padding: 15px;
+    padding: 12px;
   }
 
   .mission-execute {

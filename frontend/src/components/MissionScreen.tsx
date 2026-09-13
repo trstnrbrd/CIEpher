@@ -93,6 +93,7 @@ function MissionScreen({
   const lesson = getLesson(chapter, mission)
   const [wrongChars, setWrongChars] = useState<number[]>([])
   const [missingTail, setMissingTail] = useState<boolean>(false)
+  const [wrongChoiceIndex, setWrongChoiceIndex] = useState<number | null>(null)
   // The "UNDERSTAND THE CORE" screen shows after a correct answer, before
   // the green CORRECT! message.
   const [showCore, setShowCore] = useState<boolean>(false)
@@ -250,6 +251,7 @@ function MissionScreen({
       if (correct) {
         setWrongChars([])
         setMissingTail(false)
+        setWrongChoiceIndex(null)
         setAnswer('')
         await refreshProgress()
         if (lesson?.core) {
@@ -270,6 +272,10 @@ function MissionScreen({
         const { wrong, missing } = highlightDiff(answer, lesson.code ?? '')
         setWrongChars(wrong)
         setMissingTail(missing)
+        const typedChoice = lesson.choices.findIndex(
+          (choice) => choice.trim() === answer.trim(),
+        )
+        setWrongChoiceIndex(typedChoice === -1 ? null : typedChoice)
         setFeedback({
           ok: false,
           text: 'SYNTAX ERROR: CHECK THE HIGHLIGHTED PART OF YOUR CODE AND TRY AGAIN. THE PROGRAM WILL NOT EXECUTE UNTIL THE CORRECT SYNTAX IS ENTERED.',
@@ -301,6 +307,7 @@ function MissionScreen({
     setAnswer(value)
     setWrongChars([])
     setMissingTail(false)
+    setWrongChoiceIndex(null)
   }
 
   // The player finished the learning screen. The location only changes after
@@ -314,14 +321,14 @@ function MissionScreen({
     } else if (chapter === 0 && mission === 3) {
       setShowingAnimation(true)
     } else {
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+      advanceAfterSuccess()
     }
   }
 
-  // The sakay animation finished (or was skipped): celebrate for real.
+  // The sakay animation finished (or was skipped): continue to the next scene.
   const closeAnimation = (): void => {
     setShowingAnimation(false)
-    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    advanceAfterSuccess()
   }
 
   const nextMission = (() => {
@@ -332,6 +339,14 @@ function MissionScreen({
     const next = missions[index + 1]
     return next && next.unlocked ? next.number : null
   })()
+
+  const advanceAfterSuccess = (): void => {
+    if (nextMission !== null) {
+      onOpenMission(chapter, nextMission)
+    } else {
+      onChapter()
+    }
+  }
 
   if (serverError) {
     return (
@@ -405,20 +420,7 @@ function MissionScreen({
         <img className="mission-scene" src={lesson.sceneBg} alt="" />
       )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
-      <TaskBar
-        chapter={chapter}
-        progress={progress}
-        currentMission={mission}
-        onOpenMission={onOpenMission}
-      />
       <div className="mission-content">
-        <h2 className="mission-header">
-          {chapterLabel(chapter)} – MISSION {mission}
-        </h2>
-        <p className="mission-skip">
-          {missionStatus.completed ? 'ALREADY COMPLETED – PLAY AGAIN' : ' '}
-        </p>
-
         {lesson?.prompt ? (
           <div className="mission-challenge">
             <p className="mission-challenge-prompt">{lesson.prompt}</p>
@@ -428,12 +430,58 @@ function MissionScreen({
                 aria-label="Possible answers - type one below"
               >
                 {lesson.choices.map((choice, i) => (
-                  <span key={i} className="mission-choice mission-choice-hint">
+                  <span
+                    key={i}
+                    className={`mission-choice mission-choice-hint ${
+                      wrongChoiceIndex === i ? 'mission-choice-wrong' : ''
+                    }`}
+                  >
                     {choice}
                   </span>
                 ))}
               </div>
             )}
+
+            <form className="mission-form" onSubmit={handleSubmit}>
+              <div className="mission-code-zone">
+                <input
+                  className={[
+                    'mission-input',
+                    wrongChars.length > 0 || missingTail ? 'highlighted' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  type="text"
+                  value={answer}
+                  onChange={(e) => changeAnswer(e.target.value)}
+                  placeholder="TYPE HERE"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  disabled={checking}
+                />
+                {(wrongChars.length > 0 || missingTail) && (
+                  <span className="mission-code-overlay" aria-hidden="true">
+                    {Array.from(answer).map((ch, i) => (
+                      <span
+                        key={i}
+                        className={wrongChars.includes(i) ? 'hl-red' : ''}
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                    {missingTail && <span className="hl-red hl-caret">_</span>}
+                  </span>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="pixel-button mission-execute"
+                disabled={checking || !missionStatus.unlocked}
+              >
+                {checking ? 'CHECKING…' : 'EXECUTE'}
+              </button>
+            </form>
           </div>
         ) : (
           <div className="mission-hint">
@@ -441,47 +489,6 @@ function MissionScreen({
             <p className="mission-hint-body">Coming soon…</p>
           </div>
         )}
-
-        <form className="mission-form" onSubmit={handleSubmit}>
-          <div className="mission-code-zone">
-            <input
-              className={[
-                'mission-input',
-                wrongChars.length > 0 || missingTail ? 'highlighted' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              type="text"
-              value={answer}
-              onChange={(e) => changeAnswer(e.target.value)}
-              placeholder="TYPE HERE"
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck={false}
-              disabled={checking}
-            />
-            {(wrongChars.length > 0 || missingTail) && (
-              <span className="mission-code-overlay" aria-hidden="true">
-                {Array.from(answer).map((ch, i) => (
-                  <span
-                    key={i}
-                    className={wrongChars.includes(i) ? 'hl-red' : ''}
-                  >
-                    {ch}
-                  </span>
-                ))}
-                {missingTail && <span className="hl-red hl-caret">_</span>}
-              </span>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="pixel-button mission-execute"
-            disabled={checking || !missionStatus.unlocked}
-          >
-            {checking ? 'CHECKING…' : 'EXECUTE'}
-          </button>
-        </form>
 
         {feedback && (
           <p

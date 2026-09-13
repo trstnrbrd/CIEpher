@@ -58,3 +58,55 @@ body,
 .boot-error {
   color: #ff6b6b;
 }
+
+/* Shared pixel-button structure. Components keep their own colors. */
+button.pixel-button,
+button.home-play,
+button.home-logout,
+button.start-button,
+button.nav-btn,
+button.settings-chapter,
+button.settings-logout,
+button.settings-close,
+button.confirm-btn,
+button.btn-submit,
+button.login-enter {
+  border-radius: 12px !important;
+  border-width: 4px !important;
+  border-style: solid !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.42),
+    0 6px 12px rgba(0, 0, 0, 0.24) !important;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease !important;
+}
+
+button.pixel-button:hover,
+button.home-play:hover,
+button.home-logout:hover,
+button.start-button:hover,
+button.nav-btn:hover,
+button.settings-chapter:hover,
+button.settings-logout:hover,
+button.settings-close:hover,
+button.confirm-btn:hover,
+button.btn-submit:hover,
+button.login-enter:hover {
+  transform: translateY(-2px);
+}
+
+button.pixel-button:active,
+button.home-play:active,
+button.home-logout:active,
+button.start-button:active,
+button.nav-btn:active,
+button.settings-chapter:active,
+button.settings-logout:active,
+button.settings-close:active,
+button.confirm-btn:active,
+button.btn-submit:active,
+button.login-enter:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.42) !important;
+}

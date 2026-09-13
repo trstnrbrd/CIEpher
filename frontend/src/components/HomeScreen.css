@@ -6,7 +6,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4vh;
   overflow: hidden;
 }
 
@@ -26,21 +25,74 @@
   z-index: 1;
 }
 
+.home-menu {
+  position: relative;
+  z-index: 2;
+  width: min(500px, 86vw);
+  min-height: min(620px, 82vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3vh;
+  padding: 5vh 5vw;
+  background: rgba(18, 22, 47, 0.76);
+  border: 4px solid #fffff3;
+  border-radius: 18px;
+  box-shadow:
+    0 8px 0 rgba(8, 10, 28, 0.85),
+    0 14px 24px rgba(0, 0, 0, 0.35);
+}
+
+.home-menu::before,
+.home-menu::after {
+  content: '';
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-color: #ffe066;
+  border-style: solid;
+}
+
+.home-menu::before {
+  top: -4px;
+  left: -4px;
+  border-width: 4px 0 0 4px;
+}
+
+.home-menu::after {
+  right: -4px;
+  bottom: -4px;
+  border-width: 0 4px 4px 0;
+}
+
+.home-kicker,
 .home-title,
 .home-welcome,
 .home-character,
-.home-play,
-.home-logout {
+.home-actions {
   position: relative;
   z-index: 2;
 }
 
-.home-title {
+.home-kicker {
+  margin: 0;
+  color: #ffe066;
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.home-title {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(2rem, 6vw, 3.6rem);
   color: #fff;
   -webkit-text-stroke: calc(0.2 * var(--h)) #000;
-  text-shadow: 0.25rem 0.25rem 0 #000;
+  text-shadow:
+    0.25rem 0.25rem 0 #000,
+    0 0 18px rgba(255, 224, 102, 0.28);
 }
 
 .home-welcome,
@@ -51,16 +103,46 @@
   text-shadow: 2px 2px 0 #000;
 }
 
+.home-welcome {
+  margin: 0;
+  color: #fffff3;
+}
+
 .home-character {
-  position: relative;
-  z-index: 2;
+  width: min(210px, 38vw);
+  min-height: 200px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border: 3px solid rgba(255, 224, 102, 0.75);
+  border-radius: 12px;
+  background: rgba(7, 10, 27, 0.5);
+  box-shadow: inset 0 -10px 0 rgba(0, 0, 0, 0.18);
 }
 
 .home-avatar {
-  height: 16vh;
+  height: 20vh;
+  max-height: 185px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+.home-avatar-label {
+  position: absolute;
+  top: 10px;
+  color: #ffe066;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.home-actions {
+  width: min(320px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
 }
 
 .home-play {
@@ -78,6 +160,7 @@
     0 4px 0 #1c4ba3,
     0 6px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.15s ease;
+  width: 100%;
 }
 
 .home-play:hover {
@@ -88,8 +171,11 @@
 
 /* Phone / short screens: tighter spacing and touch-friendly buttons. */
 @media (max-height: 560px) {
-  .home-screen {
-    gap: 2.5vh;
+  .home-menu {
+    min-height: 86vh;
+    gap: 1.2vh;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
   }
 
   .home-play,
@@ -99,7 +185,7 @@
   }
 
   .home-avatar {
-    height: 11vh;
+    height: 15vh;
   }
 }
 
@@ -118,6 +204,7 @@
     0 4px 0 #7a241c,
     0 6px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.15s ease;
+  width: 100%;
 }
 
 .home-logout:hover {
