@@ -20,17 +20,30 @@ export class ApiError extends Error {
   }
 }
 
-export const handleError: ErrorHandler = (err, c) => {
-  if (err instanceof ApiError) {
-    return c.json(errorBody(err.code, err.message, err.field), err.status);
-  }
-  // Anything else is a bug: log the details, show the player a generic message.
-  console.error(err);
-  return c.json(
-    errorBody("INTERNAL_ERROR", "Something went wrong. Please try again."),
-    500,
-  );
-};
+// Sends a bug to error monitoring (Sentry in index.ts, a fake in tests).
+// Gets only the error and the route: never the request body, headers or player.
+export type ReportError = (error: unknown, context: { route: string }) => void;
+
+export function errorHandler(reportError?: ReportError): ErrorHandler {
+  return (err, c) => {
+    if (err instanceof ApiError) {
+      return c.json(errorBody(err.code, err.message, err.field), err.status);
+    }
+    // Anything else is a bug: log and report the details, show the player a
+    // generic message.
+    console.error(err);
+    try {
+      reportError?.(err, { route: `${c.req.method} ${c.req.path}` });
+    } catch (reportFailure) {
+      // A broken reporter must never break the player's error message.
+      console.error("Error report failed:", reportFailure);
+    }
+    return c.json(
+      errorBody("INTERNAL_ERROR", "Something went wrong. Please try again."),
+      500,
+    );
+  };
+}
 
 export const handleNotFound: NotFoundHandler = (c) => {
   return c.json(errorBody("NOT_FOUND", "That route doesn't exist."), 404);

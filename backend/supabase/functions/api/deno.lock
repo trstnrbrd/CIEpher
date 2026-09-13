@@ -4,6 +4,7 @@
     "jsr:@std/assert@1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@supabase/functions-js@2": "2.116.0",
+    "npm:@sentry/deno@10.74.0": "10.74.0",
     "npm:@supabase/supabase-js@2.116.0": "2.116.0",
     "npm:hono@4.13.7": "4.13.7",
     "npm:openai@^4.52.5": "4.104.0_zod@4.6.1",
@@ -27,6 +28,33 @@
     }
   },
   "npm": {
+    "@opentelemetry/api@1.9.1": {
+      "integrity": "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="
+    },
+    "@sentry/conventions@0.16.0": {
+      "integrity": "sha512-fO9PLmHdVURcSPUpWCItWAtgKiMwGdJHbovoSEyLplX5sxs2ugvI4CBPTrkkgqhObnZOD0CnWBKDzSVQYBKEyQ=="
+    },
+    "@sentry/core@10.74.0": {
+      "integrity": "sha512-u9rY8vcZfktccwm6LznfCZlqP5C9A+p76r4/pFS1grqpuTO0m21Cl8rosnlESrDGP/Xd9tfr91rWYk0jPH8jeQ==",
+      "dependencies": [
+        "@sentry/conventions"
+      ]
+    },
+    "@sentry/deno@10.74.0": {
+      "integrity": "sha512-4f6jLy1AvqE7pZOry76Nsd0+0E4tp+0QwA+AOJQUycwDQvqbOq1Ve1WgVlXiUyPPE3fnTsWL5dXmuJ2f2Q3ZAg==",
+      "dependencies": [
+        "@opentelemetry/api",
+        "@sentry/core",
+        "@sentry/server-utils"
+      ]
+    },
+    "@sentry/server-utils@10.74.0": {
+      "integrity": "sha512-AHmPIGE8yVRyywpZRhAkm/H0cHTgsQSPhFZFbaeQLcYHFE/eOP9bAMh8Nj/Apr7WMagFXYHd04tR/63BxtLgKw==",
+      "dependencies": [
+        "@sentry/conventions",
+        "@sentry/core"
+      ]
+    },
     "@supabase/auth-js@2.116.0": {
       "integrity": "sha512-Cmosty12gyKGK9N3bQb+lMmuAFev5nmUzaR1AsmZHqKOAGzqX1VQzmp49CNPwOx/pw0H9Qqk4rs9yhwTlKpfDg==",
       "dependencies": [
@@ -295,6 +323,7 @@
     "dependencies": [
       "jsr:@std/assert@1.0.19",
       "jsr:@supabase/functions-js@2",
+      "npm:@sentry/deno@10.74.0",
       "npm:@supabase/supabase-js@2.116.0",
       "npm:hono@4.13.7",
       "npm:zod@4.6.1"

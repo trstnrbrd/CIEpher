@@ -2,6 +2,7 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 import { supabaseAccounts } from "./accounts.ts";
 import { createApp } from "./app.ts";
 import { supabaseGame } from "./game.ts";
+import { sentryReporter } from "./sentry.ts";
 
 // Comma-separated list from the environment, e.g. "http://localhost:5173".
 const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
@@ -21,6 +22,11 @@ Deno.serve(
     allowedOrigins,
     accounts: supabaseAccounts(supabase),
     game: supabaseGame(supabase),
+    // Set only on staging and production (Supabase secrets).
+    reportError: sentryReporter(
+      Deno.env.get("SENTRY_DSN"),
+      Deno.env.get("SENTRY_ENVIRONMENT") ?? "unknown",
+    ),
   }).fetch,
 );
 
