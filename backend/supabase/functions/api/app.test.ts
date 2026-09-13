@@ -551,11 +551,31 @@ Deno.test("submit: a right answer comes back as correct", async () => {
   );
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { correct: true });
-  // The answer arrives trimmed, for the verified player.
+  // The answer arrives trimmed, for the verified player. Without a question
+  // number, it's question 1.
   assertEquals(received, {
     player: { id: PLAYER.id, accessToken: "valid-token" },
-    input: { ...MISSION_1, answer: "OpenDoor();" },
+    input: { ...MISSION_1, question: 1, answer: "OpenDoor();" },
   });
+});
+
+Deno.test("submit: the question number is passed on", async () => {
+  let received: SubmitInput | undefined;
+  const app = testApp({
+    game: fakeGame({
+      submitAnswer: (_player, input) => {
+        received = input;
+        return Promise.resolve({ correct: false });
+      },
+    }),
+  });
+  const res = await submit(
+    { chapter: 1, mission: 1, question: 2, answer: "if" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 200);
+  assertEquals(received, { chapter: 1, mission: 1, question: 2, answer: "if" });
 });
 
 Deno.test("submit: a wrong answer is a normal 200, not an error", async () => {
@@ -583,6 +603,20 @@ Deno.test("submit: chapter and mission must be whole numbers", async () => {
   assertEquals(body.error.field, "chapter");
 });
 
+Deno.test("submit: the question is a whole number from 1 to 9", async () => {
+  for (const question of [0, 10, 1.5, "2"]) {
+    const res = await submit({ ...MISSION_1, question, answer: "x" });
+    assertEquals(res.status, 400);
+    assertEquals(await res.json(), {
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Question must be a whole number from 1 to 9.",
+        field: "question",
+      },
+    });
+  }
+});
+
 Deno.test("submit: a locked mission comes back as 403", async () => {
   const app = testApp({
     game: fakeGame({
@@ -605,3 +639,32 @@ Deno.test("submit: a locked mission comes back as 403", async () => {
     error: { code: "MISSION_LOCKED", message: "That mission is still locked." },
   });
 });
+
+Deno.test(
+  "submit: a question that doesn't exist comes back as 404",
+  async () => {
+    const app = testApp({
+      game: fakeGame({
+        submitAnswer: () => {
+          throw new ApiError(
+            404,
+            "QUESTION_NOT_FOUND",
+            "That question doesn't exist.",
+          );
+        },
+      }),
+    });
+    const res = await submit(
+      { ...MISSION_1, question: 3, answer: "OpenDoor();" },
+      "valid-token",
+      app,
+    );
+    assertEquals(res.status, 404);
+    assertEquals(await res.json(), {
+      error: {
+        code: "QUESTION_NOT_FOUND",
+        message: "That question doesn't exist.",
+      },
+    });
+  },
+);

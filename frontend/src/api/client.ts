@@ -242,17 +242,20 @@ export async function getProgress(): Promise<Progress> {
 }
 
 // Checks the answer typed into a mission's TYPE HERE box (chapter 0 is the
-// prologue). A correct answer is saved on the server right away, so the
-// "progress saved" popup can show as soon as this returns correct: true.
+// prologue). Missions with more than one question (chapter 1, mission 1) pass
+// the question number, counted from 1. The right answer to a mission's last
+// question is saved on the server right away, so the "progress saved" popup
+// can show as soon as that returns correct: true.
 export async function submitAnswer(
   chapter: number,
   mission: number,
   answer: string,
+  question = 1,
 ): Promise<SubmitResult> {
   return request<SubmitResult>(
     'POST',
     '/missions/submit',
-    { chapter, mission, answer },
+    { chapter, mission, question, answer },
     await currentAccessToken(),
   )
 }

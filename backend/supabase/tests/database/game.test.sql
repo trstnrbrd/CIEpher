@@ -56,10 +56,10 @@ select results_eq(
   'players can read the chapters'
 );
 
--- 4. Players see the missions.
+-- 4. Players see the missions (the prologue's 3 and chapter 1's 5).
 select is(
   (select count(*)::int from public.missions),
-  3,
+  8,
   'players can read the missions'
 );
 
