@@ -5,11 +5,15 @@ import {
   serverOptions,
   type SupabaseConfig,
 } from "./accounts.ts";
+import { findMistakes, type Mistake, sameCode } from "./csharp.ts";
 import { ApiError } from "./errors.ts";
 import { buildProgress, findMission, type Progress } from "./progress.ts";
 import type { SubmitInput } from "./schemas.ts";
 
-export type SubmitResult = { correct: boolean };
+// A wrong answer also says where it's wrong (see csharp.ts), so the game can
+// mark that part red. The right answer itself is never sent.
+export type SubmitResult =
+  { correct: true } | { correct: false; mistakes: Mistake[] };
 
 // Everything the routes need for the game itself. Like Accounts, routes
 // depend on this type, not on Supabase directly, so tests can pass a fake.
@@ -20,14 +24,14 @@ export type Game = {
 };
 
 export function supabaseGame(config: SupabaseConfig): Game {
-  // Full access that skips RLS, only for checking answers: players can never
-  // read them. Never leaves the server.
+  // Full access that skips RLS, only for reading answers and recording tries:
+  // players can never read the answers. Never leaves the server.
   const admin = createClient(config.url, config.serviceRoleKey, serverOptions);
 
   return {
     getProgress: (player) => loadProgress(config, player),
 
-    async submitAnswer(player, { chapter, mission, answer }) {
+    async submitAnswer(player, { chapter, mission, question, answer }) {
       // The same unlock rules as GET /progress decide what can be answered.
       const progress = await loadProgress(config, player);
       const status = findMission(progress, chapter, mission);
@@ -46,19 +50,40 @@ export function supabaseGame(config: SupabaseConfig): Game {
         );
       }
 
-      // The database checks the answer and records the try in one step
-      // (see the mission_submit migration).
-      const { data: correct, error } = await admin.rpc(
-        "submit_mission_answer",
-        {
-          p_player_id: player.id,
-          p_chapter: chapter,
-          p_mission: mission,
-          p_answer: answer,
-        },
-      );
-      if (error) throw error;
-      return { correct: correct === true };
+      // The question's accepted answers. None means there's no such question.
+      const { data: rows, error: readError } = await admin
+        .from("mission_answers")
+        .select("answer")
+        .eq("chapter_id", chapter)
+        .eq("mission_number", mission)
+        .eq("question", question);
+      if (readError) throw readError;
+      const answers = rows.map((row) => row.answer as string);
+      if (answers.length === 0) {
+        throw new ApiError(
+          404,
+          "QUESTION_NOT_FOUND",
+          "That question doesn't exist.",
+        );
+      }
+
+      // Compared as C#: capitals matter, extra spaces don't (see csharp.ts).
+      const correct = answers.some((accepted) => sameCode(answer, accepted));
+
+      // The database records the try, and completes the mission when this
+      // is the right answer to its last question (autosave).
+      const { error: recordError } = await admin.rpc("record_mission_attempt", {
+        p_player_id: player.id,
+        p_chapter: chapter,
+        p_mission: mission,
+        p_question: question,
+        p_correct: correct,
+      });
+      if (recordError) throw recordError;
+
+      return correct
+        ? { correct: true }
+        : { correct: false, mistakes: findMistakes(answer, answers) };
     },
   };
 }

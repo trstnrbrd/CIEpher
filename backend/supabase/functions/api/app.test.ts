@@ -51,9 +51,14 @@ const PROGRESS = {
 function fakeGame(overrides: Partial<Game> = {}): Game {
   return {
     getProgress: () => Promise.resolve(PROGRESS),
-    // Only prologue mission 1's real answer is correct.
+    // Only prologue mission 1's real answer is correct. A wrong one gets a
+    // made-up mistake: finding the real ones is csharp.ts's job.
     submitAnswer: (_player, input) =>
-      Promise.resolve({ correct: input.answer === "OpenDoor();" }),
+      Promise.resolve(
+        input.answer === "OpenDoor();"
+          ? { correct: true }
+          : { correct: false, mistakes: [{ start: 8, end: 9 }] },
+      ),
     ...overrides,
   };
 }
@@ -136,9 +141,13 @@ Deno.test("ApiError is sent to the player as-is", async () => {
 });
 
 Deno.test("unexpected errors hide their details from the player", async () => {
-  const app = testApp();
+  const reported: { error: unknown; route: string }[] = [];
+  const app = testApp({
+    reportError: (error, { route }) => reported.push({ error, route }),
+  });
+  const crash = new Error("database password is hunter2");
   app.get("/test-crash", () => {
-    throw new Error("database password is hunter2");
+    throw crash;
   });
 
   // The real error is logged on purpose. Capture it so the test can check it
@@ -158,9 +167,55 @@ Deno.test("unexpected errors hide their details from the player", async () => {
       },
     });
     assertEquals(logged.length, 1);
+    // Reported once, with only the route alongside the error.
+    assertEquals(reported, [{ error: crash, route: "GET /api/test-crash" }]);
   } finally {
     console.error = originalError;
   }
+});
+
+Deno.test(
+  "a broken error reporter doesn't break the player's answer",
+  async () => {
+    const app = testApp({
+      reportError: () => {
+        throw new Error("Sentry is down");
+      },
+    });
+    app.get("/test-crash", () => {
+      throw new Error("the real bug");
+    });
+
+    const originalError = console.error;
+    console.error = () => {};
+    try {
+      const res = await app.request("/api/test-crash");
+      assertEquals(res.status, 500);
+      assertEquals((await res.json()).error.code, "INTERNAL_ERROR");
+    } finally {
+      console.error = originalError;
+    }
+  },
+);
+
+Deno.test("errors players are allowed to see are not reported", async () => {
+  const reported: unknown[] = [];
+  const app = testApp({ reportError: (error) => reported.push(error) });
+  app.get("/test-api-error", () => {
+    throw new ApiError(
+      409,
+      "USERNAME_TAKEN",
+      "That username is already taken.",
+    );
+  });
+
+  assertEquals((await app.request("/api/test-api-error")).status, 409);
+  assertEquals(
+    (await postJson(app, "/api/auth/register", { username: "x" })).status,
+    400,
+  );
+  assertEquals((await app.request("/api/me")).status, 401);
+  assertEquals(reported, []);
 });
 
 // ---------- POST /api/auth/register ----------
@@ -501,17 +556,41 @@ Deno.test("submit: a right answer comes back as correct", async () => {
   );
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { correct: true });
-  // The answer arrives trimmed, for the verified player.
+  // The answer arrives exactly as typed (mistakes are counted from it), for
+  // the verified player. Without a question number, it's question 1.
   assertEquals(received, {
     player: { id: PLAYER.id, accessToken: "valid-token" },
-    input: { ...MISSION_1, answer: "OpenDoor();" },
+    input: { ...MISSION_1, question: 1, answer: "  OpenDoor();  " },
   });
+});
+
+Deno.test("submit: the question number is passed on", async () => {
+  let received: SubmitInput | undefined;
+  const app = testApp({
+    game: fakeGame({
+      submitAnswer: (_player, input) => {
+        received = input;
+        return Promise.resolve({ correct: false, mistakes: [] });
+      },
+    }),
+  });
+  const res = await submit(
+    { chapter: 1, mission: 1, question: 2, answer: "if" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 200);
+  assertEquals(received, { chapter: 1, mission: 1, question: 2, answer: "if" });
 });
 
 Deno.test("submit: a wrong answer is a normal 200, not an error", async () => {
   const res = await submit({ ...MISSION_1, answer: "OpenDoor:" });
   assertEquals(res.status, 200);
-  assertEquals(await res.json(), { correct: false });
+  // With where it's wrong, passed on as the game found it.
+  assertEquals(await res.json(), {
+    correct: false,
+    mistakes: [{ start: 8, end: 9 }],
+  });
 });
 
 Deno.test("submit: an empty answer is a 400 that names the field", async () => {
@@ -526,11 +605,37 @@ Deno.test("submit: an empty answer is a 400 that names the field", async () => {
   });
 });
 
+Deno.test("submit: an answer over 500 characters is a 400", async () => {
+  const res = await submit({ ...MISSION_1, answer: "x".repeat(501) });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "That answer is too long.",
+      field: "answer",
+    },
+  });
+});
+
 Deno.test("submit: chapter and mission must be whole numbers", async () => {
   const res = await submit({ chapter: "zero", mission: 1, answer: "x" });
   assertEquals(res.status, 400);
   const body = await res.json();
   assertEquals(body.error.field, "chapter");
+});
+
+Deno.test("submit: the question is a whole number from 1 to 9", async () => {
+  for (const question of [0, 10, 1.5, "2"]) {
+    const res = await submit({ ...MISSION_1, question, answer: "x" });
+    assertEquals(res.status, 400);
+    assertEquals(await res.json(), {
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Question must be a whole number from 1 to 9.",
+        field: "question",
+      },
+    });
+  }
 });
 
 Deno.test("submit: a locked mission comes back as 403", async () => {
@@ -555,3 +660,32 @@ Deno.test("submit: a locked mission comes back as 403", async () => {
     error: { code: "MISSION_LOCKED", message: "That mission is still locked." },
   });
 });
+
+Deno.test(
+  "submit: a question that doesn't exist comes back as 404",
+  async () => {
+    const app = testApp({
+      game: fakeGame({
+        submitAnswer: () => {
+          throw new ApiError(
+            404,
+            "QUESTION_NOT_FOUND",
+            "That question doesn't exist.",
+          );
+        },
+      }),
+    });
+    const res = await submit(
+      { ...MISSION_1, question: 3, answer: "OpenDoor();" },
+      "valid-token",
+      app,
+    );
+    assertEquals(res.status, 404);
+    assertEquals(await res.json(), {
+      error: {
+        code: "QUESTION_NOT_FOUND",
+        message: "That question doesn't exist.",
+      },
+    });
+  },
+);

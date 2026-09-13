@@ -2,7 +2,7 @@
 
 How the game (frontend) talks to the backend. **Tristan** owns this document. Don't rely on anything that isn't written here; ask Tristan first.
 
-- **Last updated:** 2026-09-12
+- **Last updated:** 2026-09-13
 - **Status legend:** 🚧 being built · ✅ ready to use
 
 Until an endpoint is ✅, build against the example responses below (mock data).
@@ -220,15 +220,27 @@ Success, **200** (this player has finished prologue mission 1):
         { "number": 3, "unlocked": false, "completed": false }
       ]
     },
-    { "id": 1, "unlocked": false, "completed": false, "missions": [] }
+    {
+      "id": 1,
+      "unlocked": false,
+      "completed": false,
+      "missions": [
+        { "number": 1, "unlocked": false, "completed": false },
+        { "number": 2, "unlocked": false, "completed": false },
+        { "number": 3, "unlocked": false, "completed": false },
+        { "number": 4, "unlocked": false, "completed": false },
+        { "number": 5, "unlocked": false, "completed": false }
+      ]
+    },
+    { "id": 2, "unlocked": false, "completed": false, "missions": [] }
   ]
 }
 ```
 
-The real response lists chapters 0 to 8 (8 is the epilogue); chapters 2 to 8 look like chapter 1 here.
+The real response lists chapters 0 to 8 (8 is the epilogue); chapters 3 to 8 look like chapter 2 here.
 
 - Chapter `0` is the prologue. Missions are numbered from 1, in play order.
-- Chapters 1 to 8 have `"missions": []` until the client sends their content.
+- Chapter 1 has 5 missions. Chapters 2 to 8 have `"missions": []` until the client sends their content.
 - **The server decides what's unlocked.** Never work it out in the frontend:
   - The prologue is always unlocked.
   - Inside a chapter, missions unlock one at a time, in order.
@@ -250,37 +262,71 @@ Errors: `401 UNAUTHORIZED`: send the player to Login.
 
 ### ✅ `POST /missions/submit` (logged in)
 
-Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const { correct } = await submitAnswer(0, 1, typed)`.
+Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const result = await submitAnswer(0, 1, typed)`. (`client.ts`'s `SubmitResult` type gets the `mistakes` field in the next frontend PR; the server already sends it.)
 
-Request:
+**Missions with more than one question:** chapter 1's mission 1 asks 2. First, which control structure fits (`if` or `while`), then the code. Pass the question number, counted from 1, as the 4th argument: `submitAnswer(1, 1, choice, 1)`, then `submitAnswer(1, 1, typed, 2)`. For one-question missions, leave it out (it's 1). Only the right answer to a mission's **last** question completes the mission.
+
+Request (`question` is optional; it's 1 when left out). Send `answer` exactly as typed, spaces and line breaks included: the positions in `mistakes` count from it.
 
 ```json
-{ "chapter": 0, "mission": 1, "answer": "OpenDoor();" }
+{
+  "chapter": 1,
+  "mission": 1,
+  "question": 2,
+  "answer": "if(hasSchoolID)\n{\n    EnterSchool();\n}"
+}
 ```
 
-Success, **200**, either `{ "correct": true }` or `{ "correct": false }`. A wrong answer is **not** an error.
+Success, **200**. A wrong answer is **not** an error.
+
+```json
+{ "correct": true }
+```
+
+```json
+{
+  "correct": false,
+  "mistakes": [
+    { "start": 2, "end": 2 },
+    { "start": 14, "end": 14 }
+  ]
+}
+```
+
+`mistakes` says where a wrong answer is wrong, as positions in the `answer` that was sent (JavaScript string positions, counted from 0; `end` is just past the last character):
+
+- `start < end`: **those characters are wrong** (e.g. `IF` instead of `if`). Paint them red.
+- `start === end`: **something is missing right there** (e.g. a `;` or `( )`). Show a red marker at that spot.
+
+The example above is the doc's wrong choice for chapter 1, mission 1 (`if hasSchoolID` …): something is missing right after `if` and right after `hasSchoolID`. The server compares with the right answer, but never sends it.
 
 How answers are compared (the client's rules):
 
-- **Capitals matter**, like real C#: `opendoor();` is wrong.
+- **Capitals matter**, like real C#: `opendoor();` and `IF(isCompleted)` are wrong.
 - **Extra spaces don't matter**: `OpenDoor ( ) ;` counts as `OpenDoor();`. But a space inside a name is a mistake: `Open Door();` is wrong.
+- **Line breaks and indentation don't matter either.** Chapter 1's answers are 4 lines in the client's doc, but `if(hasPower){StartComputer();}` on one line is also right.
+- **Symbols must be written together, like in C#:** `score >= 75` is right, `score > = 75` is wrong (C# can't compile it). The same goes for `==`, `!=`, `&&`, `||`, `++` and the others.
+- **Text in quotes must match exactly**, spaces included: `"Hi there"` is not `"Hi   there"`.
+- Comments (`// ...` and `/* ... */`) are ignored, like in C#.
 - Curly quotes from phone keyboards count as plain quotes.
 - The game never knows the right answer. It shows the two hint choices from its own mission data, and only the server decides.
 
 What to do with the result:
 
-- `correct: true`: **the progress is already saved** (autosave). Show the Program Flow popup, then "progress saved". Call `getProgress()` to see what's unlocked now. After a chapter's last mission, show "chapter complete".
-- `correct: false`: turn the typed answer (or the hint it matches) red and let the player try again. There's no limit on tries.
+- `correct: true` on a mission's last question: **the progress is already saved** (autosave). Show the Program Flow popup, then "progress saved". Call `getProgress()` to see what's unlocked now. After a chapter's last mission, show "chapter complete".
+- `correct: true` on an earlier question: nothing is saved yet. Go on to the next question.
+- `correct: false`: mark the parts in `mistakes` red (see above) and let the player try again. There's no limit on tries. Don't compare the answer in the frontend: the game doesn't have the right answer, and the server reads C# more exactly.
 - Replaying a finished mission works the same way, but doesn't change the saved progress.
 
-**The TYPE HERE input must have** `autoCapitalize="off" autoCorrect="off" spellCheck={false}`. Otherwise phones turn `if` into `If`, and a right answer is marked wrong.
+**The TYPE HERE box must have** `autoCapitalize="off" autoCorrect="off" spellCheck={false}`. Otherwise phones turn `if` into `If`, and a right answer is marked wrong. From chapter 1 on, answers take several lines, so it must be a `<textarea>` (Enter adds a new line), not a one-line `<input>`.
 
-| Status | code                | What to do                                                                                          |
-| ------ | ------------------- | --------------------------------------------------------------------------------------------------- |
-| 400    | `VALIDATION_ERROR`  | `field` is `answer` ("Type your answer first."): show it. `chapter` or `mission`: a bug in the call |
-| 401    | `UNAUTHORIZED`      | Send the player to Login                                                                            |
-| 403    | `MISSION_LOCKED`    | The screen opened a mission that isn't unlocked yet: refresh with `getProgress()`                   |
-| 404    | `MISSION_NOT_FOUND` | Wrong chapter or mission number: a bug in the mission data                                          |
+| Status | code                 | What to do                                                                                                      |
+| ------ | -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR`   | `field` is `answer` ("Type your answer first."): show it. `chapter`, `mission` or `question`: a bug in the call |
+| 401    | `UNAUTHORIZED`       | Send the player to Login                                                                                        |
+| 403    | `MISSION_LOCKED`     | The screen opened a mission that isn't unlocked yet: refresh with `getProgress()`                               |
+| 404    | `MISSION_NOT_FOUND`  | Wrong chapter or mission number: a bug in the mission data                                                      |
+| 404    | `QUESTION_NOT_FOUND` | That mission has no such question number: a bug in the mission data                                             |
 
 ## Not in the API (use supabase-js directly)
 

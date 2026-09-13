@@ -1,0 +1,12 @@
+// The game's website on Cloudflare Workers: static files only, no Worker code.
+// Workers Builds runs `npm run build` in frontend/, then `npx wrangler deploy`
+// uploads dist/.
+{
+  "name": "ciepher",
+  "compatibility_date": "2026-09-12",
+  "assets": {
+    "directory": "./dist/",
+    // The game is one page: any unknown path serves index.html.
+    "not_found_handling": "single-page-application",
+  },
+}
