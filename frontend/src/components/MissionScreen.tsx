@@ -11,9 +11,9 @@ import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
+  JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
-  TERMINAL_START_PAGE,
 } from '../storyPages'
 import CoreBreakdown from './CoreBreakdown'
 import TaskBar from './TaskBar'
@@ -92,13 +92,15 @@ function MissionScreen({
   )
   // After the welcome screens' YES, a short story plays before mission 1.
   const [showingStory, setShowingStory] = useState<boolean>(false)
-  // Mission 2 opens at the jeepney terminal: a short arrival beat before the
-  // GoToTerminal(); exercise. Mission 1 opens with its own story instead.
-  const [showingTerminal, setShowingTerminal] = useState<boolean>(
-    chapter === 0 && mission === 2,
+  // Mission 1 opens with its own story. Mission 3 opens at the jeep with a
+  // short boarding beat before the RideJeep(); exercise, so the scene moves
+  // from the terminal to the jeep itself. Mission 2 needs no opening beat:
+  // the previous mission's outside pages already promise the jeep terminal.
+  const [showingJeep, setShowingJeep] = useState<boolean>(
+    chapter === 0 && mission === 3,
   )
-  // After mission 1's answer is accepted, the door swings open (bedroom,
-  // then outside) before the "UNDERSTAND THE CORE" recap.
+  // After mission 1's explanation closes, the door swings open and the player
+  // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<Progress | null>(null)
   const [answer, setAnswer] = useState('')
@@ -156,8 +158,8 @@ function MissionScreen({
 
   // The prologue opens with the welcome screens, then a short story, before
   // mission 1. Only mission 1 mounts them, so missions 2+ skip straight to
-  // their opening beat. Mission 2's opening plays the jeepney terminal
-  // arrival before its exercise.
+  // their beat. Mission 2's question follows right after mission 1's outside
+  // pages, while mission 3 opens with the boarding beat at the jeep.
   if (showingStory) {
     return (
       <>
@@ -180,8 +182,9 @@ function MissionScreen({
     )
   }
 
-  // After mission 1's answer is accepted: the door opens, the player steps
-  // outside, then the lesson recap plays.
+  // After mission 1's explanation closes: the door opens, the player steps
+  // outside. The last outside page ("make your way to the jeep terminal")
+  // leads straight into the GoToTerminal(); challenge.
   if (doorOpen) {
     return (
       <>
@@ -190,7 +193,11 @@ function MissionScreen({
           pages={[OPEN_DOOR_PAGE, ...OUTSIDE_PAGES]}
           onFinish={() => {
             setDoorOpen(false)
-            setShowCore(true)
+            if (chapter === 0 && mission === 1) {
+              onOpenMission(chapter, 2)
+            } else {
+              setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+            }
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -205,13 +212,13 @@ function MissionScreen({
     )
   }
 
-  if (showingTerminal) {
+  if (showingJeep) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[TERMINAL_START_PAGE]}
-          onFinish={() => setShowingTerminal(false)}
+          pages={[JEEP_START_PAGE]}
+          onFinish={() => setShowingJeep(false)}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -260,12 +267,10 @@ function MissionScreen({
         if (chosen !== null) setChoiceOk(chosen)
         setAnswer('')
         await refreshProgress()
-        if (chapter === 0 && mission === 1) {
-          // Solving the door puzzle plays the opening-door story beat
-          // (bedroom, then outside) before the lesson recap.
-          setDoorOpen(true)
-        } else if (lesson?.core) {
-          // The learning screen plays before the CORRECT! message.
+        if (lesson?.core) {
+          // The learning screen (program flow / explanation) always plays
+          // right after a correct answer. Any location change waits until
+          // the player closes it.
           setShowCore(true)
         } else {
           setFeedback({
@@ -327,11 +332,16 @@ function MissionScreen({
     setChoiceBad(null)
   }
 
-  // The player finished the learning screen; show the green CORRECT! and
-  // saved message.
+  // The player finished the learning screen. The location only changes after
+  // the explanation: mission 1's door swings open and the player goes outside
+  // before the CORRECT! message; the other missions just celebrate.
   const closeCore = (): void => {
     setShowCore(false)
-    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    if (chapter === 0 && mission === 1) {
+      setDoorOpen(true)
+    } else {
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    }
   }
 
   const nextMission = (() => {

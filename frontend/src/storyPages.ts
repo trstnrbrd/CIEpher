@@ -3,7 +3,7 @@
 
 import openDoorImg from './assets/prologue/OpenDoor.png'
 import outsideDoorImg from './assets/prologue/OutsideDoor.png'
-import jeepneyTerminalStartImg from './assets/prologue/jeepneyterminal_start.jpg'
+import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 
 export type StoryPage = {
   bg: string
@@ -16,9 +16,9 @@ export type StoryPage = {
   align?: 'center' | 'left' | 'right'
 }
 
-// The story beat right after mission 1's answer is accepted: the door swings
+// The story beat right after mission 1's explanation closes: the door swings
 // open (player steps to the left) and the player ends up outside (stepping
-// to the right) before the lesson recap plays.
+// to the right) before the CORRECT! message appears.
 export const OPEN_DOOR_PAGE: StoryPage = {
   bg: openDoorImg,
   lines: ['The door is open!'],
@@ -38,10 +38,9 @@ export const OUTSIDE_PAGES: StoryPage[] = [
   },
 ]
 
-// The opening of mission 2: the player reaches the jeepney terminal and must
-// run GoToTerminal(); to switch the program over to it.
-export const TERMINAL_START_PAGE: StoryPage = {
-  bg: jeepneyTerminalStartImg,
-  lines: ["You've made it to the terminal."],
-  align: 'left',
+// The opening of mission 3: the player is now at/in the jeep and boards it
+// before the RideJeep(); exercise.
+export const JEEP_START_PAGE: StoryPage = {
+  bg: jeepneyTerminalImg,
+  lines: ['The jeepney is ready!'],
 }
