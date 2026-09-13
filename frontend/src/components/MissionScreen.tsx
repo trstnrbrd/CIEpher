@@ -8,6 +8,7 @@ import {
 } from '../api/client'
 import GameNav from './GameNav'
 import PostSelectWelcome from './PostSelectWelcome'
+import PrologueStory from './PrologueStory'
 import './MissionScreen.css'
 
 interface MissionScreenProps {
@@ -42,6 +43,8 @@ function MissionScreen({
   const [showingIntro, setShowingIntro] = useState<boolean>(
     chapter === 0 && mission === 1,
   )
+  // After the welcome screens' YES, a short story plays before mission 1.
+  const [showingStory, setShowingStory] = useState<boolean>(false)
   const [progress, setProgress] = useState<Progress | null>(null)
   const [answer, setAnswer] = useState('')
   const [checking, setChecking] = useState(false)
@@ -84,13 +87,26 @@ function MissionScreen({
     }
   }, [onUnauthorized])
 
-  // The prologue opens with the character's intro before mission 1. Only
-  // mission 1 mounts it, so missions 2+ skip straight to the exercise.
+  // The prologue opens with the welcome screens, then a short story, before
+  // mission 1. Only mission 1 mounts them, so missions 2+ skip straight to
+  // the exercise.
+  if (showingStory) {
+    return (
+      <PrologueStory
+        character={character}
+        onFinish={() => {
+          setShowingStory(false)
+          setShowingIntro(false)
+        }}
+      />
+    )
+  }
+
   if (showingIntro) {
     return (
       <PostSelectWelcome
         character={character}
-        onContinue={() => setShowingIntro(false)}
+        onContinue={() => setShowingStory(true)}
       />
     )
   }

@@ -1,0 +1,172 @@
+.prologue-story {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0f0f1a;
+}
+
+/* The scene fills the whole screen, every time, whatever its shape: a
+   real <img> that covers without ever leaving a gap. Anchored to the
+   bottom (a hair left) so the bedroom's floor and player always show. */
+.story-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: 55% 100%;
+  z-index: 0;
+}
+
+/* Darken the scene just enough to read the bubble comfortably. */
+.prologue-story::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+
+/* The player's character, big, centered and grounded: sunk a touch below
+   the bottom edge so the feet rest on the floor instead of floating. */
+.story-person {
+  --size: calc(74 * var(--h));
+  position: absolute;
+  left: 50%;
+  bottom: calc(-4 * var(--h));
+  transform: translateX(-50%);
+  height: var(--size);
+  width: auto;
+  object-fit: contain;
+  z-index: 3;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* The speech bubble: a wide, short white rectangle (slightly rounded
+   corners) with a purple outline, hugging the top of the screen. Text and
+   "Tap to next" stack tightly in a column, centered. */
+.story-bubble {
+  position: absolute;
+  left: 50%;
+  top: calc(8 * var(--h));
+  transform: translateX(-50%);
+  width: min(80vw, calc(145 * var(--h)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(1.6 * var(--h));
+  padding: calc(3 * var(--h)) calc(4 * var(--h));
+  background: #ffffff;
+  border: max(3px, 0.24vw) solid #7b46d6;
+  border-radius: min(2vw, calc(3 * var(--h)));
+  color: #000000;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.story-bubble:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 4px;
+}
+
+.story-text {
+  display: block;
+  width: 66ch;
+  text-align: center;
+  font-size: min(1.45vw, calc(2.6 * var(--h)));
+  line-height: 1.5;
+}
+
+.story-line {
+  display: block;
+  white-space: pre-line;
+}
+
+/* Keep the two lines close together. */
+.story-line + .story-line {
+  margin-top: 0.5em;
+}
+
+.story-rest {
+  color: transparent;
+}
+
+.story-caret {
+  position: relative;
+}
+
+.story-caret::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0.1em;
+  width: 0.7em;
+  height: 0.9em;
+  background: currentColor;
+  animation: story-caret-blink 0.8s steps(1) infinite;
+}
+
+@keyframes story-caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* "Tap to next", a small label right under the text (the column gap puts
+   a little air above it). */
+.story-tap {
+  font-size: min(1.1vw, calc(2 * var(--h)));
+  white-space: nowrap;
+}
+
+.story-tap-hidden {
+  visibility: hidden;
+}
+
+/* ---------- Tablet / phones ---------- */
+
+/* Narrow screens: the bubble stays near-full width but slides to the top
+   so it never swallows the character, who stays big at the bottom. */
+@media (max-width: 1024px) {
+  .story-bubble {
+    left: 50%;
+    top: calc(8 * var(--h));
+    transform: translateX(-50%);
+    width: 92vw;
+    padding: 6vw 6vw;
+    border-radius: clamp(10px, 1.6vw, 18px);
+  }
+
+  .story-person {
+    --size: calc(62 * var(--h));
+    left: 50%;
+    bottom: calc(-4 * var(--h));
+  }
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .story-bubble {
+    top: calc(6 * var(--h));
+    padding: 7vw 6vw;
+  }
+
+  .story-person {
+    --size: calc(50 * var(--h));
+    left: 50%;
+  }
+
+  .story-text {
+    width: auto;
+    font-size: clamp(10px, 3.2vw, 14px);
+  }
+}
