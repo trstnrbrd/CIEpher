@@ -1,0 +1,76 @@
+# Two mistakes GitHub Free can't block on a private repo, turned into a red X:
+# - a pull request from a non-backend branch that changes backend-only files
+#   (often an old branch that no longer matches develop);
+# - changes that land on develop without a pull request. (Only develop: it's
+#   the default branch, the only one where GitHub reports the merged pull
+#   request behind a commit.)
+# A red X here means: don't merge; start a fresh branch from develop, or ask
+# Tristan.
+name: Guard
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scope:
+    name: Backend files change only on backend branches
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check which files the pull request changes
+        env:
+          BRANCH: ${{ github.head_ref }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          case "$BRANCH" in
+            feat/be-*|fix/be-*|chore/*|docs/*|hotfix/*)
+              echo "Backend branch ($BRANCH): any files may change."
+              exit 0
+              ;;
+          esac
+          protected=$(git diff --name-only "$BASE...$HEAD" |
+            grep -E '^(backend/|frontend/src/api/|\.github/|backups/|Documents/|AGENTS\.md$|opencode\.json$)' || true)
+          if [ -n "$protected" ]; then
+            echo "::error::Branch '$BRANCH' changes files that only backend branches may change."
+            echo "These files:"
+            echo "$protected"
+            echo "Frontend work stays in frontend/ (not frontend/src/api/)."
+            echo "If this is an old branch, start a fresh one from develop. Otherwise ask Tristan."
+            exit 1
+          fi
+          echo "Only frontend files changed."
+
+  via-pr:
+    name: Changes arrive through a pull request
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check the pushed commit belongs to a merged pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          merged=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.merged_at != null)] | length')
+          if [ "$merged" -eq 0 ]; then
+            echo "::error::Commit $SHA was pushed straight to $BRANCH, without a pull request."
+            echo "Every change to $BRANCH must go through a pull request. Tell Tristan."
+            exit 1
+          fi
+          echo "Commit $SHA came from a merged pull request."
