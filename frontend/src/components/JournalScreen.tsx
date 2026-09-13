@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ApiError, getProgress, type Progress } from '../api/client'
-import { getLesson, type Lesson } from '../lessons'
+import { JOURNAL, type JournalLesson } from '../journal'
 import './JournalScreen.css'
 
 interface JournalScreenProps {
@@ -8,17 +8,92 @@ interface JournalScreenProps {
   onUnauthorized: () => void
 }
 
-type JournalEntry = Lesson & { chapter: number; mission: number }
+// A pixel-art cloud for the sky behind the notebook.
+function Cloud({ className }: { className: string }) {
+  return (
+    <svg
+      className={`journal-cloud ${className}`}
+      viewBox="0 0 20 7"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      <g fill="#fff">
+        <rect x="7" y="0" width="4" height="1" />
+        <rect x="4" y="1" width="9" height="1" />
+        <rect x="14" y="1" width="3" height="1" />
+        <rect x="2" y="2" width="17" height="1" />
+        <rect x="1" y="3" width="19" height="1" />
+        <rect x="0" y="4" width="20" height="1" />
+      </g>
+      <g fill="#cfeefc">
+        <rect x="0" y="5" width="20" height="1" />
+        <rect x="1" y="6" width="18" height="1" />
+      </g>
+    </svg>
+  )
+}
 
-function chapterLabel(id: number): string {
-  if (id === 0) return 'PROLOGUE'
-  if (id === 8) return 'EPILOGUE'
-  return `CHAPTER ${id}`
+// The outlined triangle in a bottom corner of the notebook. It points left;
+// CSS mirrors it for the next-page arrow.
+function Arrow() {
+  return (
+    <svg viewBox="0 0 12 18" aria-hidden="true">
+      <polygon points="10,1.5 10,16.5 2,9" />
+    </svg>
+  )
+}
+
+function Heading({ children }: { children: ReactNode }) {
+  return <h2 className="journal-heading">{children}</h2>
+}
+
+function LeftPage({ lesson }: { lesson: JournalLesson }) {
+  return (
+    <>
+      <Heading>Definition</Heading>
+      {lesson.definition.map((text) => (
+        <p key={text} className="journal-text">
+          {text}
+        </p>
+      ))}
+      <Heading>Basic Syntax</Heading>
+      <pre className="journal-code">{lesson.syntax}</pre>
+      {lesson.syntaxNotes.length > 0 && (
+        <ul className="journal-list">
+          {lesson.syntaxNotes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
+
+function RightPage({ lesson }: { lesson: JournalLesson }) {
+  return (
+    <>
+      <Heading>Common Syntax Errors</Heading>
+      {lesson.mistakes.map((mistake) => (
+        <div key={mistake.wrong} className="journal-mistake">
+          <code className="journal-wrong">{mistake.wrong}</code>
+          <p className="journal-text">{mistake.fix}</p>
+        </div>
+      ))}
+      <Heading>Real-World Applications</Heading>
+      <ul className="journal-list">
+        {lesson.uses.map((use) => (
+          <li key={use}>{use}</li>
+        ))}
+      </ul>
+    </>
+  )
 }
 
 function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
   const [progress, setProgress] = useState<Progress | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // The open lesson; null opens the newest one.
+  const [picked, setPicked] = useState<number | null>(null)
 
   useEffect(() => {
     let active = true
@@ -43,66 +118,86 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
     }
   }, [onUnauthorized])
 
-  // Every completed mission, newest first: later chapters above, and the
-  // latest mission of each chapter above the earlier ones.
-  const entries: JournalEntry[] = []
-  if (progress) {
-    for (const chapter of [...progress.chapters].reverse()) {
-      for (const mission of [...chapter.missions].reverse()) {
-        if (!mission.completed) continue
-        const lesson = getLesson(chapter.id, mission.number)
-        entries.push({
-          chapter: chapter.id,
-          mission: mission.number,
-          title: lesson?.title ?? `MISSION ${mission.number}`,
-          story: lesson?.story ?? '',
-          lesson: lesson?.lesson ?? 'This lesson is still being written.',
-          code: lesson?.code ?? '',
-        })
-      }
+  // A chapter's lesson is written into the journal once the chapter is
+  // completed, in chapter order.
+  const lessons = progress
+    ? JOURNAL.filter((lesson) =>
+        progress.chapters.some(
+          (chapter) => chapter.id === lesson.chapter && chapter.completed,
+        ),
+      )
+    : []
+  const current = Math.min(picked ?? lessons.length - 1, lessons.length - 1)
+  const lesson: JournalLesson | undefined = lessons[current]
+  const hasPrevious = current > 0
+  const hasNext = current < lessons.length - 1
+
+  // Arrow keys turn the pages; Escape closes the journal.
+  useEffect(() => {
+    function handleKey(event: KeyboardEvent): void {
+      if (event.key === 'Escape') onBack()
+      else if (event.key === 'ArrowLeft' && hasPrevious) setPicked(current - 1)
+      else if (event.key === 'ArrowRight' && hasNext) setPicked(current + 1)
     }
-  }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onBack, current, hasPrevious, hasNext])
+
+  let notice: string | null = null
+  if (error) notice = error
+  else if (progress === null) notice = 'Loading…'
+  else if (!lesson)
+    notice = 'No lessons yet. Finish a chapter and its lesson is written here.'
 
   return (
     <div className="journal-screen">
-      <button type="button" className="pixel-button journal-back" onClick={onBack}>
+      <Cloud className="journal-cloud-1" />
+      <Cloud className="journal-cloud-2" />
+      <Cloud className="journal-cloud-3" />
+      <Cloud className="journal-cloud-4" />
+      <div className="journal-ground" aria-hidden="true" />
+
+      <h1 className="journal-title">
+        {lesson ? lesson.title : 'Code Journal'}
+      </h1>
+
+      <div className="journal-book">
+        <div className="journal-spread">
+          <section className="journal-page journal-page-left">
+            {lesson ? (
+              <LeftPage lesson={lesson} />
+            ) : (
+              <p className="journal-text">{notice}</p>
+            )}
+          </section>
+          <section className="journal-page journal-page-right">
+            {lesson && <RightPage lesson={lesson} />}
+          </section>
+        </div>
+        <div className="journal-spiral" aria-hidden="true" />
+        <button
+          type="button"
+          className="journal-arrow journal-arrow-previous"
+          aria-label="Previous lesson"
+          disabled={!hasPrevious}
+          onClick={() => setPicked(current - 1)}
+        >
+          <Arrow />
+        </button>
+        <button
+          type="button"
+          className="journal-arrow journal-arrow-next"
+          aria-label="Next lesson"
+          disabled={!hasNext}
+          onClick={() => setPicked(current + 1)}
+        >
+          <Arrow />
+        </button>
+      </div>
+
+      <button type="button" className="journal-back" onClick={onBack}>
         BACK
       </button>
-
-      <h1 className="journal-title">CODE JOURNAL</h1>
-
-      {error ? (
-        <p className="journal-empty">{error}</p>
-      ) : progress === null ? (
-        <p className="journal-empty">LOADING…</p>
-      ) : entries.length === 0 ? (
-        <p className="journal-empty">
-          NO LESSONS SAVED YET. FINISH A MISSION AND ITS LESSON APPEARS HERE.
-        </p>
-      ) : (
-        <div className="journal-pages">
-          {entries.map((entry) => (
-            <article
-              key={`${entry.chapter}:${entry.mission}`}
-              className="journal-page"
-            >
-              <header className="journal-page-head">
-                <span className="journal-page-tag">
-                  {chapterLabel(entry.chapter)} – MISSION {entry.mission}
-                </span>
-                <h2 className="journal-page-title">{entry.title}</h2>
-              </header>
-              {entry.story && <p className="journal-page-story">{entry.story}</p>}
-              <p className="journal-page-lesson">{entry.lesson}</p>
-              {entry.code && (
-                <pre className="journal-page-code">
-                  <code>{entry.code}</code>
-                </pre>
-              )}
-            </article>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
