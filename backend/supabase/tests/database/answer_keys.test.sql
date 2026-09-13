@@ -1,16 +1,19 @@
+-- Written by `npm run answers:sql` (or `npm run answers:tests`) from
+-- backend/content/. Don't edit it by hand: change the content file, then run
+-- the command again.
+--
+-- It proves the database holds exactly the answer keys in the content files.
+-- How answers are checked is tested in functions/api/csharp.test.ts; how
+-- tries are recorded, in record_attempt.test.sql.
 begin;
 -- Act as postgres, as locally. On staging the CLI connects as a helper login
 -- role that only gets postgres's rights after switching to it.
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(5);
+select plan(7);
 
--- The missions and their answer keys. How answers are checked is tested in
--- functions/api/csharp.test.ts; how tries are recorded, in
--- record_attempt.test.sql.
-
--- 1. Every mission has at least one answer.
+-- Every mission has at least one answer.
 select is_empty(
   $$select m.chapter_id, m.number from public.missions m
     where not exists (
@@ -20,7 +23,7 @@ select is_empty(
   'every mission has an answer'
 );
 
--- 2. A mission's questions are numbered 1, 2, 3... with no gaps, so the
+-- A mission's questions are numbered 1, 2, 3... with no gaps, so the
 -- highest number really is the last question.
 select is_empty(
   $$select chapter_id, mission_number from public.mission_answers
@@ -29,38 +32,54 @@ select is_empty(
   'questions are numbered from 1 with no gaps'
 );
 
--- 3. Chapter 1 (the if statement) has 5 missions.
-select results_eq(
-  'select number::int from public.missions where chapter_id = 1 order by 1',
-  array[1, 2, 3, 4, 5],
-  'chapter 1 has 5 missions'
+-- Every chapter with missions has a content file (backend/content/).
+select is_empty(
+  $$select distinct chapter_id from public.missions
+    where chapter_id not in (0, 1)$$,
+  'every chapter with missions has a content file'
 );
 
--- 4. Chapter 1's mission 1 asks 2 questions (the control structure, then the
--- code); the others ask 1.
+-- Chapter 0: Prologue: calling a method. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 0 group by 1 order by 1$$,
+  $$values (1, 1), (2, 1), (3, 1)$$,
+  'chapter 0: its missions and questions'
+);
+
+-- Chapter 0's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 0 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'OpenDoor();'),
+    (2, 1, E'GoToTerminal();'),
+    (3, 1, E'RideJeep();')$keys$,
+  'chapter 0: its answer keys'
+);
+
+-- Chapter 1: The if statement. Its missions, and how many
+-- questions each one asks.
 select results_eq(
   $$select mission_number::int, max(question)::int from public.mission_answers
     where chapter_id = 1 group by 1 order by 1$$,
   $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
-  'only mission 1 of chapter 1 has 2 questions'
+  'chapter 1: its missions and questions'
 );
 
--- 5. The answer keys are exactly these. Each was checked with the real C#
--- compiler (2026-09-13). A new chapter's migration adds its answers here too.
+-- Chapter 1's answer keys, exactly.
 select results_eq(
-  $$select chapter_id::int, mission_number::int, question::int, answer
-    from public.mission_answers order by 1, 2, 3, 4$$,
-  $$values
-    (0, 1, 1, 'OpenDoor();'),
-    (0, 2, 1, 'GoToTerminal();'),
-    (0, 3, 1, 'RideJeep();'),
-    (1, 1, 1, 'if'),
-    (1, 1, 2, E'if(hasSchoolID)\n{\n    EnterSchool();\n}'),
-    (1, 2, 1, E'if(isPresent)\n{\n    RecordAttendance();\n}'),
-    (1, 3, 1, E'if(hasPower)\n{\n    StartComputer();\n}'),
-    (1, 4, 1, E'if(isCompleted)\n{\n    SubmitActivity();\n}'),
-    (1, 5, 1, E'if(hasAttendance)\n{\n    OpenQuiz();\n}')$$,
-  'the answer keys are the checked ones'
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 1 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'if'),
+    (1, 2, E'if(hasSchoolID)\n{\n    EnterSchool();\n}'),
+    (2, 1, E'if(isPresent)\n{\n    RecordAttendance();\n}'),
+    (3, 1, E'if(hasPower)\n{\n    StartComputer();\n}'),
+    (4, 1, E'if(isCompleted)\n{\n    SubmitActivity();\n}'),
+    (5, 1, E'if(hasAttendance)\n{\n    OpenQuiz();\n}')$keys$,
+  'chapter 1: its answer keys'
 );
 
 select * from finish();

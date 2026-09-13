@@ -1,0 +1,30 @@
+{
+  "chapter": 0,
+  "title": "Prologue: calling a method",
+  "source": "Documents/a. welcome page to prologue.pdf",
+  "program": [
+    "void OpenDoor() {}",
+    "void GoToTerminal() {}",
+    "void RideJeep() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "OpenDoor();",
+      "wrong": ["OpenDoor:"]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "GoToTerminal();",
+      "wrong": ["GoToTerminal;"]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "RideJeep();",
+      "wrong": ["RideJeep;"]
+    }
+  ]
+}
