@@ -6,15 +6,10 @@ import {
   type Character,
   type Progress,
 } from '../api/client'
-import GameNav from './GameNav'
 import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
-import {
-  JEEP_START_PAGE,
-  OPEN_DOOR_PAGE,
-  OUTSIDE_PAGES,
-} from '../storyPages'
+import { JEEP_START_PAGE, OPEN_DOOR_PAGE, OUTSIDE_PAGES } from '../storyPages'
 import CoreBreakdown from './CoreBreakdown'
 import SakayAnimation from './SakayAnimation'
 import TaskBar from './TaskBar'
@@ -27,8 +22,6 @@ interface MissionScreenProps {
   character: Character
   onBack: () => void
   onChapter: () => void
-  // The EXIT button (asks "Log out?" first).
-  onExit: () => void
   // The session ended (401): straight back to Login, nothing to ask.
   onUnauthorized: () => void
   onOpenMission: (chapter: number, mission: number) => void
@@ -43,7 +36,10 @@ function chapterLabel(id: number): string {
 // Character diff against the lesson's code: every position that reads
 // differently glows red, as does any extra text past the end. A too-short
 // answer also flags that the tail is missing.
-function highlightDiff(typed: string, code: string): {
+function highlightDiff(
+  typed: string,
+  code: string,
+): {
   wrong: number[]
   missing: boolean
 } {
@@ -62,7 +58,6 @@ function MissionScreen({
   character,
   onBack,
   onChapter,
-  onExit,
   onUnauthorized,
   onOpenMission,
   onJournal,
@@ -88,9 +83,10 @@ function MissionScreen({
   const [progress, setProgress] = useState<Progress | null>(null)
   const [answer, setAnswer] = useState('')
   const [checking, setChecking] = useState(false)
-  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(
-    null,
-  )
+  const [feedback, setFeedback] = useState<{
+    ok: boolean
+    text: string
+  } | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   // The coding challenge (from the lesson data): where the typed code is wrong
   // and whether the wrong answer was cut short.
@@ -350,7 +346,6 @@ function MissionScreen({
         <div className="mission-content">
           <h2 className="mission-header">MISSION {mission}</h2>
           <p className="mission-feedback wrong">{serverError}</p>
-          <GameNav onBack={onBack} onChapter={onChapter} onExit={onExit} />
         </div>
       </div>
     )
@@ -373,7 +368,6 @@ function MissionScreen({
           <p className="mission-empty">
             NO MISSIONS HERE YET. THIS CHAPTER'S CONTENT IS COMING SOON.
           </p>
-          <GameNav onBack={onBack} onChapter={onChapter} onExit={onExit} />
         </div>
       </div>
     )
@@ -394,7 +388,6 @@ function MissionScreen({
             {chapterLabel(chapter)} – MISSION {mission}
           </h2>
           <p className="mission-empty">THIS MISSION IS STILL LOCKED.</p>
-          <GameNav onBack={onBack} onChapter={onChapter} onExit={onExit} />
         </div>
       </div>
     )
@@ -404,10 +397,7 @@ function MissionScreen({
 
   return (
     <div
-      className={[
-        'mission-screen',
-        lesson?.sceneBg ? 'mission-scene-bg' : '',
-      ]
+      className={['mission-screen', lesson?.sceneBg ? 'mission-scene-bg' : '']
         .filter(Boolean)
         .join(' ')}
     >
@@ -494,7 +484,9 @@ function MissionScreen({
         </form>
 
         {feedback && (
-          <p className={`mission-feedback ${feedback.ok ? 'correct' : 'wrong'}`}>
+          <p
+            className={`mission-feedback ${feedback.ok ? 'correct' : 'wrong'}`}
+          >
             {feedback.text}
           </p>
         )}
@@ -510,13 +502,15 @@ function MissionScreen({
         )}
 
         {done && nextMission === null && (
-          <button type="button" className="pixel-button mission-next" onClick={onChapter}>
+          <button
+            type="button"
+            className="pixel-button mission-next"
+            onClick={onChapter}
+          >
             CHAPTER CLEARED ✓ GO TO CHAPTERS
           </button>
         )}
       </div>
-
-      <GameNav onBack={onBack} onChapter={onChapter} onExit={onExit} />
 
       {showCore && lesson?.core && (
         <CoreBreakdown

@@ -127,9 +127,7 @@ function App() {
     return <div className="boot-screen">Loading…</div>
   }
   if (configError) {
-    return (
-      <div className="boot-screen boot-error">{configError}</div>
-    )
+    return <div className="boot-screen boot-error">{configError}</div>
   }
   if (resettingPassword) {
     return (
@@ -159,7 +157,10 @@ function App() {
     )
   }
   // The intro with the chosen character plays inside the prologue now.
-  const goToChapters = (): void => setView({ screen: 'chapters' })
+  const goToChapters = (): void => {
+    setSettingsOpen(false)
+    setView({ screen: 'chapters' })
+  }
   const openMission = (chapter: number, mission: number): void =>
     setView({ screen: 'mission', chapter, mission })
   const openJournal = (): void => setJournalOpen(true)
@@ -187,7 +188,6 @@ function App() {
         character={profile.character}
         onBack={goToChapters}
         onChapter={goToChapters}
-        onExit={askToLogout}
         onUnauthorized={handleLogout}
         onOpenMission={openMission}
         onJournal={openJournal}
@@ -218,6 +218,7 @@ function App() {
       {settingsOpen && (
         <SettingsScreen
           onBack={() => setSettingsOpen(false)}
+          onChapter={goToChapters}
           onLogout={askToLogout}
         />
       )}

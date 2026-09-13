@@ -36,14 +36,6 @@
   box-shadow: 0 1px 0 #000000;
 }
 
-.nav-exit {
-  background: #c8302c;
-}
-
-.nav-exit:hover {
-  background: #ef4b46;
-}
-
 /* Tablet: keep the full-height bar, slightly tighter sizes. */
 @media (max-width: 768px) {
   .game-nav {

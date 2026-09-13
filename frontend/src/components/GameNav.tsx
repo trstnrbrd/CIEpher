@@ -3,10 +3,10 @@ import './GameNav.css'
 interface GameNavProps {
   onBack: () => void
   onChapter: () => void
-  onExit: () => void
+  onExit?: () => void
 }
 
-function GameNav({ onBack, onChapter, onExit }: GameNavProps) {
+function GameNav({ onBack, onChapter }: GameNavProps) {
   return (
     <nav className="game-nav">
       <button type="button" className="nav-btn" onClick={onBack}>
@@ -14,9 +14,6 @@ function GameNav({ onBack, onChapter, onExit }: GameNavProps) {
       </button>
       <button type="button" className="nav-btn" onClick={onChapter}>
         CHAPTER
-      </button>
-      <button type="button" className="nav-btn nav-exit" onClick={onExit}>
-        EXIT
       </button>
     </nav>
   )
