@@ -51,6 +51,18 @@
   text-shadow: 2px 2px 0 #000;
 }
 
+.home-character {
+  position: relative;
+  z-index: 2;
+}
+
+.home-avatar {
+  height: 16vh;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
 .home-play {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(0.7rem, 1.8vw, 1.1rem);
@@ -82,6 +94,10 @@
   .home-logout {
     padding-top: 1.6vh;
     padding-bottom: 1.6vh;
+  }
+
+  .home-avatar {
+    height: 11vh;
   }
 }
 
