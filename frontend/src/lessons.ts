@@ -6,6 +6,7 @@
 // Adding an entry here for a new mission grows the journal automatically.
 
 import closeDoorImg from './assets/prologue/CloseDoor.png'
+import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -27,6 +28,9 @@ export type CoreBreakdown = {
   anatomy: CodeAnatomy[]
   // The vertical program flow: Start ... End.
   flow: string[]
+  // The little graphic next to the flow: the bedroom door by default, or a
+  // computer terminal monitor for scenes that happen at one.
+  flowGraphic?: 'door' | 'terminal'
   // The yellow banner summarized the lesson.
   takeaway: string
 }
@@ -99,8 +103,41 @@ const LESSONS: Record<string, Lesson> = {
     mission: 2,
     title: 'The Jeep Terminal',
     story: 'Make your way to the jeep terminal.',
-    lesson: 'Lesson content coming soon. The mission is teaching how a method call moves the story forward.',
+    lesson:
+      'Calling the GoToTerminal(); method switches the program to the jeep terminal and opens the way forward. A method needs () to be called and ; to end the statement.',
     code: 'GoToTerminal();',
+    sceneBg: jeepneyTerminalImg,
+    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+    choices: ['GoToTerminal();', 'GoToTerminal;'],
+    core: {
+      incorrectExample: 'GoToTerminal ;',
+      incorrectNote: 'It is missing the parentheses.',
+      correctNote: 'This is the correct syntax.',
+      anatomy: [
+        {
+          text: 'GoToTerminal',
+          label: 'The name of the method or action to be performed.',
+        },
+        {
+          text: '()',
+          label: 'Parentheses are needed to call the method.',
+        },
+        {
+          text: ';',
+          label: 'The semicolon ends the statement.',
+        },
+      ],
+      flow: [
+        'Start',
+        'Read GoToTerminal();',
+        'Call GoToTerminal()',
+        'Switches to Terminal',
+        'Terminal Opens',
+        'End',
+      ],
+      flowGraphic: 'terminal',
+      takeaway: 'Use () to call a method and always end the statement with ;',
+    },
   },
   '0:3': {
     chapter: 0,

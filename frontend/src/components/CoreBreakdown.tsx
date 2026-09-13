@@ -75,11 +75,31 @@ function CoreBreakdown({ code, core, onClose }: CoreBreakdownProps) {
                   </li>
                 ))}
               </ol>
-              <img
-                className="core-door"
-                src={doorImg}
-                alt="The bedroom door swinging open"
-              />
+              {core.flowGraphic === 'terminal' ? (
+                <div
+                  className="core-terminal"
+                  role="img"
+                  aria-label="A computer terminal screen displaying a green prompt"
+                >
+                  <div className="core-monitor">
+                    <div className="core-monitor-screen">
+                      <span className="terminal-prompt">
+                        C:\CIEPHER&gt;
+                      </span>
+                      <span className="terminal-caret" aria-hidden="true">
+                        _
+                      </span>
+                    </div>
+                  </div>
+                  <div className="core-monitor-stand" aria-hidden="true" />
+                </div>
+              ) : (
+                <img
+                  className="core-door"
+                  src={doorImg}
+                  alt="The bedroom door swinging open"
+                />
+              )}
             </div>
           </section>
         </div>

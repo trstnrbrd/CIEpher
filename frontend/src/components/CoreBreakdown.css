@@ -266,6 +266,73 @@
   image-rendering: pixelated;
 }
 
+/* The computer terminal monitor shown beside flows that end at one: a dark
+   bezel with a green-on-black screen, blocky Press Start 2P text and a
+   blinking caret, all pixel-art corners and hard shadows. */
+.core-terminal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.4 * var(--h));
+  width: clamp(130px, 20vw, 180px);
+}
+
+.core-monitor {
+  width: 100%;
+  background: #0c0f22;
+  border: 3px solid #39416e;
+  border-radius: 8px;
+  box-shadow: 0 5px 0 #000000;
+  padding: 10px;
+}
+
+.core-monitor-screen {
+  background: #04170a;
+  border: 2px solid #2e8b43;
+  border-radius: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(8px, 1.2vw, 11px);
+  color: #39d353;
+  padding: 10px 8px;
+  min-height: 2.5em;
+  line-height: 1.5;
+  text-shadow: 0 0 6px rgba(57, 211, 83, 0.6);
+}
+
+.terminal-prompt {
+  white-space: nowrap;
+}
+
+.terminal-caret {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.9em;
+  background: #39d353;
+  vertical-align: middle;
+  margin-left: 0.2em;
+  animation: core-caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes core-caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.core-monitor-stand {
+  width: 22%;
+  height: calc(2.2 * var(--h));
+  background: #0c0f22;
+  border-left: 3px solid #39416e;
+  border-right: 3px solid #39416e;
+  border-bottom: 3px solid #39416e;
+  border-radius: 0 0 6px 6px;
+}
+
 /* Yellow key takeaway banner. */
 .core-takeaway {
   font-family: 'Press Start 2P', monospace;

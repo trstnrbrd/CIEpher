@@ -10,6 +10,11 @@ import GameNav from './GameNav'
 import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
+import {
+  OPEN_DOOR_PAGE,
+  OUTSIDE_PAGES,
+  TERMINAL_START_PAGE,
+} from '../storyPages'
 import CoreBreakdown from './CoreBreakdown'
 import TaskBar from './TaskBar'
 import { getLesson } from '../lessons'
@@ -87,6 +92,14 @@ function MissionScreen({
   )
   // After the welcome screens' YES, a short story plays before mission 1.
   const [showingStory, setShowingStory] = useState<boolean>(false)
+  // Mission 2 opens at the jeepney terminal: a short arrival beat before the
+  // GoToTerminal(); exercise. Mission 1 opens with its own story instead.
+  const [showingTerminal, setShowingTerminal] = useState<boolean>(
+    chapter === 0 && mission === 2,
+  )
+  // After mission 1's answer is accepted, the door swings open (bedroom,
+  // then outside) before the "UNDERSTAND THE CORE" recap.
+  const [doorOpen, setDoorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<Progress | null>(null)
   const [answer, setAnswer] = useState('')
   const [checking, setChecking] = useState(false)
@@ -143,7 +156,8 @@ function MissionScreen({
 
   // The prologue opens with the welcome screens, then a short story, before
   // mission 1. Only mission 1 mounts them, so missions 2+ skip straight to
-  // the exercise.
+  // their opening beat. Mission 2's opening plays the jeepney terminal
+  // arrival before its exercise.
   if (showingStory) {
     return (
       <>
@@ -153,6 +167,51 @@ function MissionScreen({
             setShowingStory(false)
             setShowingIntro(false)
           }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // After mission 1's answer is accepted: the door opens, the player steps
+  // outside, then the lesson recap plays.
+  if (doorOpen) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[OPEN_DOOR_PAGE, ...OUTSIDE_PAGES]}
+          onFinish={() => {
+            setDoorOpen(false)
+            setShowCore(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  if (showingTerminal) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[TERMINAL_START_PAGE]}
+          onFinish={() => setShowingTerminal(false)}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -201,7 +260,11 @@ function MissionScreen({
         if (chosen !== null) setChoiceOk(chosen)
         setAnswer('')
         await refreshProgress()
-        if (lesson?.core) {
+        if (chapter === 0 && mission === 1) {
+          // Solving the door puzzle plays the opening-door story beat
+          // (bedroom, then outside) before the lesson recap.
+          setDoorOpen(true)
+        } else if (lesson?.core) {
           // The learning screen plays before the CORRECT! message.
           setShowCore(true)
         } else {

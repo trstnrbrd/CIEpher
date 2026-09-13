@@ -49,6 +49,18 @@
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
 }
 
+/* Some scenes walk the player to one side of the art (e.g. standing at the
+   opened door, or arriving at the terminal). Same size, just planted at a
+   different spot: higher specificity than the centered .story-person (and
+   than the phone resets below), so they always win. */
+.story-person.story-person-left {
+  left: 22%;
+}
+
+.story-person.story-person-right {
+  left: 78%;
+}
+
 /* The speech bubble: a wide, short white rectangle (slightly rounded
    corners) with a purple outline, hugging the top of the screen. Text and
    "Tap to next" stack tightly in a column, centered. */

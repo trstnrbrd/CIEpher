@@ -5,6 +5,7 @@ import girlImg from '../assets/girl.png'
 import bedroomImg from '../assets/prologue/player bedroom.png'
 import closeDoorImg from '../assets/prologue/CloseDoor.png'
 import GameTopBar from './GameTopBar'
+import type { StoryPage } from '../storyPages'
 import './PrologueStory.css'
 
 interface PrologueStoryProps {
@@ -12,15 +13,8 @@ interface PrologueStoryProps {
   onFinish: () => void
   onJournal: () => void
   onSettings: () => void
-}
-
-interface StoryPage {
-  bg: string
-  lines: string[]
-  // Where the background art is anchored (object-position). Defaults to the
-  // bedroom look: centered, hugging the bottom. Per-page override so scenes
-  // with a different focal point don't need to touch the shared styles.
-  pos?: string
+  // Which story pages to play. Defaults to the prologue's opening story.
+  pages?: StoryPage[]
 }
 
 // The story inside the prologue. Add more pages as scenes are written; they
@@ -61,14 +55,16 @@ function PrologueStory({
   onFinish,
   onJournal,
   onSettings,
+  pages,
 }: PrologueStoryProps) {
   const [page, setPage] = useState(0)
   const [count, setCount] = useState(0)
 
-  const { bg, lines, pos } = PAGES[page]
+  const list = pages ?? PAGES
+  const { bg, lines, pos, align } = list[page]
   const { starts, total } = lineStarts(lines)
   const done = count >= total
-  const last = page === PAGES.length - 1
+  const last = page === list.length - 1
 
   // Typewriter: re-runs for each new page and counts up to its total.
   useEffect(() => {
@@ -108,7 +104,7 @@ function PrologueStory({
       if (e.key !== 'Enter') return
       if (!done) {
         setCount(total)
-      } else if (page === PAGES.length - 1) {
+      } else if (page === list.length - 1) {
         onFinish()
       } else {
         setCount(0)
@@ -117,9 +113,12 @@ function PrologueStory({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [done, page, total, onFinish])
+  }, [done, page, total, onFinish, list.length])
 
   const sprite = character === 'boy' ? boyImg : girlImg
+  const personClass = ['story-person']
+  if (align === 'left') personClass.push('story-person-left')
+  if (align === 'right') personClass.push('story-person-right')
 
   return (
     <div className="prologue-story">
@@ -154,7 +153,7 @@ function PrologueStory({
         </span>
       </button>
 
-      <img className="story-person" src={sprite} alt={character} />
+      <img className={personClass.join(' ')} src={sprite} alt={character} />
     </div>
   )
 }
