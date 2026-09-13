@@ -2,7 +2,12 @@ import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
 import type { Accounts, Player } from "./accounts.ts";
-import { ApiError, handleError, handleNotFound } from "./errors.ts";
+import {
+  ApiError,
+  errorHandler,
+  handleNotFound,
+  type ReportError,
+} from "./errors.ts";
 import type { Game } from "./game.ts";
 import {
   characterSchema,
@@ -23,11 +28,19 @@ export type AppConfig = {
   accounts: Accounts;
   // The game itself (progress, then answers): the same, real or fake.
   game: Game;
+  // Where bugs (the 500s) are reported: Sentry in index.ts, a fake in tests.
+  // Left out, bugs are only logged.
+  reportError?: ReportError;
 };
 
 // Builds the whole API. Settings come in as arguments (not read from the
 // environment here), so tests can create an app with any settings they need.
-export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
+export function createApp({
+  allowedOrigins,
+  accounts,
+  game,
+  reportError,
+}: AppConfig) {
   const app = new Hono<Env>().basePath("/api");
 
   // Lets only logged-in players through: the request must carry a valid
@@ -101,7 +114,7 @@ export function createApp({ allowedOrigins, accounts, game }: AppConfig) {
   });
 
   app.notFound(handleNotFound);
-  app.onError(handleError);
+  app.onError(errorHandler(reportError));
 
   return app;
 }

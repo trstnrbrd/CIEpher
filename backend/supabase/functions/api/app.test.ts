@@ -136,9 +136,13 @@ Deno.test("ApiError is sent to the player as-is", async () => {
 });
 
 Deno.test("unexpected errors hide their details from the player", async () => {
-  const app = testApp();
+  const reported: { error: unknown; route: string }[] = [];
+  const app = testApp({
+    reportError: (error, { route }) => reported.push({ error, route }),
+  });
+  const crash = new Error("database password is hunter2");
   app.get("/test-crash", () => {
-    throw new Error("database password is hunter2");
+    throw crash;
   });
 
   // The real error is logged on purpose. Capture it so the test can check it
@@ -158,9 +162,55 @@ Deno.test("unexpected errors hide their details from the player", async () => {
       },
     });
     assertEquals(logged.length, 1);
+    // Reported once, with only the route alongside the error.
+    assertEquals(reported, [{ error: crash, route: "GET /api/test-crash" }]);
   } finally {
     console.error = originalError;
   }
+});
+
+Deno.test(
+  "a broken error reporter doesn't break the player's answer",
+  async () => {
+    const app = testApp({
+      reportError: () => {
+        throw new Error("Sentry is down");
+      },
+    });
+    app.get("/test-crash", () => {
+      throw new Error("the real bug");
+    });
+
+    const originalError = console.error;
+    console.error = () => {};
+    try {
+      const res = await app.request("/api/test-crash");
+      assertEquals(res.status, 500);
+      assertEquals((await res.json()).error.code, "INTERNAL_ERROR");
+    } finally {
+      console.error = originalError;
+    }
+  },
+);
+
+Deno.test("errors players are allowed to see are not reported", async () => {
+  const reported: unknown[] = [];
+  const app = testApp({ reportError: (error) => reported.push(error) });
+  app.get("/test-api-error", () => {
+    throw new ApiError(
+      409,
+      "USERNAME_TAKEN",
+      "That username is already taken.",
+    );
+  });
+
+  assertEquals((await app.request("/api/test-api-error")).status, 409);
+  assertEquals(
+    (await postJson(app, "/api/auth/register", { username: "x" })).status,
+    400,
+  );
+  assertEquals((await app.request("/api/me")).status, 401);
+  assertEquals(reported, []);
 });
 
 // ---------- POST /api/auth/register ----------
