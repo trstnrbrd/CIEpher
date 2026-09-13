@@ -1,0 +1,68 @@
+{
+  "chapter": 2,
+  "title": "The if...else statement",
+  "source": "Documents/c. CHAPTER 2.pdf",
+  "program": [
+    "int coins;",
+    "bool correctPassword, isLoggedIn, uploadComplete, hasCompletedOrientation;",
+    "void BuyWorksheet() {}",
+    "void DisplayInsufficientCoins() {}",
+    "void ConnectWiFi() {}",
+    "void DisplayConnectionError() {}",
+    "void OpenLearningPortal() {}",
+    "void DisplayLoginError() {}",
+    "void SubmitActivity() {}",
+    "void ShowUploadError() {}",
+    "void UnlockDoor() {}",
+    "void DisplayAccessDenied() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "if...else",
+      "wrong": ["if"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}",
+      "wrong": [
+        "if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}",
+      "wrong": [
+        "if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}",
+      "wrong": [
+        "if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nElse\n{\n    DisplayLoginError();\n}"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}",
+      "wrong": [
+        "if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}",
+      "wrong": [
+        "if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();"
+      ]
+    }
+  ]
+}

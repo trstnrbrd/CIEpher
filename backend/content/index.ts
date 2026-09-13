@@ -6,6 +6,7 @@
 // - the API tests (csharp.test.ts) check them against the answer checker.
 import chapter0 from "./chapter-0.json" with { type: "json" };
 import chapter1 from "./chapter-1.json" with { type: "json" };
+import chapter2 from "./chapter-2.json" with { type: "json" };
 
 export type Question = {
   mission: number;
@@ -31,4 +32,4 @@ export type Chapter = {
   questions: Question[];
 };
 
-export const CHAPTERS: Chapter[] = [chapter0, chapter1];
+export const CHAPTERS: Chapter[] = [chapter0, chapter1, chapter2];

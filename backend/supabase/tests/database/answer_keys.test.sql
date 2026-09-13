@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(7);
+select plan(9);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1)$$,
+    where chapter_id not in (0, 1, 2)$$,
   'every chapter with missions has a content file'
 );
 
@@ -80,6 +80,29 @@ select results_eq(
     (4, 1, E'if(isCompleted)\n{\n    SubmitActivity();\n}'),
     (5, 1, E'if(hasAttendance)\n{\n    OpenQuiz();\n}')$keys$,
   'chapter 1: its answer keys'
+);
+
+-- Chapter 2: The if...else statement. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 2 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 2: its missions and questions'
+);
+
+-- Chapter 2's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 2 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'if...else'),
+    (1, 2, E'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}'),
+    (2, 1, E'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}'),
+    (3, 1, E'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}'),
+    (4, 1, E'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}'),
+    (5, 1, E'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}')$keys$,
+  'chapter 2: its answer keys'
 );
 
 select * from finish();
