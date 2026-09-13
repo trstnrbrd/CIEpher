@@ -43,11 +43,12 @@ To practice without touching the cloud, see "Practice restore" at the end.
 In the folder from step 2, with the URI from step 3 in place of `DATABASE_URL`:
 
 ```powershell
-docker run --rm -v "${PWD}:/w" -w /w postgres:17 psql --single-transaction --variable ON_ERROR_STOP=1 --file roles.sql --file before-schema.sql --file schema.sql --command "SET session_replication_role = replica" --file data.sql --dbname "DATABASE_URL"
+docker run --rm -v "${PWD}:/w" -w /w postgres:17 psql --single-transaction --variable ON_ERROR_STOP=1 --file before-schema.sql --file schema.sql --command "SET session_replication_role = replica" --file data.sql --dbname "DATABASE_URL"
 ```
 
 - It's all or nothing: if any line fails, nothing is saved. Fix the cause and run it again.
 - **Don't skip `before-schema.sql`.** Without it, the restored database lets anyone look up players' emails (the file explains why).
+- **`roles.sql` is left out on purpose.** It only holds Supabase's own role settings, which a new project already has, and one of its lines is always refused (`permission denied for parameter log_min_messages`). CIEpher has no roles of its own. If you ever add some, run `roles.sql` on its own first and ignore that one error.
 
 ## 5. Check it
 
