@@ -1,0 +1,36 @@
+# Keeps the free Supabase project awake, and checks that the game's API is up.
+# Supabase pauses a Free project after a week with too few database queries;
+# "a few requests to the database each day" is enough. A failed run emails
+# the person who last changed this file, so it doubles as a "the game is
+# down" alarm.
+name: Keep-alive
+
+on:
+  schedule:
+    - cron: "0 0,6,12 * * *" # 08:00, 14:00 and 20:00 in the Philippines (UTC+8)
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      API_URL: https://ljdxoyttpyrvbibazxyv.supabase.co/functions/v1/api
+      # The same session pooler URL the backup uses.
+      DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - name: Check the API is up
+        run: curl --fail --silent --show-error --max-time 30 --retry 3 --retry-all-errors "$API_URL/health"
+
+      - name: Read from the database
+        run: >-
+          psql "$DB_URL" --no-psqlrc --quiet --tuples-only
+          --variable ON_ERROR_STOP=1
+          --command "select count(*) from public.chapters"
+          --command "select count(*) from public.missions"
