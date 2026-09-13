@@ -27,21 +27,29 @@ function readSavedView(): GameView {
   try {
     const saved = JSON.parse(
       sessionStorage.getItem(SAVED_VIEW_KEY) ?? 'null',
-    ) as Partial<GameView> | null
+    ) as {
+      screen?: unknown
+      chapter?: unknown
+      mission?: unknown
+    } | null
     if (saved?.screen === 'chapters') {
       return { screen: 'chapters' }
     }
+    const chapter = saved?.chapter
+    const mission = saved?.mission
     if (
       saved?.screen === 'mission' &&
-      Number.isInteger(saved.chapter) &&
-      Number.isInteger(saved.mission) &&
-      saved.chapter >= 0 &&
-      saved.mission >= 1
+      typeof chapter === 'number' &&
+      typeof mission === 'number' &&
+      Number.isInteger(chapter) &&
+      Number.isInteger(mission) &&
+      chapter >= 0 &&
+      mission >= 1
     ) {
       return {
         screen: 'mission',
-        chapter: saved.chapter,
-        mission: saved.mission,
+        chapter,
+        mission,
       }
     }
   } catch {
@@ -229,7 +237,6 @@ function App() {
         chapter={view.chapter}
         mission={view.mission}
         character={profile.character}
-        onBack={goToChapters}
         onChapter={goToChapters}
         onUnauthorized={handleLogout}
         onOpenMission={openMission}
