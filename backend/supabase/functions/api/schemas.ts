@@ -67,8 +67,9 @@ export type Character = z.infer<typeof characterSchema>["character"];
 
 // An answer typed into a mission's challenge (chapter 0 is the prologue).
 // Most missions ask one question; some ask more (numbered from 1), so the
-// question number is optional. Whether the answer is right is decided by the
-// database, not here.
+// question number is optional. Whether the answer is right is decided by
+// csharp.ts, not here. The answer is kept exactly as typed, spaces included:
+// the positions of its mistakes count from it.
 export const submitSchema = z.object({
   chapter: z
     .int({ error: "Chapter must be a whole number from 0 to 99." })
@@ -85,9 +86,8 @@ export const submitSchema = z.object({
     .default(1),
   answer: z
     .string({ error: "Type your answer first." })
-    .trim()
-    .min(1, "Type your answer first.")
-    .max(500, "That answer is too long."),
+    .max(500, "That answer is too long.")
+    .refine((answer) => answer.trim() !== "", "Type your answer first."),
 });
 
 export type SubmitInput = z.infer<typeof submitSchema>;

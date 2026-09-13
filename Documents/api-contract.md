@@ -262,11 +262,11 @@ Errors: `401 UNAUTHORIZED`: send the player to Login.
 
 ### ✅ `POST /missions/submit` (logged in)
 
-Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const { correct } = await submitAnswer(0, 1, typed)`.
+Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const result = await submitAnswer(0, 1, typed)`. (`client.ts`'s `SubmitResult` type gets the `mistakes` field in the next frontend PR; the server already sends it.)
 
 **Missions with more than one question:** chapter 1's mission 1 asks 2. First, which control structure fits (`if` or `while`), then the code. Pass the question number, counted from 1, as the 4th argument: `submitAnswer(1, 1, choice, 1)`, then `submitAnswer(1, 1, typed, 2)`. For one-question missions, leave it out (it's 1). Only the right answer to a mission's **last** question completes the mission.
 
-Request (`question` is optional; it's 1 when left out):
+Request (`question` is optional; it's 1 when left out). Send `answer` exactly as typed, spaces and line breaks included: the positions in `mistakes` count from it.
 
 ```json
 {
@@ -277,13 +277,37 @@ Request (`question` is optional; it's 1 when left out):
 }
 ```
 
-Success, **200**, either `{ "correct": true }` or `{ "correct": false }`. A wrong answer is **not** an error.
+Success, **200**. A wrong answer is **not** an error.
+
+```json
+{ "correct": true }
+```
+
+```json
+{
+  "correct": false,
+  "mistakes": [
+    { "start": 2, "end": 2 },
+    { "start": 14, "end": 14 }
+  ]
+}
+```
+
+`mistakes` says where a wrong answer is wrong, as positions in the `answer` that was sent (JavaScript string positions, counted from 0; `end` is just past the last character):
+
+- `start < end`: **those characters are wrong** (e.g. `IF` instead of `if`). Paint them red.
+- `start === end`: **something is missing right there** (e.g. a `;` or `( )`). Show a red marker at that spot.
+
+The example above is the doc's wrong choice for chapter 1, mission 1 (`if hasSchoolID` …): something is missing right after `if` and right after `hasSchoolID`. The server compares with the right answer, but never sends it.
 
 How answers are compared (the client's rules):
 
 - **Capitals matter**, like real C#: `opendoor();` and `IF(isCompleted)` are wrong.
 - **Extra spaces don't matter**: `OpenDoor ( ) ;` counts as `OpenDoor();`. But a space inside a name is a mistake: `Open Door();` is wrong.
 - **Line breaks and indentation don't matter either.** Chapter 1's answers are 4 lines in the client's doc, but `if(hasPower){StartComputer();}` on one line is also right.
+- **Symbols must be written together, like in C#:** `score >= 75` is right, `score > = 75` is wrong (C# can't compile it). The same goes for `==`, `!=`, `&&`, `||`, `++` and the others.
+- **Text in quotes must match exactly**, spaces included: `"Hi there"` is not `"Hi   there"`.
+- Comments (`// ...` and `/* ... */`) are ignored, like in C#.
 - Curly quotes from phone keyboards count as plain quotes.
 - The game never knows the right answer. It shows the two hint choices from its own mission data, and only the server decides.
 
@@ -291,7 +315,7 @@ What to do with the result:
 
 - `correct: true` on a mission's last question: **the progress is already saved** (autosave). Show the Program Flow popup, then "progress saved". Call `getProgress()` to see what's unlocked now. After a chapter's last mission, show "chapter complete".
 - `correct: true` on an earlier question: nothing is saved yet. Go on to the next question.
-- `correct: false`: turn the typed answer (or the hint it matches) red and let the player try again. There's no limit on tries. (Planned: the server will also say _which part_ is wrong, so only that part turns red, as the client's chapter 1 doc asks.)
+- `correct: false`: mark the parts in `mistakes` red (see above) and let the player try again. There's no limit on tries. Don't compare the answer in the frontend: the game doesn't have the right answer, and the server reads C# more exactly.
 - Replaying a finished mission works the same way, but doesn't change the saved progress.
 
 **The TYPE HERE box must have** `autoCapitalize="off" autoCorrect="off" spellCheck={false}`. Otherwise phones turn `if` into `If`, and a right answer is marked wrong. From chapter 1 on, answers take several lines, so it must be a `<textarea>` (Enter adds a new line), not a one-line `<input>`.
