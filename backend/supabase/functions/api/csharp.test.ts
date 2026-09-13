@@ -147,6 +147,77 @@ Deno.test("phone keyboards' curly quotes count as plain quotes", () => {
   assert(sameCode(`else${nbsp}if`, "else if"));
 });
 
+// ---------- the game's answer keys ----------
+
+// The answer keys as stored (answer_keys.test.sql pins them in the database),
+// and the wrong choice from the client's docs for each. All of this was
+// checked with the real C# compiler on 2026-09-13.
+const KEYS = [
+  {
+    key: "OpenDoor();",
+    oneLine: "OpenDoor();",
+    wrong: "OpenDoor:",
+  },
+  {
+    key: "GoToTerminal();",
+    oneLine: "GoToTerminal();",
+    wrong: "GoToTerminal;",
+  },
+  {
+    key: "RideJeep();",
+    oneLine: "RideJeep();",
+    wrong: "RideJeep;",
+  },
+  {
+    key: "if",
+    oneLine: "if",
+    wrong: "while",
+  },
+  {
+    key: "if(hasSchoolID)\n{\n    EnterSchool();\n}",
+    oneLine: "if(hasSchoolID){EnterSchool();}",
+    wrong: "if hasSchoolID\n{\n    EnterSchool();\n}",
+  },
+  {
+    key: "if(isPresent)\n{\n    RecordAttendance();\n}",
+    oneLine: "if(isPresent){RecordAttendance();}",
+    // Valid C#, but the client's doc marks it wrong (asked 2026-09-13).
+    wrong: "if(isPresent)\nRecordAttendance();",
+  },
+  {
+    key: "if(hasPower)\n{\n    StartComputer();\n}",
+    oneLine: "if(hasPower){StartComputer();}",
+    wrong: "if(hasPower)\n{\n    StartComputer()\n}",
+  },
+  {
+    key: "if(isCompleted)\n{\n    SubmitActivity();\n}",
+    oneLine: "if(isCompleted){SubmitActivity();}",
+    wrong: "IF(isCompleted)\n{\n   SubmitActivity();\n}",
+  },
+  {
+    key: "if(hasAttendance)\n{\n    OpenQuiz();\n}",
+    oneLine: "if(hasAttendance){OpenQuiz();}",
+    // Valid C#, but the client's doc marks it wrong (asked 2026-09-13).
+    wrong: "if(hasAttendance)\nOpenQuiz();",
+  },
+];
+
+Deno.test("each answer key is right, also on one line or spaced out", () => {
+  for (const { key, oneLine } of KEYS) {
+    assert(sameCode(key, key), key);
+    assert(sameCode(oneLine, key), oneLine);
+    assert(sameCode(`  ${oneLine.replaceAll("(", " ( ")}  `, key), oneLine);
+  }
+});
+
+Deno.test("each wrong choice in the client's docs is wrong", () => {
+  for (const { key, wrong } of KEYS) {
+    assertFalse(sameCode(wrong, key), wrong);
+    // ...and has something to point out.
+    assert(findMistakes(wrong, [key]).length > 0, wrong);
+  }
+});
+
 // ---------- which part is wrong ----------
 
 Deno.test("mistakes: missing parentheses around the condition", () => {
