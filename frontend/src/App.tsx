@@ -5,13 +5,17 @@ import ChapterSelect from './components/ChapterSelect'
 import CharacterSelect from './components/CharacterSelect'
 import ConfirmDialog from './components/ConfirmDialog'
 import HomeScreen from './components/HomeScreen'
+import JournalScreen from './components/JournalScreen'
 import MissionScreen from './components/MissionScreen'
 import NewPasswordScreen from './components/NewPasswordScreen'
+import SettingsScreen from './components/SettingsScreen'
 import WelcomeScreen from './components/WelcomeScreen'
 import './App.css'
 
 // Where the logged-in game screen is. The mission screen is the only one
-// with the BACK / CHAPTER / EXIT nav bar.
+// with the BACK / CHAPTER / EXIT nav bar. The journal and settings are
+// overlays on top of whatever game screen is active, so leaving them drops
+// the player right back where they were (e.g. the prologue story page).
 type GameView =
   | { screen: 'home' }
   | { screen: 'chapters' }
@@ -35,6 +39,11 @@ function App() {
   )
   // True while the "Log out?" question is on screen.
   const [confirmingLogout, setConfirmingLogout] = useState<boolean>(false)
+  // The journal and settings open as overlays above the game screen, never
+  // replacing it, so closing them restores the exact screen and prologue
+  // page the player was on.
+  const [journalOpen, setJournalOpen] = useState<boolean>(false)
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false)
 
   // After a page refresh supabase-js still has the session, so pick the
   // player back up instead of asking them to log in again. A 15s cap keeps a
@@ -75,6 +84,8 @@ function App() {
   // there's nothing to ask.
   const handleLogout = useCallback(async (): Promise<void> => {
     setConfirmingLogout(false)
+    setJournalOpen(false)
+    setSettingsOpen(false)
     await logout()
     setProfile(null)
     // Lab PCs are shared: the next player must start on the home screen,
@@ -142,6 +153,8 @@ function App() {
   const goToChapters = (): void => setView({ screen: 'chapters' })
   const openMission = (chapter: number, mission: number): void =>
     setView({ screen: 'mission', chapter, mission })
+  const openJournal = (): void => setJournalOpen(true)
+  const openSettings = (): void => setSettingsOpen(true)
 
   let screen: ReactNode
   if (view.screen === 'chapters') {
@@ -150,6 +163,8 @@ function App() {
         onBack={() => setView({ screen: 'home' })}
         onExit={handleLogout}
         onOpenMission={openMission}
+        onJournal={openJournal}
+        onSettings={openSettings}
       />
     )
   } else if (view.screen === 'mission') {
@@ -166,6 +181,8 @@ function App() {
         onExit={askToLogout}
         onUnauthorized={handleLogout}
         onOpenMission={openMission}
+        onJournal={openJournal}
+        onSettings={openSettings}
       />
     )
   } else {
@@ -174,6 +191,8 @@ function App() {
         profile={profile}
         onLogout={askToLogout}
         onPlay={() => setView({ screen: 'chapters' })}
+        onJournal={openJournal}
+        onSettings={openSettings}
       />
     )
   }
@@ -181,6 +200,18 @@ function App() {
   return (
     <>
       {screen}
+      {journalOpen && (
+        <JournalScreen
+          onBack={() => setJournalOpen(false)}
+          onUnauthorized={handleLogout}
+        />
+      )}
+      {settingsOpen && (
+        <SettingsScreen
+          onBack={() => setSettingsOpen(false)}
+          onLogout={askToLogout}
+        />
+      )}
       {confirmingLogout && (
         <ConfirmDialog
           title="LOG OUT?"

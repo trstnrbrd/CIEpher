@@ -1,0 +1,112 @@
+.settings-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3 * var(--h));
+  padding: calc(6 * var(--h)) 4vw;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url('/src/assets/background opening.jpg') center/cover no-repeat;
+}
+
+.settings-back {
+  position: absolute;
+  top: calc(2 * var(--h));
+  left: calc(2 * var(--h));
+}
+
+.settings-title {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffcf00;
+  -webkit-text-stroke: 2px #2a2d74;
+  text-shadow: 4px 4px 0 #000;
+  font-size: clamp(1.2rem, 4vw, 2.4rem);
+}
+
+.settings-card {
+  width: min(520px, 92vw);
+  margin-top: calc(4 * var(--h));
+  display: flex;
+  flex-direction: column;
+  gap: calc(3 * var(--h));
+  padding: calc(4 * var(--h)) calc(3vw);
+  background: #fffff3;
+  border: max(2px, 0.16vw) solid #7b46d6;
+  border-radius: calc(1.6 * var(--h));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(2 * var(--h));
+}
+
+.settings-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.4vw, calc(2.4 * var(--h)));
+  color: #1d1a2e;
+}
+
+/* A chunky pixel toggle switch. */
+.settings-toggle {
+  position: relative;
+  width: calc(14 * var(--h));
+  height: calc(7 * var(--h));
+  padding: 0;
+  background: #b9b3d2;
+  border: max(2px, 0.16vw) solid #3a3550;
+  border-radius: calc(6 * var(--h));
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.settings-toggle.on {
+  background: #32cd63;
+}
+
+.settings-knob {
+  position: absolute;
+  top: calc(0.8 * var(--h));
+  left: calc(0.8 * var(--h));
+  width: calc(4.6 * var(--h));
+  height: calc(4.6 * var(--h));
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 max(1px, 0.1vw) #3a3550;
+  transition: left 0.15s ease;
+}
+
+.settings-toggle.on .settings-knob {
+  left: calc(8.4 * var(--h));
+}
+
+.settings-logout {
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.2vw, calc(2.1 * var(--h)));
+  color: #fff;
+  background: #b0392e;
+  border: 4px solid #7a241c;
+  border-radius: 12px;
+  padding: calc(1.8 * var(--h)) calc(3 * var(--h));
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+  box-shadow:
+    0 4px 0 #7a241c,
+    0 6px 12px rgba(0, 0, 0, 0.3);
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.settings-logout:hover {
+  background: #d04437;
+  transform: translateY(-2px);
+}

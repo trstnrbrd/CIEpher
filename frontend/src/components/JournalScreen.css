@@ -1,0 +1,116 @@
+.journal-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3 * var(--h));
+  padding: calc(6 * var(--h)) calc(4vw) calc(8 * var(--h));
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url('/src/assets/background opening.jpg') center/cover no-repeat;
+}
+
+.journal-back {
+  position: absolute;
+  top: calc(2 * var(--h));
+  left: calc(2 * var(--h));
+}
+
+.journal-title {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffcf00;
+  -webkit-text-stroke: 2px #2a2d74;
+  text-shadow: 4px 4px 0 #000;
+  font-size: clamp(1.2rem, 4vw, 2.4rem);
+}
+
+.journal-empty {
+  font-family: 'Press Start 2P', monospace;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+  font-size: clamp(0.55rem, 1.4vw, 0.85rem);
+  line-height: 1.8;
+  text-align: center;
+  max-width: 60ch;
+}
+
+.journal-pages {
+  width: min(720px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--h));
+}
+
+/* A journal "page" reads like an open book of the lesson the player
+   faced — title, the story beat, the lesson, and the code they wrote. */
+.journal-page {
+  background: #fffff3;
+  border: max(2px, 0.16vw) solid #7b46d6;
+  border-radius: calc(1.6 * var(--h));
+  padding: calc(4 * var(--h)) calc(3vw);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.journal-page-head {
+  margin-bottom: calc(1.6 * var(--h));
+}
+
+.journal-page-tag {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1vw, calc(1.7 * var(--h)));
+  color: #7b46d6;
+  margin-bottom: calc(1.2 * var(--h));
+}
+
+.journal-page-title {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.5vw, calc(2.6 * var(--h)));
+  color: #1d1a2e;
+  line-height: 1.4;
+}
+
+.journal-page-story {
+  margin: 0 0 calc(1.4 * var(--h));
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.15vw, calc(2 * var(--h)));
+  color: #3a3550;
+  line-height: 1.7;
+}
+
+.journal-page-lesson {
+  margin: 0 0 calc(1.6 * var(--h));
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.05vw, calc(1.85 * var(--h)));
+  color: #000;
+  line-height: 1.8;
+}
+
+.journal-page-code {
+  margin: 0;
+  padding: calc(1.6 * var(--h)) calc(2 * var(--h));
+  background: #1d1a2e;
+  border-radius: calc(1.2 * var(--h));
+  overflow-x: auto;
+}
+
+.journal-page-code code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: min(1.6vw, calc(2.8 * var(--h)));
+  color: #32cd63;
+}
+
+@media (max-width: 600px) {
+  .journal-title {
+    margin-top: calc(4 * var(--h));
+  }
+
+  .journal-page {
+    padding: 5vw;
+  }
+}
