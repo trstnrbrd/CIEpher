@@ -1,17 +1,14 @@
 import { useState } from 'react'
-import {
-  loadSoundEnabled,
-  playClick,
-  saveSoundEnabled,
-} from '../sound'
+import { loadSoundEnabled, playClick, saveSoundEnabled } from '../sound'
 import './SettingsScreen.css'
 
 interface SettingsScreenProps {
   onBack: () => void
+  onChapter: () => void
   onLogout: () => void
 }
 
-function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
+function SettingsScreen({ onBack, onChapter, onLogout }: SettingsScreenProps) {
   const [sound, setSound] = useState<boolean>(loadSoundEnabled)
 
   const toggleSound = (): void => {
@@ -23,10 +20,6 @@ function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
 
   return (
     <div className="settings-screen">
-      <button type="button" className="pixel-button settings-back" onClick={onBack}>
-        BACK
-      </button>
-
       <h1 className="settings-title">SETTINGS</h1>
 
       <div className="settings-card">
@@ -43,10 +36,18 @@ function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
           </button>
         </div>
 
+        <button type="button" className="settings-chapter" onClick={onChapter}>
+          CHAPTER
+        </button>
+
         <button type="button" className="settings-logout" onClick={onLogout}>
           LOG OUT
         </button>
       </div>
+
+      <button type="button" className="settings-close" onClick={onBack}>
+        CLOSE
+      </button>
     </div>
   )
 }

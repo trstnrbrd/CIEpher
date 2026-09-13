@@ -13,12 +13,6 @@
     url('/src/assets/background opening.jpg') center/cover no-repeat;
 }
 
-.settings-back {
-  position: absolute;
-  top: calc(2 * var(--h));
-  left: calc(2 * var(--h));
-}
-
 .settings-title {
   margin: 0;
   font-family: 'Press Start 2P', monospace;
@@ -87,26 +81,45 @@
   left: calc(8.4 * var(--h));
 }
 
-.settings-logout {
+.settings-chapter,
+.settings-logout,
+.settings-close {
   font-family: 'Press Start 2P', monospace;
   font-size: min(1.2vw, calc(2.1 * var(--h)));
   color: #fff;
-  background: #b0392e;
-  border: 4px solid #7a241c;
   border-radius: 12px;
-  padding: calc(1.8 * var(--h)) calc(3 * var(--h));
   cursor: pointer;
   letter-spacing: 2px;
   text-shadow: 2px 2px 0 #000;
   box-shadow:
-    0 4px 0 #7a241c,
-    0 6px 12px rgba(0, 0, 0, 0.3);
+    0 4px 0 rgba(0, 0, 0, 0.35),
+    0 6px 12px rgba(0, 0, 0, 0.2);
   transition:
     background 0.15s ease,
     transform 0.15s ease;
 }
 
-.settings-logout:hover {
-  background: #d04437;
+.settings-chapter {
+  background: #2b6dd4;
+  border: 4px solid #1e4fa9;
+  padding: calc(1.8 * var(--h)) calc(3 * var(--h));
+}
+
+.settings-logout {
+  background: #b0392e;
+  border: 4px solid #7a241c;
+  padding: calc(1.8 * var(--h)) calc(3 * var(--h));
+}
+
+.settings-close {
+  margin-top: calc(1.5 * var(--h));
+  background: #3b3b76;
+  border: 4px solid #1b1c3d;
+  padding: calc(1.2 * var(--h)) calc(2.6 * var(--h));
+}
+
+.settings-chapter:hover,
+.settings-logout:hover,
+.settings-close:hover {
   transform: translateY(-2px);
 }

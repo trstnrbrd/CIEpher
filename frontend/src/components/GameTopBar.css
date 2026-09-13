@@ -29,13 +29,33 @@
 }
 
 .top-bar-btn img {
-  width: calc(9 * var(--h));
+  width: calc(12 * var(--h));
   height: auto;
   object-fit: contain;
 }
 
+.top-bar-back {
+  left: calc(1.6 * var(--h));
+  width: calc(5.4 * var(--h));
+  height: calc(5.4 * var(--h));
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(14, 21, 46, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: calc(2.6 * var(--h));
+  line-height: 1;
+  padding-bottom: 0.1em;
+}
+
 .top-bar-journal {
   left: calc(1.6 * var(--h));
+}
+
+.game-top-bar.has-back .top-bar-journal {
+  left: calc(8 * var(--h));
 }
 
 .top-bar-settings {
@@ -49,6 +69,6 @@
 
 @media (max-width: 480px) {
   .top-bar-btn img {
-    width: calc(10 * var(--h));
+    width: calc(13 * var(--h));
   }
 }
