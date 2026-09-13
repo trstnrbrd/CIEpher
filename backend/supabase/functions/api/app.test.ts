@@ -51,9 +51,14 @@ const PROGRESS = {
 function fakeGame(overrides: Partial<Game> = {}): Game {
   return {
     getProgress: () => Promise.resolve(PROGRESS),
-    // Only prologue mission 1's real answer is correct.
+    // Only prologue mission 1's real answer is correct. A wrong one gets a
+    // made-up mistake: finding the real ones is csharp.ts's job.
     submitAnswer: (_player, input) =>
-      Promise.resolve({ correct: input.answer === "OpenDoor();" }),
+      Promise.resolve(
+        input.answer === "OpenDoor();"
+          ? { correct: true }
+          : { correct: false, mistakes: [{ start: 8, end: 9 }] },
+      ),
     ...overrides,
   };
 }
@@ -551,11 +556,11 @@ Deno.test("submit: a right answer comes back as correct", async () => {
   );
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { correct: true });
-  // The answer arrives trimmed, for the verified player. Without a question
-  // number, it's question 1.
+  // The answer arrives exactly as typed (mistakes are counted from it), for
+  // the verified player. Without a question number, it's question 1.
   assertEquals(received, {
     player: { id: PLAYER.id, accessToken: "valid-token" },
-    input: { ...MISSION_1, question: 1, answer: "OpenDoor();" },
+    input: { ...MISSION_1, question: 1, answer: "  OpenDoor();  " },
   });
 });
 
@@ -565,7 +570,7 @@ Deno.test("submit: the question number is passed on", async () => {
     game: fakeGame({
       submitAnswer: (_player, input) => {
         received = input;
-        return Promise.resolve({ correct: false });
+        return Promise.resolve({ correct: false, mistakes: [] });
       },
     }),
   });
@@ -581,7 +586,11 @@ Deno.test("submit: the question number is passed on", async () => {
 Deno.test("submit: a wrong answer is a normal 200, not an error", async () => {
   const res = await submit({ ...MISSION_1, answer: "OpenDoor:" });
   assertEquals(res.status, 200);
-  assertEquals(await res.json(), { correct: false });
+  // With where it's wrong, passed on as the game found it.
+  assertEquals(await res.json(), {
+    correct: false,
+    mistakes: [{ start: 8, end: 9 }],
+  });
 });
 
 Deno.test("submit: an empty answer is a 400 that names the field", async () => {
@@ -591,6 +600,18 @@ Deno.test("submit: an empty answer is a 400 that names the field", async () => {
     error: {
       code: "VALIDATION_ERROR",
       message: "Type your answer first.",
+      field: "answer",
+    },
+  });
+});
+
+Deno.test("submit: an answer over 500 characters is a 400", async () => {
+  const res = await submit({ ...MISSION_1, answer: "x".repeat(501) });
+  assertEquals(res.status, 400);
+  assertEquals(await res.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "That answer is too long.",
       field: "answer",
     },
   });
