@@ -91,6 +91,7 @@ function RightPage({ lesson }: { lesson: JournalLesson }) {
 
 function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
   const [progress, setProgress] = useState<Progress | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   // The open lesson; null opens the newest one.
   const [picked, setPicked] = useState<number | null>(null)
@@ -99,10 +100,15 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
     let active = true
     getProgress()
       .then((p) => {
-        if (active) setProgress(p)
+        if (active) {
+          setPicked(null)
+          setProgress(p)
+          setLoading(false)
+        }
       })
       .catch((err) => {
         if (!active) return
+        setLoading(false)
         if (err instanceof ApiError && err.status === 401) {
           onUnauthorized()
           return
@@ -128,9 +134,11 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
       )
     : []
   const current = Math.min(picked ?? lessons.length - 1, lessons.length - 1)
-  const lesson: JournalLesson | undefined = lessons[current]
-  const hasPrevious = current > 0
-  const hasNext = current < lessons.length - 1
+  const lesson: JournalLesson | undefined = loading
+    ? undefined
+    : lessons[current]
+  const hasPrevious = !loading && current > 0
+  const hasNext = !loading && current < lessons.length - 1
 
   // Arrow keys turn the pages; Escape closes the journal.
   useEffect(() => {
@@ -145,7 +153,7 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
 
   let notice: string | null = null
   if (error) notice = error
-  else if (progress === null) notice = 'Loading…'
+  else if (loading) notice = 'Loading…'
   else if (!lesson)
     notice = 'No lessons yet. Finish a chapter and its lesson is written here.'
 
@@ -161,10 +169,14 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
         {lesson ? lesson.title : 'Code Journal'}
       </h1>
 
-      <div className="journal-book">
+      {loading && <p className="journal-loading-copy">Loading…</p>}
+
+      <div className={`journal-book ${loading ? 'journal-book-loading' : ''}`}>
         <div className="journal-spread">
           <section className="journal-page journal-page-left">
-            {lesson ? (
+            {loading ? (
+              <p className="journal-text">Loading…</p>
+            ) : lesson ? (
               <LeftPage lesson={lesson} />
             ) : (
               <p className="journal-text">{notice}</p>

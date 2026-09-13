@@ -61,9 +61,7 @@
   left: 78%;
 }
 
-/* The speech bubble: a wide, short white rectangle (slightly rounded
-   corners) with a purple outline, hugging the top of the screen. Text and
-   "Tap to next" stack tightly in a column, centered. */
+/* The speech bubble used by every story page. */
 .story-bubble {
   position: absolute;
   left: 50%;
@@ -75,15 +73,26 @@
   align-items: center;
   justify-content: center;
   gap: calc(1.6 * var(--h));
-  padding: calc(3 * var(--h)) calc(4 * var(--h));
-  background: #ffffff;
-  border: max(3px, 0.24vw) solid #7b46d6;
-  border-radius: min(2vw, calc(3 * var(--h)));
+  padding: calc(2.8 * var(--h)) calc(4 * var(--h));
+  background: #fffff3;
+  border: 0;
+  border-radius: min(8vw, calc(8 * var(--h)));
   color: #000000;
   font-family: 'Press Start 2P', monospace;
   cursor: pointer;
   z-index: 2;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
+}
+
+.story-bubble::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  bottom: -22px;
+  width: 38px;
+  height: 34px;
+  background: #fffff3;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
 .story-bubble:focus-visible {

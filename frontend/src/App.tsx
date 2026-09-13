@@ -21,11 +21,40 @@ type GameView =
   | { screen: 'chapters' }
   | { screen: 'mission'; chapter: number; mission: number }
 
+const SAVED_VIEW_KEY = 'ciepher.current-view'
+
+function readSavedView(): GameView {
+  try {
+    const saved = JSON.parse(
+      sessionStorage.getItem(SAVED_VIEW_KEY) ?? 'null',
+    ) as Partial<GameView> | null
+    if (saved?.screen === 'chapters') {
+      return { screen: 'chapters' }
+    }
+    if (
+      saved?.screen === 'mission' &&
+      Number.isInteger(saved.chapter) &&
+      Number.isInteger(saved.mission) &&
+      saved.chapter >= 0 &&
+      saved.mission >= 1
+    ) {
+      return {
+        screen: 'mission',
+        chapter: saved.chapter,
+        mission: saved.mission,
+      }
+    }
+  } catch {
+    // Ignore malformed or unavailable browser storage.
+  }
+  return { screen: 'home' }
+}
+
 function App() {
   // The logged-in player, or null while on the welcome screen.
   const [profile, setProfile] = useState<Profile | null>(null)
   // Which game screen to show once the player has a character.
-  const [view, setView] = useState<GameView>({ screen: 'home' })
+  const [view, setView] = useState<GameView>(readSavedView)
   // True while the "set a new password" screen from a reset email is open.
   const [resettingPassword, setResettingPassword] = useState<boolean>(
     resetLink !== null,
@@ -44,6 +73,15 @@ function App() {
   // page the player was on.
   const [journalOpen, setJournalOpen] = useState<boolean>(false)
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false)
+
+  const navigate = useCallback((nextView: GameView): void => {
+    setView(nextView)
+    try {
+      sessionStorage.setItem(SAVED_VIEW_KEY, JSON.stringify(nextView))
+    } catch {
+      // Navigation still works when browser storage is unavailable.
+    }
+  }, [])
 
   // After a page refresh supabase-js still has the session, so pick the
   // player back up instead of asking them to log in again. A 15s cap keeps a
@@ -83,7 +121,7 @@ function App() {
     return () => {
       active = false
     }
-  }, [])
+  }, [navigate])
 
   const handleSavedCharacter = (saved: Profile): void => {
     setProfile(saved)
@@ -99,8 +137,13 @@ function App() {
     setProfile(null)
     // Lab PCs are shared: the next player must start on the home screen,
     // never on the last player's chapter or mission.
-    setView({ screen: 'home' })
-  }, [])
+    navigate({ screen: 'home' })
+    try {
+      sessionStorage.removeItem(SAVED_VIEW_KEY)
+    } catch {
+      // Ignore unavailable browser storage.
+    }
+  }, [navigate])
 
   // The LOG OUT and EXIT buttons ask first.
   const askToLogout = useCallback((): void => setConfirmingLogout(true), [])
@@ -159,10 +202,10 @@ function App() {
   // The intro with the chosen character plays inside the prologue now.
   const goToChapters = (): void => {
     setSettingsOpen(false)
-    setView({ screen: 'chapters' })
+    navigate({ screen: 'chapters' })
   }
   const openMission = (chapter: number, mission: number): void =>
-    setView({ screen: 'mission', chapter, mission })
+    navigate({ screen: 'mission', chapter, mission })
   const openJournal = (): void => setJournalOpen(true)
   const openSettings = (): void => setSettingsOpen(true)
 
@@ -170,7 +213,7 @@ function App() {
   if (view.screen === 'chapters') {
     screen = (
       <ChapterSelect
-        onBack={() => setView({ screen: 'home' })}
+        onBack={() => navigate({ screen: 'home' })}
         onExit={handleLogout}
         onOpenMission={openMission}
         onJournal={openJournal}
@@ -199,7 +242,7 @@ function App() {
       <HomeScreen
         profile={profile}
         onLogout={askToLogout}
-        onPlay={() => setView({ screen: 'chapters' })}
+        onPlay={() => navigate({ screen: 'chapters' })}
         onJournal={openJournal}
         onSettings={openSettings}
       />

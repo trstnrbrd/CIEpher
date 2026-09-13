@@ -13,10 +13,10 @@
 }
 
 .confirm-box {
-  width: min(460px, 100%);
+  width: min(460px, calc(100vw - 32px));
   background: #161b36;
-  border: 4px solid #ffffff;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 12px;
   box-shadow: 0 6px 0 #000000;
   padding: 28px 24px 24px;
   display: flex;
@@ -40,11 +40,13 @@
   line-height: 1.8;
   color: #ffffff;
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .confirm-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
   gap: 14px;
   width: 100%;
@@ -53,14 +55,18 @@
 /* The same buttons as the home screen's PLAY (blue) and LOG OUT (red). */
 .confirm-btn {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+  font-size: clamp(0.5rem, 1.1vw, 0.82rem);
   color: #fff;
   border: 4px solid;
   border-radius: 12px;
-  padding: 1.5vh 3vw;
+  padding: 1.5vh 1.2vw;
   cursor: pointer;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-shadow: 2px 2px 0 #000;
+  width: 100%;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  text-align: center;
   transition: all 0.15s ease;
 }
 
@@ -101,7 +107,7 @@
 }
 
 /* Phone: smaller text, and the two buttons share the width. */
-@media (max-width: 480px) {
+@media (max-width: 620px) {
   .confirm-box {
     padding: 22px 16px 18px;
     gap: 14px;
@@ -116,8 +122,8 @@
   }
 
   .confirm-btn {
-    flex: 1 1 0;
     padding: 12px 8px;
+    font-size: clamp(0.55rem, 3vw, 0.75rem);
     letter-spacing: 1px;
   }
 }

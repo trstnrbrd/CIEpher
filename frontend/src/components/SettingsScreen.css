@@ -48,6 +48,87 @@
   color: #1d1a2e;
 }
 
+.settings-audio-controls {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(1 * var(--h));
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.settings-slider {
+  width: min(170px, 24vw);
+  min-width: 0;
+  height: 18px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.settings-slider::-webkit-slider-runnable-track {
+  height: 10px;
+  background: #1b2148;
+  border: 3px solid #11142e;
+  border-radius: 8px;
+}
+
+.settings-slider::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
+  appearance: none;
+  background: #ffe066;
+  border: 3px solid #7a5b00;
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.settings-slider::-moz-range-track {
+  height: 10px;
+  background: #1b2148;
+  border: 3px solid #11142e;
+  border-radius: 8px;
+}
+
+.settings-slider::-moz-range-progress {
+  height: 10px;
+  background: #2b6dd4;
+  border-radius: 5px;
+}
+
+.settings-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffe066;
+  border: 3px solid #7a5b00;
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.settings-mute {
+  flex: 0 0 auto;
+  min-width: 86px;
+  padding: calc(0.9 * var(--h)) calc(1 * var(--h));
+  color: #fff;
+  background: #3b3b76;
+  border: 3px solid #1b1c3d;
+  border-radius: 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(0.8vw, calc(1.4 * var(--h)));
+  cursor: pointer;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.settings-mute:hover {
+  transform: translateY(-2px);
+}
+
+.settings-mute.muted {
+  background: #b0392e;
+  border-color: #7a241c;
+}
+
 /* A chunky pixel toggle switch. */
 .settings-toggle {
   position: relative;
@@ -122,4 +203,20 @@
 .settings-logout:hover,
 .settings-close:hover {
   transform: translateY(-2px);
+}
+
+@media (max-width: 520px) {
+  .settings-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-audio-controls {
+    width: 100%;
+  }
+
+  .settings-slider {
+    flex: 1;
+    width: auto;
+  }
 }
