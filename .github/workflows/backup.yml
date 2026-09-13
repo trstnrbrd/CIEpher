@@ -1,0 +1,69 @@
+# Nightly encrypted backup of the CIEpher database. How to restore:
+# backups/RESTORE.md.
+name: Backup
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # 02:00 in the Philippines (UTC+8)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # The session pooler URL: GitHub's runners can't reach the IPv6-only
+      # direct database host.
+      DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.117.0
+
+      - name: Install age
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq age
+
+      - name: Copy roles, schema and data
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir dump
+          supabase db dump --db-url "$DB_URL" -f dump/roles.sql --role-only
+          supabase db dump --db-url "$DB_URL" -f dump/schema.sql
+          # Leaves out the login history and the live login and reset tokens:
+          # a restore doesn't need them (players just log in again).
+          supabase db dump --db-url "$DB_URL" -f dump/data.sql --use-copy --data-only \
+            -x storage.buckets_vectors -x storage.vector_indexes \
+            -x auth.audit_log_entries \
+            -x auth.sessions -x auth.refresh_tokens -x auth.mfa_amr_claims \
+            -x auth.one_time_tokens -x auth.flow_state
+          # Fail loudly rather than keep an empty copy.
+          grep -q 'COPY "auth"."users"' dump/data.sql
+          grep -q 'COPY "public"."profiles"' dump/data.sql
+
+      - name: Lock the copy
+        run: |
+          set -euo pipefail
+          # recipients.txt holds public keys only: they can lock, never unlock.
+          file="ciepher-backup-$(date -u +%Y-%m-%dT%H%MZ).tar.gz.age"
+          tar -czf - -C dump . | age -R backups/recipients.txt -o "$file"
+          rm -rf dump
+          echo "BACKUP_FILE=$file" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.BACKUP_FILE }}
+          archive: false
+          retention-days: 30
+          if-no-files-found: error

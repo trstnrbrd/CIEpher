@@ -1,5 +1,12 @@
 # Client files: never commit
 Documents/*.pdf
 
-# Local-only Claude instructions (Tristan's machine)
+# Local-only Claude instructions 
 CLAUDE.md
+
+# Backups
+*.key
+*.age
+*.tar.gz
+backups/*.sql
+!backups/before-schema.sql
