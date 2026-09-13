@@ -7,8 +7,12 @@ import {
   type Progress,
 } from '../api/client'
 import GameNav from './GameNav'
+import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
+import CoreBreakdown from './CoreBreakdown'
+import TaskBar from './TaskBar'
+import { getLesson } from '../lessons'
 import './MissionScreen.css'
 
 interface MissionScreenProps {
@@ -22,10 +26,46 @@ interface MissionScreenProps {
   // The session ended (401): straight back to Login, nothing to ask.
   onUnauthorized: () => void
   onOpenMission: (chapter: number, mission: number) => void
+  onJournal: () => void
+  onSettings: () => void
 }
 
 function chapterLabel(id: number): string {
   return id === 0 ? 'PROLOGUE' : `CHAPTER ${id}`
+}
+
+// Matches the server's answer rules for coloring: spacing never matters,
+// curly quotes from phone keyboards count as plain ones, capitals do.
+function normalizeSyntax(s: string): string {
+  return s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, '')
+}
+
+// Which hint choice the typed answer looks like, or null if it matches none.
+function matchingChoice(
+  answer: string,
+  choices: string[],
+): number | null {
+  const normalized = normalizeSyntax(answer)
+  for (let i = 0; i < choices.length; i++) {
+    if (normalizeSyntax(choices[i]) === normalized) return i
+  }
+  return null
+}
+
+// Character diff against the lesson's code: every position that reads
+// differently glows red, as does any extra text past the end. A too-short
+// answer also flags that the tail is missing.
+function highlightDiff(typed: string, code: string): {
+  wrong: number[]
+  missing: boolean
+} {
+  const wrong: number[] = []
+  const common = Math.min(typed.length, code.length)
+  for (let i = 0; i < common; i++) {
+    if (typed[i] !== code[i]) wrong.push(i)
+  }
+  for (let i = code.length; i < typed.length; i++) wrong.push(i)
+  return { wrong, missing: typed.length < code.length }
 }
 
 function MissionScreen({
@@ -37,6 +77,8 @@ function MissionScreen({
   onExit,
   onUnauthorized,
   onOpenMission,
+  onJournal,
+  onSettings,
 }: MissionScreenProps) {
   // The prologue opens with the character's intro: play it before mission 1.
   // Re-entering the prologue (a fresh mount) shows it again.
@@ -52,6 +94,18 @@ function MissionScreen({
     null,
   )
   const [serverError, setServerError] = useState<string | null>(null)
+  // The coding challenge (from the lesson data): which hint is selected,
+  // which one turned green/red, where the typed code is wrong, and whether
+  // the wrong answer was cut short.
+  const lesson = getLesson(chapter, mission)
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null)
+  const [choiceOk, setChoiceOk] = useState<number | null>(null)
+  const [choiceBad, setChoiceBad] = useState<number | null>(null)
+  const [wrongChars, setWrongChars] = useState<number[]>([])
+  const [missingTail, setMissingTail] = useState<boolean>(false)
+  // The "UNDERSTAND THE CORE" screen shows after a correct answer, before
+  // the green CORRECT! message.
+  const [showCore, setShowCore] = useState<boolean>(false)
 
   const refreshProgress = async (): Promise<void> => {
     try {
@@ -92,13 +146,23 @@ function MissionScreen({
   // the exercise.
   if (showingStory) {
     return (
-      <PrologueStory
-        character={character}
-        onFinish={() => {
-          setShowingStory(false)
-          setShowingIntro(false)
-        }}
-      />
+      <>
+        <PrologueStory
+          character={character}
+          onFinish={() => {
+            setShowingStory(false)
+            setShowingIntro(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
     )
   }
 
@@ -124,14 +188,39 @@ function MissionScreen({
     setChecking(true)
     setFeedback(null)
     setServerError(null)
+    setChoiceOk(null)
+    setChoiceBad(null)
     try {
       const { correct } = await submitAnswer(chapter, mission, answer)
       if (correct) {
+        setWrongChars([])
+        setMissingTail(false)
+        const chosen = lesson?.choices
+          ? matchingChoice(answer, lesson.choices)
+          : null
+        if (chosen !== null) setChoiceOk(chosen)
         setAnswer('')
         await refreshProgress()
+        if (lesson?.core) {
+          // The learning screen plays before the CORRECT! message.
+          setShowCore(true)
+        } else {
+          setFeedback({
+            ok: true,
+            text: 'CORRECT! PROGRESS SAVED.',
+          })
+        }
+      } else if (lesson?.choices) {
+        // A wrong syntax: mark the offending characters red and tell the
+        // player none of it ran.
+        const { wrong, missing } = highlightDiff(answer, lesson.code ?? '')
+        setWrongChars(wrong)
+        setMissingTail(missing)
+        const choice = matchingChoice(answer, lesson.choices)
+        if (choice !== null) setChoiceBad(choice)
         setFeedback({
-          ok: true,
-          text: 'CORRECT! PROGRESS SAVED.',
+          ok: false,
+          text: 'SYNTAX ERROR: CHECK THE HIGHLIGHTED PART OF YOUR CODE AND TRY AGAIN. THE PROGRAM WILL NOT EXECUTE UNTIL THE CORRECT SYNTAX IS ENTERED.',
         })
       } else {
         setFeedback({
@@ -155,6 +244,33 @@ function MissionScreen({
     }
   }
 
+  // Clicking a hint types it into the box and starts the highlight state over.
+  const pickChoice = (choice: number, value: string): void => {
+    setAnswer(value)
+    setSelectedChoice(choice)
+    setWrongChars([])
+    setMissingTail(false)
+    setChoiceOk(null)
+    setChoiceBad(null)
+  }
+
+  // Back to typing by hand: clear the hint pick and the old highlight state.
+  const changeAnswer = (value: string): void => {
+    setAnswer(value)
+    setSelectedChoice(null)
+    setWrongChars([])
+    setMissingTail(false)
+    setChoiceOk(null)
+    setChoiceBad(null)
+  }
+
+  // The player finished the learning screen; show the green CORRECT! and
+  // saved message.
+  const closeCore = (): void => {
+    setShowCore(false)
+    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+  }
+
   const nextMission = (() => {
     if (!progress) return null
     const missions = progress.chapters.find((c) => c.id === chapter)?.missions
@@ -167,6 +283,13 @@ function MissionScreen({
   if (serverError) {
     return (
       <div className="mission-screen">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
         <div className="mission-content">
           <h2 className="mission-header">MISSION {mission}</h2>
           <p className="mission-feedback wrong">{serverError}</p>
@@ -179,6 +302,13 @@ function MissionScreen({
   if (!missionStatus) {
     return (
       <div className="mission-screen">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
         <div className="mission-content">
           <h2 className="mission-header">
             {chapterLabel(chapter)} – MISSION {mission}
@@ -195,6 +325,13 @@ function MissionScreen({
   if (!missionStatus.unlocked) {
     return (
       <div className="mission-screen">
+        <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
         <div className="mission-content">
           <h2 className="mission-header">
             {chapterLabel(chapter)} – MISSION {mission}
@@ -209,7 +346,24 @@ function MissionScreen({
   const done = missionStatus.completed || feedback?.ok === true
 
   return (
-    <div className="mission-screen">
+    <div
+      className={[
+        'mission-screen',
+        lesson?.sceneBg ? 'mission-scene-bg' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {lesson?.sceneBg && (
+        <img className="mission-scene" src={lesson.sceneBg} alt="" />
+      )}
+      <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+      <TaskBar
+        chapter={chapter}
+        progress={progress}
+        currentMission={mission}
+        onOpenMission={onOpenMission}
+      />
       <div className="mission-content">
         <h2 className="mission-header">
           {chapterLabel(chapter)} – MISSION {mission}
@@ -218,23 +372,70 @@ function MissionScreen({
           {missionStatus.completed ? 'ALREADY COMPLETED – PLAY AGAIN' : ' '}
         </p>
 
-        <div className="mission-hint">
-          <p className="mission-hint-label">MISSION CONTENT</p>
-          <p className="mission-hint-body">Coming soon…</p>
-        </div>
+        {lesson?.prompt ? (
+          <div className="mission-challenge">
+            <p className="mission-challenge-prompt">{lesson.prompt}</p>
+            {lesson.choices && (
+              <div className="mission-choices">
+                {lesson.choices.map((choice, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    className={[
+                      'mission-choice',
+                      selectedChoice === i ? 'selected' : '',
+                      choiceOk === i ? 'choice-correct' : '',
+                      choiceBad === i ? 'choice-wrong' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    onClick={() => pickChoice(i, choice)}
+                  >
+                    {choice}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mission-hint">
+            <p className="mission-hint-label">MISSION CONTENT</p>
+            <p className="mission-hint-body">Coming soon…</p>
+          </div>
+        )}
 
         <form className="mission-form" onSubmit={handleSubmit}>
-          <input
-            className="mission-input"
-            type="text"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder="TYPE HERE"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-            disabled={checking}
-          />
+          <div className="mission-code-zone">
+            <input
+              className={[
+                'mission-input',
+                wrongChars.length > 0 || missingTail ? 'highlighted' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              type="text"
+              value={answer}
+              onChange={(e) => changeAnswer(e.target.value)}
+              placeholder="TYPE HERE"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              disabled={checking}
+            />
+            {(wrongChars.length > 0 || missingTail) && (
+              <span className="mission-code-overlay" aria-hidden="true">
+                {Array.from(answer).map((ch, i) => (
+                  <span
+                    key={i}
+                    className={wrongChars.includes(i) ? 'hl-red' : ''}
+                  >
+                    {ch}
+                  </span>
+                ))}
+                {missingTail && <span className="hl-red hl-caret">_</span>}
+              </span>
+            )}
+          </div>
           <button
             type="submit"
             className="pixel-button mission-execute"
@@ -268,6 +469,14 @@ function MissionScreen({
       </div>
 
       <GameNav onBack={onBack} onChapter={onChapter} onExit={onExit} />
+
+      {showCore && lesson?.core && (
+        <CoreBreakdown
+          code={lesson.code}
+          core={lesson.core}
+          onClose={closeCore}
+        />
+      )}
     </div>
   )
 }

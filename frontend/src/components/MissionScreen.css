@@ -18,6 +18,36 @@
   z-index: -2;
 }
 
+/* The game story scene behind the question, when the lesson knows where it
+   happens (e.g. mission 1 pops up right at the bedroom door). Sits where
+   the generic ::before background would be. */
+.mission-scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 55% 100%;
+  image-rendering: pixelated;
+  z-index: -2;
+  pointer-events: none;
+  display: none;
+}
+
+.mission-scene-bg::before {
+  display: none;
+}
+
+.mission-scene-bg .mission-scene {
+  display: block;
+}
+
+/* A lighter dim over the scene so the question card pops but the story
+   location still reads. */
+.mission-scene-bg::after {
+  background: rgba(8, 10, 28, 0.55);
+}
+
 .mission-screen::after {
   content: '';
   position: fixed;
@@ -54,10 +84,10 @@
 .mission-hint {
   width: 100%;
   min-height: 180px;
-  background: #161b36;
-  border: 3px solid #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 5px 0 #000000;
+  background: #ffffff;
+  border: max(3px, 0.24vw) solid #7b46d6;
+  border-radius: calc(1.6 * var(--h));
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -67,16 +97,125 @@
 .mission-hint-label {
   font-family: 'Press Start 2P', monospace;
   font-size: 10px;
-  color: #ffe066;
+  color: #7b46d6;
   margin: 0;
 }
 
 .mission-hint-body {
   font-family: 'Press Start 2P', monospace;
   font-size: 13px;
-  color: #ffffff;
+  color: #1d1a2e;
   margin: 0;
   text-align: center;
+}
+
+/* ---- The coding challenge (missions that have lesson data) ---- */
+
+.mission-challenge {
+  width: 100%;
+  min-height: 180px;
+  background: #ffffff;
+  border: max(3px, 0.24vw) solid #7b46d6;
+  border-radius: calc(1.6 * var(--h));
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mission-challenge-prompt {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #7b46d6;
+  margin: 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.mission-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mission-choice {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #ffffff;
+  background: #10142b;
+  border: 3px solid #4b5790;
+  border-radius: 6px;
+  box-shadow: 0 4px 0 #000000;
+  padding: 12px 18px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.mission-choice:hover {
+  border-color: #ffe066;
+}
+
+.mission-choice.selected {
+  border-color: #ffe066;
+}
+
+.mission-choice.choice-correct {
+  background: #2e8b43;
+  border-color: #39d353;
+  color: #a7ffb8;
+}
+
+.mission-choice.choice-wrong {
+  background: #8b3030;
+  border-color: #ff5c5c;
+  color: #ffc9c9;
+}
+
+/* The TYPE HERE box plus its red-character overlay. */
+.mission-code-zone {
+  flex: 1;
+  position: relative;
+}
+
+.mission-code-zone .mission-input {
+  width: 100%;
+}
+
+/* While the overlay is up, the real input's text goes transparent so the
+   red per-character highlighting reads through; the caret stays visible. */
+.mission-input.highlighted {
+  color: transparent;
+  caret-color: #ffffff;
+}
+
+.mission-code-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 17px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+  white-space: pre;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mission-code-overlay .hl-red {
+  color: #ff4c4c;
+}
+
+.mission-code-overlay .hl-caret {
+  text-decoration: underline;
 }
 
 .mission-form {
@@ -189,6 +328,11 @@
     font-size: 13px;
     padding: 12px;
     min-height: 48px;
+  }
+
+  .mission-code-overlay {
+    font-size: 13px;
+    padding: 15px;
   }
 
   .mission-execute {

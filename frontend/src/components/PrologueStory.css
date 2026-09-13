@@ -19,6 +19,7 @@
   object-fit: cover;
   object-position: 55% 100%;
   z-index: 0;
+  pointer-events: none;
 }
 
 /* Darken the scene just enough to read the bubble comfortably. */
@@ -28,10 +29,12 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: 0;
+  pointer-events: none;
 }
 
 /* The player's character, big, centered and grounded: sunk a touch below
-   the bottom edge so the feet rest on the floor instead of floating. */
+   the bottom edge so the feet rest on the floor instead of floating. It's
+   decorative, so it never steals taps from the bubble or the icons. */
 .story-person {
   --size: calc(74 * var(--h));
   position: absolute;
@@ -42,6 +45,7 @@
   width: auto;
   object-fit: contain;
   z-index: 3;
+  pointer-events: none;
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
 }
 

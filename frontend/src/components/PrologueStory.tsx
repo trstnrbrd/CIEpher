@@ -3,16 +3,24 @@ import type { Character } from '../api/client'
 import boyImg from '../assets/boy.png'
 import girlImg from '../assets/girl.png'
 import bedroomImg from '../assets/prologue/player bedroom.png'
+import closeDoorImg from '../assets/prologue/CloseDoor.png'
+import GameTopBar from './GameTopBar'
 import './PrologueStory.css'
 
 interface PrologueStoryProps {
   character: Character
   onFinish: () => void
+  onJournal: () => void
+  onSettings: () => void
 }
 
 interface StoryPage {
   bg: string
   lines: string[]
+  // Where the background art is anchored (object-position). Defaults to the
+  // bedroom look: centered, hugging the bottom. Per-page override so scenes
+  // with a different focal point don't need to touch the shared styles.
+  pos?: string
 }
 
 // The story inside the prologue. Add more pages as scenes are written; they
@@ -24,6 +32,10 @@ const PAGES: StoryPage[] = [
       'Today is your first day as a programming student.',
       'Your journey begins now. Good luck!',
     ],
+  },
+  {
+    bg: closeDoorImg,
+    lines: ['The door is lock!'],
   },
 ]
 
@@ -44,11 +56,16 @@ function lineStarts(lines: string[]): {
   return { starts, total: run }
 }
 
-function PrologueStory({ character, onFinish }: PrologueStoryProps) {
+function PrologueStory({
+  character,
+  onFinish,
+  onJournal,
+  onSettings,
+}: PrologueStoryProps) {
   const [page, setPage] = useState(0)
   const [count, setCount] = useState(0)
 
-  const { bg, lines } = PAGES[page]
+  const { bg, lines, pos } = PAGES[page]
   const { starts, total } = lineStarts(lines)
   const done = count >= total
   const last = page === PAGES.length - 1
@@ -106,7 +123,13 @@ function PrologueStory({ character, onFinish }: PrologueStoryProps) {
 
   return (
     <div className="prologue-story">
-      <img className="story-bg" src={bg} alt="" />
+      <img
+        className="story-bg"
+        src={bg}
+        alt=""
+        style={{ objectPosition: pos ?? '55% 100%' }}
+      />
+      <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <button
         type="button"
         className={`story-bubble story-bubble-${character}`}
