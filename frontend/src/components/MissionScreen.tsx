@@ -20,7 +20,6 @@ interface MissionScreenProps {
   chapter: number
   mission: number
   character: Character
-  onBack: () => void
   onChapter: () => void
   // The session ended (401): straight back to Login, nothing to ask.
   onUnauthorized: () => void
@@ -56,7 +55,6 @@ function MissionScreen({
   chapter,
   mission,
   character,
-  onBack,
   onChapter,
   onUnauthorized,
   onOpenMission,
