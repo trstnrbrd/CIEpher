@@ -35,6 +35,12 @@ select results_eq(
   'the prologue has 3 missions, each with an answer'
 );
 
+-- How many missions there are, counted as the admin, so test 4 can check
+-- players see every one (without changing this file for each new chapter).
+create temp table all_missions on commit drop as
+  select count(*)::int as total from public.missions;
+grant select on all_missions to authenticated;
+
 -- 2. Visitors who aren't logged in can't read the game at all.
 set local role anon;
 select throws_ok(
@@ -56,11 +62,11 @@ select results_eq(
   'players can read the chapters'
 );
 
--- 4. Players see the missions (the prologue's 3 and chapter 1's 5).
+-- 4. Players see every mission.
 select is(
   (select count(*)::int from public.missions),
-  8,
-  'players can read the missions'
+  (select total from all_missions),
+  'players can read every mission'
 );
 
 -- 5. Players can never read the answers.

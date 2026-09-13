@@ -1,4 +1,8 @@
 {
-  "deno.enablePaths": ["backend/supabase/functions"],
+  "deno.enablePaths": [
+    "backend/supabase/functions",
+    "backend/tools",
+    "backend/content"
+  ],
   "deno.lint": true
 }

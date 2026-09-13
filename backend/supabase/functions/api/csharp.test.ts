@@ -1,4 +1,5 @@
 import { assert, assertEquals, assertFalse } from "@std/assert";
+import { CHAPTERS } from "../../../content/index.ts";
 import { findMistakes, sameCode, tokenize } from "./csharp.ts";
 
 const texts = (code: string) => tokenize(code).map((t) => t.text);
@@ -149,72 +150,31 @@ Deno.test("phone keyboards' curly quotes count as plain quotes", () => {
 
 // ---------- the game's answer keys ----------
 
-// The answer keys as stored (answer_keys.test.sql pins them in the database),
-// and the wrong choice from the client's docs for each. All of this was
-// checked with the real C# compiler on 2026-09-13.
-const KEYS = [
-  {
-    key: "OpenDoor();",
-    oneLine: "OpenDoor();",
-    wrong: "OpenDoor:",
-  },
-  {
-    key: "GoToTerminal();",
-    oneLine: "GoToTerminal();",
-    wrong: "GoToTerminal;",
-  },
-  {
-    key: "RideJeep();",
-    oneLine: "RideJeep();",
-    wrong: "RideJeep;",
-  },
-  {
-    key: "if",
-    oneLine: "if",
-    wrong: "while",
-  },
-  {
-    key: "if(hasSchoolID)\n{\n    EnterSchool();\n}",
-    oneLine: "if(hasSchoolID){EnterSchool();}",
-    wrong: "if hasSchoolID\n{\n    EnterSchool();\n}",
-  },
-  {
-    key: "if(isPresent)\n{\n    RecordAttendance();\n}",
-    oneLine: "if(isPresent){RecordAttendance();}",
-    // Valid C#, but the client's doc marks it wrong (asked 2026-09-13).
-    wrong: "if(isPresent)\nRecordAttendance();",
-  },
-  {
-    key: "if(hasPower)\n{\n    StartComputer();\n}",
-    oneLine: "if(hasPower){StartComputer();}",
-    wrong: "if(hasPower)\n{\n    StartComputer()\n}",
-  },
-  {
-    key: "if(isCompleted)\n{\n    SubmitActivity();\n}",
-    oneLine: "if(isCompleted){SubmitActivity();}",
-    wrong: "IF(isCompleted)\n{\n   SubmitActivity();\n}",
-  },
-  {
-    key: "if(hasAttendance)\n{\n    OpenQuiz();\n}",
-    oneLine: "if(hasAttendance){OpenQuiz();}",
-    // Valid C#, but the client's doc marks it wrong (asked 2026-09-13).
-    wrong: "if(hasAttendance)\nOpenQuiz();",
-  },
-];
-
+// Every chapter's answer keys and the wrong choices from the client's docs
+// (backend/content/). `npm run answers:check` also proves them with the real
+// C# compiler.
 Deno.test("each answer key is right, also on one line or spaced out", () => {
-  for (const { key, oneLine } of KEYS) {
-    assert(sameCode(key, key), key);
-    assert(sameCode(oneLine, key), oneLine);
-    assert(sameCode(`  ${oneLine.replaceAll("(", " ( ")}  `, key), oneLine);
+  for (const chapter of CHAPTERS) {
+    for (const { answer } of chapter.questions) {
+      assert(sameCode(answer, answer), answer);
+      assert(sameCode(answer.replace(/\s*\n\s*/g, " "), answer), answer);
+      const spacedOut = tokenize(answer)
+        .map((t) => t.text)
+        .join(" ");
+      assert(sameCode(`  ${spacedOut}  `, answer), answer);
+    }
   }
 });
 
 Deno.test("each wrong choice in the client's docs is wrong", () => {
-  for (const { key, wrong } of KEYS) {
-    assertFalse(sameCode(wrong, key), wrong);
-    // ...and has something to point out.
-    assert(findMistakes(wrong, [key]).length > 0, wrong);
+  for (const chapter of CHAPTERS) {
+    for (const { answer, wrong } of chapter.questions) {
+      for (const choice of wrong) {
+        assertFalse(sameCode(choice, answer), choice);
+        // ...and has something to point out.
+        assert(findMistakes(choice, [answer]).length > 0, choice);
+      }
+    }
   }
 });
 
