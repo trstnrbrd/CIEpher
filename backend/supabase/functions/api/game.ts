@@ -27,7 +27,7 @@ export function supabaseGame(config: SupabaseConfig): Game {
   return {
     getProgress: (player) => loadProgress(config, player),
 
-    async submitAnswer(player, { chapter, mission, answer }) {
+    async submitAnswer(player, { chapter, mission, question, answer }) {
       // The same unlock rules as GET /progress decide what can be answered.
       const progress = await loadProgress(config, player);
       const status = findMission(progress, chapter, mission);
@@ -47,17 +47,26 @@ export function supabaseGame(config: SupabaseConfig): Game {
       }
 
       // The database checks the answer and records the try in one step
-      // (see the mission_submit migration).
+      // (see the mission_submit and mission_questions migrations).
       const { data: correct, error } = await admin.rpc(
         "submit_mission_answer",
         {
           p_player_id: player.id,
           p_chapter: chapter,
           p_mission: mission,
+          p_question: question,
           p_answer: answer,
         },
       );
       if (error) throw error;
+      // null means this mission has no such question.
+      if (correct === null) {
+        throw new ApiError(
+          404,
+          "QUESTION_NOT_FOUND",
+          "That question doesn't exist.",
+        );
+      }
       return { correct: correct === true };
     },
   };
