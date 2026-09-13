@@ -6,6 +6,7 @@
 // Adding an entry here for a new mission grows the journal automatically.
 
 import closeDoorImg from './assets/prologue/CloseDoor.png'
+import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 
 // One piece of the code being taught, e.g. the name of a method.
@@ -106,7 +107,8 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'Calling the GoToTerminal(); method switches the program to the jeep terminal and opens the way forward. A method needs () to be called and ; to end the statement.',
     code: 'GoToTerminal();',
-    sceneBg: jeepneyTerminalImg,
+    // Asked at the outside-door scene, right after leaving the house.
+    sceneBg: outsideDoorImg,
     prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
     choices: ['GoToTerminal();', 'GoToTerminal;'],
     core: {
@@ -144,8 +146,41 @@ const LESSONS: Record<string, Lesson> = {
     mission: 3,
     title: 'Ride the Jeepney',
     story: 'The jeepney is ready.',
-    lesson: 'Lesson content coming soon. The mission is teaching how a method call completes the journey.',
+    lesson:
+      'Calling the RideJeep(); method starts the journey along the route. A method needs () to be called and ; to end the statement.',
     code: 'RideJeep();',
+    sceneBg: jeepneyTerminalImg,
+    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+    choices: ['RideJeep();', 'RideJeep:'],
+    core: {
+      incorrectExample: 'RideJeep ;',
+      incorrectNote: 'It is missing the parentheses.',
+      correctNote: 'This is the correct syntax.',
+      anatomy: [
+        {
+          text: 'RideJeep',
+          label: 'The name of the method or action to be performed.',
+        },
+        {
+          text: '()',
+          label: 'Parentheses are needed to call the method.',
+        },
+        {
+          text: ';',
+          label: 'The semicolon ends the statement.',
+        },
+      ],
+      flow: [
+        'Start',
+        'Read RideJeep();',
+        'Call RideJeep()',
+        'The Jeepney Starts',
+        'The Journey Begins',
+        'End',
+      ],
+      flowGraphic: 'terminal',
+      takeaway: 'Use () to call a method and always end the statement with ;',
+    },
   },
 }
 
