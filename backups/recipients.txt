@@ -1,0 +1,7 @@
+# Public backup keys, one per line. Each can LOCK a backup; none can unlock it.
+# The matching private keys never go into Git (see README.md).
+# To let someone else unlock backups (e.g. the client at handover), add their
+# public key on a new line. Backups made before that stay locked to the old keys.
+
+# Tristan (made 2026-09-13):
+age1zqgx0j48uxezfx8fsk46sfqvt80xhjm88m99cr3stcyph3vtyqss8slz8w
