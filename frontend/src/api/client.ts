@@ -38,8 +38,16 @@ export type ChapterStatus = {
 
 export type Progress = { chapters: ChapterStatus[] }
 
-// The server's verdict on a typed answer. Only the server knows the answers.
-export type SubmitResult = { correct: boolean }
+// Where a wrong answer is wrong: positions in the answer exactly as it was
+// sent, counted from 0, with `end` just past the last character.
+// start < end: those characters are wrong, so paint them red.
+// start === end: something is missing right there, so show a red marker.
+export type Mistake = { start: number; end: number }
+
+// The server's verdict on a typed answer. Only the server knows the answers;
+// a wrong answer comes with where it's wrong.
+export type SubmitResult =
+  { correct: true } | { correct: false; mistakes: Mistake[] }
 
 type Session = { accessToken: string; refreshToken: string }
 type AuthResult = { session: Session | null; profile: Profile }

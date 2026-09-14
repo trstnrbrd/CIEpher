@@ -262,7 +262,7 @@ Errors: `401 UNAUTHORIZED`: send the player to Login.
 
 ### ✅ `POST /missions/submit` (logged in)
 
-Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const result = await submitAnswer(0, 1, typed)`. (`client.ts`'s `SubmitResult` type gets the `mistakes` field in the next frontend PR; the server already sends it.)
+Checks the answer typed into a mission's TYPE HERE box when the player presses Execute. In the frontend: `const result = await submitAnswer(0, 1, typed)`. `result` is `{ correct: true }` or `{ correct: false, mistakes }` (`client.ts` exports the `SubmitResult` and `Mistake` types).
 
 **Missions with more than one question:** chapter 1's mission 1 asks 2. First, which control structure fits (`if` or `while`), then the code. Pass the question number, counted from 1, as the 4th argument: `submitAnswer(1, 1, choice, 1)`, then `submitAnswer(1, 1, typed, 2)`. For one-question missions, leave it out (it's 1). Only the right answer to a mission's **last** question completes the mission.
 
