@@ -1,0 +1,75 @@
+{
+  "chapter": 3,
+  "title": "The else if statement",
+  "source": "Documents/d. CHAPTER 3.pdf",
+  "program": [
+    "int score, speed;",
+    "double gpa;",
+    "void ShowExcellent() {}",
+    "void ShowPassed() {}",
+    "void ShowNeedsImprovement() {}",
+    "void FullScholarship() {}",
+    "void PartialScholarship() {}",
+    "void NotQualified() {}",
+    "void ShowGood() {}",
+    "void ShowPoor() {}",
+    "void AwardGold() {}",
+    "void AwardSilver() {}",
+    "void AwardBronze() {}",
+    "void ShowVeryGood() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "else if",
+      "wrong": ["if", "if...else"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}",
+      "wrong": [
+        "if(score >= 90)\n{\n    ShowExcellent();\n}\nelseif(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}",
+        "if(score >= 90)\n{\n    ShowExcellent();\n}\nelse(score >= 75)\n{\n    ShowPassed();\n}"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}",
+      "wrong": [
+        "if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelseif(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}",
+        "if(gpa <= 1.25)\n{\n    FullScholarship()\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "if(speed >=100)\n{\n    ShowExcellent();\n}\nelse if(speed >=50)\n{\n    ShowGood();\n}\nelse\n{\n    ShowPoor();\n}",
+      "wrong": [
+        "if(speed >=100)\n{\n    ShowExcellent();\n}\nelse if(speed >=50)\n{\n    ShowGood();\n}\nElse\n{\n    ShowPoor();\n}",
+        "if(speed >=100)\n{\n    ShowExcellent();\n}\nelse(speed >=50)\n{\n    ShowGood();\n}"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "if(score >=95)\n{\n    AwardGold();\n}\nelse if(score >=85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}",
+      "wrong": [
+        "if(score >=95)\n{\n    AwardGold();\n}\nelseif(score >=85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}",
+        "if(score >=95)\n{\n    AwardGold();\n}\nelse if(score >=85)\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "if(score >=90)\n{\n    ShowExcellent();\n}\nelse if(score >=80)\n{\n    ShowVeryGood();\n}\nelse if(score >=75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}",
+      "wrong": [
+        "if(score >=90)\n{\n    ShowExcellent();\n}\nelse if(score >=80)\n{\n    ShowVeryGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}\nelse if(score >=75)\n{\n    ShowGood();\n}",
+        "if(score >=90)\n{\n    ShowExcellent();\n}\nelseif(score >=80)\n{\n    ShowVeryGood();\n}\nelse if(score >=75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}"
+      ]
+    }
+  ]
+}

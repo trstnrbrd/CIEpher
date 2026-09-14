@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(9);
+select plan(11);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1, 2)$$,
+    where chapter_id not in (0, 1, 2, 3)$$,
   'every chapter with missions has a content file'
 );
 
@@ -103,6 +103,29 @@ select results_eq(
     (4, 1, E'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}'),
     (5, 1, E'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}')$keys$,
   'chapter 2: its answer keys'
+);
+
+-- Chapter 3: The else if statement. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 3 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 3: its missions and questions'
+);
+
+-- Chapter 3's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 3 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'else if'),
+    (1, 2, E'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}'),
+    (2, 1, E'if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}'),
+    (3, 1, E'if(speed >=100)\n{\n    ShowExcellent();\n}\nelse if(speed >=50)\n{\n    ShowGood();\n}\nelse\n{\n    ShowPoor();\n}'),
+    (4, 1, E'if(score >=95)\n{\n    AwardGold();\n}\nelse if(score >=85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}'),
+    (5, 1, E'if(score >=90)\n{\n    ShowExcellent();\n}\nelse if(score >=80)\n{\n    ShowVeryGood();\n}\nelse if(score >=75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}')$keys$,
+  'chapter 3: its answer keys'
 );
 
 select * from finish();
