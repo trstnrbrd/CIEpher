@@ -1,0 +1,67 @@
+{
+  "chapter": 5,
+  "title": "The while loop",
+  "source": "Documents/f. CHAPTER 5.docx.pdf",
+  "program": [
+    "int books, progress, studentCount, totalStudents, uploadedFiles, totalFiles, reviewed, totalSubmissions;",
+    "void CollectBook() {}",
+    "void DownloadModule() {}",
+    "void PrintID() {}",
+    "void UploadFile() {}",
+    "void ReviewSubmission() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "while",
+      "wrong": ["if", "switch"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "while(books < 5)\n{\n    CollectBook();\n    books++;\n}",
+      "wrong": [
+        "while books < 5\n{\n    CollectBook();\n    books++;\n}",
+        "while(books < 5)\n{\n    CollectBook()\n    books++;\n}"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "while(progress < 100)\n{\n    DownloadModule();\n    progress += 20;\n}",
+      "wrong": [
+        "while(progress < 100)\n{\n    DownloadModule()\n    progress += 20;\n}",
+        "while progress < 100\n{\n    DownloadModule();\n    progress += 20;\n}"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "while(studentCount < totalStudents)\n{\n    PrintID();\n    studentCount++;\n}",
+      "wrong": [
+        "while(studentCount < totalStudents\n{\n    PrintID();\n    studentCount++;\n}",
+        "while(studentCount < totalStudents)\n{\n    PrintID()\n    studentCount++;\n}"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "while(uploadedFiles < totalFiles)\n{\n    UploadFile();\n    uploadedFiles++;\n}",
+      "wrong": [
+        "while(uploadedFiles < totalFiles)\n{\n    UploadFile()\n    uploadedFiles++;\n}",
+        "while uploadedFiles < totalFiles\n{\n    UploadFile();\n    uploadedFiles++;\n}"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "while(reviewed < totalSubmissions)\n{\n    ReviewSubmission();\n    reviewed++;\n}",
+      "wrong": [
+        "while(reviewed < totalSubmissions)\n{\n    ReviewSubmission()\n    reviewed++;\n}",
+        "while reviewed < totalSubmissions\n{\n    ReviewSubmission();\n    reviewed++;\n}"
+      ]
+    }
+  ]
+}
