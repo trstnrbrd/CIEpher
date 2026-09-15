@@ -47,6 +47,29 @@ function Heading({ children }: { children: ReactNode }) {
   return <h2 className="journal-heading">{children}</h2>
 }
 
+// Code with its line breaks kept. A line too long for the page wraps with a
+// hanging indent (the line's own indent + 2), so the wrapped part reads as
+// the same line of code. The spaces stay in the text, so copied code keeps
+// its indentation.
+function CodeBlock({ code }: { code: string }) {
+  return (
+    <pre className="journal-code">
+      {code.split('\n').map((line, index) => {
+        const hang = line.length - line.trimStart().length + 2
+        return (
+          <span
+            key={index}
+            className="journal-code-line"
+            style={{ paddingLeft: `${hang}ch`, textIndent: `-${hang}ch` }}
+          >
+            {line}
+          </span>
+        )
+      })}
+    </pre>
+  )
+}
+
 function LeftPage({ lesson }: { lesson: JournalLesson }) {
   return (
     <>
@@ -57,7 +80,7 @@ function LeftPage({ lesson }: { lesson: JournalLesson }) {
         </p>
       ))}
       <Heading>Basic Syntax</Heading>
-      <pre className="journal-code">{lesson.syntax}</pre>
+      <CodeBlock code={lesson.syntax} />
       {lesson.syntaxNotes.length > 0 && (
         <ul className="journal-list">
           {lesson.syntaxNotes.map((note) => (
@@ -85,6 +108,7 @@ function RightPage({ lesson }: { lesson: JournalLesson }) {
           <li key={use}>{use}</li>
         ))}
       </ul>
+      {lesson.example && <CodeBlock code={lesson.example} />}
     </>
   )
 }
