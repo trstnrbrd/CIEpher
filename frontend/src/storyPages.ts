@@ -4,6 +4,8 @@
 import openDoorImg from './assets/prologue/OpenDoor.png'
 import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
+import schoolImg from './chapter1/Schoool.png'
+import guardImg from './chapter1/guard.png'
 
 export type StoryPage = {
   bg: string
@@ -14,6 +16,10 @@ export type StoryPage = {
   pos?: string
   // Where the player sprite stands: center (default), left, or right.
   align?: 'center' | 'left' | 'right'
+  // Show the school guard sprite on the right of the scene.
+  guard?: boolean
+  // Which character says the lines. Defaults to the player.
+  speaker?: 'player' | 'guard'
 }
 
 // The story beat right after mission 1's explanation closes: the door swings
@@ -44,3 +50,14 @@ export const JEEP_START_PAGE: StoryPage = {
   bg: jeepneyTerminalImg,
   lines: ['The jeepney is ready. Time to head to school.'],
 }
+
+// Chapter 1 — The player arrives at the university gate.
+export const SCHOOL_GATE_PAGE: StoryPage = {
+  bg: schoolImg,
+  lines: ['Good morning! Please present your school ID.'],
+  align: 'left',
+  guard: true,
+  speaker: 'guard',
+}
+
+export { schoolImg, guardImg }

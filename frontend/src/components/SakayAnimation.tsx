@@ -1,7 +1,10 @@
 import sakayVideo from '../assets/prologue/sakay animation.mp4'
+import sakayVideoGirl from '../assets/prologue/sakay animation_g.mp4'
 import './SakayAnimation.css'
 
 interface SakayAnimationProps {
+  // The prologue ending has two versions, one per avatar.
+  girl: boolean
   // Called when the video finishes (or the player skips it).
   onFinish: () => void
 }
@@ -9,13 +12,13 @@ interface SakayAnimationProps {
 // Full-screen player for the "sakay" animation that plays after the last
 // prologue puzzle: the jeepney ride to school. Plays automatically and
 // closes on its own when the video ends, or when the player hits SKIP.
-function SakayAnimation({ onFinish }: SakayAnimationProps) {
+function SakayAnimation({ girl, onFinish }: SakayAnimationProps) {
   return (
     <div className="sakay-screen">
       <div className="sakay-card">
         <video
           className="sakay-video"
-          src={sakayVideo}
+          src={girl ? sakayVideoGirl : sakayVideo}
           autoPlay
           muted
           playsInline

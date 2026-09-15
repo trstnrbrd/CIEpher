@@ -3,7 +3,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,9 +52,9 @@
 /* Phone: shrink to fit 320px-wide screens, keep touch targets big. */
 @media (max-width: 480px) {
   .game-nav {
-    height: 64px;
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
     gap: 8px;
-    padding: 0 8px;
+    padding: 0 8px env(safe-area-inset-bottom, 0px);
   }
 
   .nav-btn {

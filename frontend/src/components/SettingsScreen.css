@@ -7,7 +7,8 @@
   flex-direction: column;
   align-items: center;
   gap: calc(3 * var(--h));
-  padding: calc(6 * var(--h)) 4vw;
+  padding: calc(6 * var(--h) + env(safe-area-inset-top, 0px)) 4vw
+    calc(4 * var(--h) + env(safe-area-inset-bottom, 0px));
   background:
     linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
     url('/src/assets/background opening.jpg') center/cover no-repeat;

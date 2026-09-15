@@ -9,9 +9,18 @@ import {
 import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
-import { JEEP_START_PAGE, OPEN_DOOR_PAGE, OUTSIDE_PAGES } from '../storyPages'
+import {
+  JEEP_START_PAGE,
+  OPEN_DOOR_PAGE,
+  OUTSIDE_PAGES,
+  SCHOOL_GATE_PAGE,
+} from '../storyPages'
+import guardImg from '../chapter1/guard.png'
+import boyImg from '../assets/boy.png'
+import girlImg from '../assets/girl.png'
 import CoreBreakdown from './CoreBreakdown'
 import SakayAnimation from './SakayAnimation'
+import LevelUnlock from './LevelUnlock'
 import TaskBar from './TaskBar'
 import { getLesson } from '../lessons'
 import './MissionScreen.css'
@@ -75,6 +84,10 @@ function MissionScreen({
   const [showingJeep, setShowingJeep] = useState<boolean>(
     chapter === 0 && mission === 3,
   )
+  // Chapter 1 opens with the school gate story beat.
+  const [showingSchoolGate, setShowingSchoolGate] = useState<boolean>(
+    chapter === 1 && mission === 1,
+  )
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -95,8 +108,14 @@ function MissionScreen({
   // The "UNDERSTAND THE CORE" screen shows after a correct answer, before
   // the green CORRECT! message.
   const [showCore, setShowCore] = useState<boolean>(false)
+  // Multi-question missions: track which question we're on (1-indexed).
+  const [questionNumber, setQuestionNumber] = useState<number>(1)
   // The "sakay" animation plays after the last prologue puzzle (mission 3).
   const [showingAnimation, setShowingAnimation] = useState<boolean>(false)
+  // When the last mission of a chapter is cleared, a celebration shows the
+  // next level unlocking before the player returns to the chapter list.
+  // Holds the chapter id being unlocked (the one after the current one).
+  const [unlockChapter, setUnlockChapter] = useState<number | null>(null)
 
   const refreshProgress = async (): Promise<void> => {
     try {
@@ -108,6 +127,18 @@ function MissionScreen({
       }
     }
   }
+
+  // Resolve the current question's prompt/choices/code for multi-question
+  // missions. Falls back to the lesson-level single question fields.
+  const currentQuestion = (() => {
+    if (lesson?.questions) {
+      return lesson.questions[questionNumber - 1] ?? null
+    }
+    if (lesson?.prompt) {
+      return { prompt: lesson.prompt, choices: lesson.choices, code: lesson.code }
+    }
+    return null
+  })()
 
   useEffect(() => {
     let active = true
@@ -139,6 +170,12 @@ function MissionScreen({
     return (
       <div className="mission-screen">
         <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
         <div className="mission-content">
           <p className="mission-loading">LOADING…</p>
         </div>
@@ -222,6 +259,26 @@ function MissionScreen({
     )
   }
 
+  if (showingSchoolGate) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[SCHOOL_GATE_PAGE]}
+          onFinish={() => setShowingSchoolGate(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   if (showingIntro) {
     return (
       <PostSelectWelcome
@@ -245,13 +302,20 @@ function MissionScreen({
     setFeedback(null)
     setServerError(null)
     try {
-      const { correct } = await submitAnswer(chapter, mission, answer)
+      const { correct } = await submitAnswer(chapter, mission, answer, questionNumber)
       if (correct) {
         setWrongChars([])
         setMissingTail(false)
         setWrongChoiceIndex(null)
         setAnswer('')
         await refreshProgress()
+        // Multi-question missions: advance to the next question first.
+        const totalQuestions = lesson?.questions?.length ?? 1
+        if (questionNumber < totalQuestions) {
+          setQuestionNumber((n) => n + 1)
+          setChecking(false)
+          return
+        }
         if (lesson?.core) {
           // The learning screen (program flow / explanation) always plays
           // right after a correct answer. Any location change waits until
@@ -263,14 +327,15 @@ function MissionScreen({
             text: 'CORRECT! PROGRESS SAVED.',
           })
         }
-      } else if (lesson?.choices) {
+      } else if (currentQuestion?.choices) {
         // A wrong syntax: mark the offending characters red and tell the
         // player none of it ran. The player typed it, so the red overlay
         // shows exactly which characters are wrong.
-        const { wrong, missing } = highlightDiff(answer, lesson.code ?? '')
+        const targetCode = currentQuestion.code
+        const { wrong, missing } = highlightDiff(answer, targetCode)
         setWrongChars(wrong)
         setMissingTail(missing)
-        const typedChoice = lesson.choices.findIndex(
+        const typedChoice = currentQuestion.choices.findIndex(
           (choice) => choice.trim() === answer.trim(),
         )
         setWrongChoiceIndex(typedChoice === -1 ? null : typedChoice)
@@ -338,11 +403,25 @@ function MissionScreen({
     return next && next.unlocked ? next.number : null
   })()
 
+  // This run finished the whole chapter: if the server just unlocked the next
+  // one (progress was refreshed before reaching here), play the celebration;
+  // otherwise head straight to the chapter list.
+  const finishChapter = (): void => {
+    const nextChapter = progress?.chapters.find(
+      (c) => c.id === chapter + 1,
+    )
+    if (nextChapter?.unlocked) {
+      setUnlockChapter(nextChapter.id)
+    } else {
+      onChapter()
+    }
+  }
+
   const advanceAfterSuccess = (): void => {
     if (nextMission !== null) {
       onOpenMission(chapter, nextMission)
     } else {
-      onChapter()
+      finishChapter()
     }
   }
 
@@ -417,17 +496,33 @@ function MissionScreen({
       {lesson?.sceneBg && (
         <img className="mission-scene" src={lesson.sceneBg} alt="" />
       )}
+      {chapter === 1 && lesson?.sceneBg && (
+        <>
+          <img className="mission-guard" src={guardImg} alt="" />
+          <img
+            className="mission-avatar"
+            src={character === 'girl' ? girlImg : boyImg}
+            alt=""
+          />
+        </>
+      )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+      <TaskBar
+        chapter={chapter}
+        progress={progress}
+        currentMission={mission}
+        onOpenMission={onOpenMission}
+      />
       <div className="mission-content">
-        {lesson?.prompt ? (
+        {currentQuestion ? (
           <div className="mission-challenge">
-            <p className="mission-challenge-prompt">{lesson.prompt}</p>
-            {lesson.choices && (
+            <p className="mission-challenge-prompt">{currentQuestion.prompt}</p>
+            {currentQuestion.choices && (
               <div
                 className="mission-choices"
                 aria-label="Possible answers - type one below"
               >
-                {lesson.choices.map((choice, i) => (
+                {currentQuestion.choices.map((choice, i) => (
                   <span
                     key={i}
                     className={`mission-choice mission-choice-hint ${
@@ -442,14 +537,13 @@ function MissionScreen({
 
             <form className="mission-form" onSubmit={handleSubmit}>
               <div className="mission-code-zone">
-                <input
+                <textarea
                   className={[
                     'mission-input',
                     wrongChars.length > 0 || missingTail ? 'highlighted' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
-                  type="text"
                   value={answer}
                   onChange={(e) => changeAnswer(e.target.value)}
                   placeholder="TYPE HERE"
@@ -457,6 +551,7 @@ function MissionScreen({
                   autoCorrect="off"
                   spellCheck={false}
                   disabled={checking}
+                  rows={2}
                 />
                 {(wrongChars.length > 0 || missingTail) && (
                   <span className="mission-code-overlay" aria-hidden="true">
@@ -510,7 +605,7 @@ function MissionScreen({
           <button
             type="button"
             className="pixel-button mission-next"
-            onClick={onChapter}
+            onClick={finishChapter}
           >
             CHAPTER CLEARED ✓ GO TO CHAPTERS
           </button>
@@ -525,7 +620,19 @@ function MissionScreen({
         />
       )}
 
-      {showingAnimation && <SakayAnimation onFinish={closeAnimation} />}
+      {showingAnimation && (
+        <SakayAnimation girl={character === 'girl'} onFinish={closeAnimation} />
+      )}
+
+      {unlockChapter !== null && (
+        <LevelUnlock
+          chapter={chapter}
+          onContinue={() => {
+            setUnlockChapter(null)
+            onChapter()
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -8,6 +8,7 @@
 import closeDoorImg from './assets/prologue/CloseDoor.png'
 import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
+import schoolImg from './chapter1/Schoool.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -36,6 +37,13 @@ export type CoreBreakdown = {
   takeaway: string
 }
 
+// A single question within a multi-question mission.
+export type Question = {
+  prompt: string
+  choices?: string[]
+  code: string
+}
+
 export type Lesson = {
   chapter: number
   mission: number
@@ -55,6 +63,9 @@ export type Lesson = {
   prompt?: string
   choices?: string[]
   core?: CoreBreakdown
+  // Multi-question missions: each question has its own prompt, choices, and
+  // code. When present, this overrides the single prompt/choices/code above.
+  questions?: Question[]
 }
 
 const LESSONS: Record<string, Lesson> = {
@@ -180,6 +191,65 @@ const LESSONS: Record<string, Lesson> = {
       ],
       flowGraphic: 'terminal',
       takeaway: 'Use () to call a method and always end the statement with ;',
+    },
+  },
+  '1:1': {
+    chapter: 1,
+    mission: 1,
+    title: 'The if Statement',
+    story: 'The university follows a No ID, No Entry policy.',
+    lesson:
+      'An if statement checks a condition. If the condition is true, the code inside the curly brackets runs. If false, it is skipped.',
+    code: 'if(hasSchoolID)\n{\n    EnterSchool();\n}',
+    sceneBg: schoolImg,
+    questions: [
+      {
+        prompt:
+          'Which C# control structure should be used?\nIf the student has a valid school ID, the student can enter the university.',
+        choices: ['if', 'while'],
+        code: 'if',
+      },
+      {
+        prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+        choices: [
+          'if(hasSchoolID)\n{\n    EnterSchool();\n}',
+          'if hasSchoolID\n{\n    EnterSchool();\n}',
+        ],
+        code: 'if(hasSchoolID)\n{\n    EnterSchool();\n}',
+      },
+    ],
+    core: {
+      incorrectExample: 'if hasSchoolID\n{\n    EnterSchool();\n}',
+      incorrectNote: 'It is missing parentheses around the condition.',
+      correctNote: 'This is the correct syntax.',
+      anatomy: [
+        {
+          text: 'if',
+          label: 'Tells the program to make a decision.',
+        },
+        {
+          text: '(hasSchoolID)',
+          label: 'The condition to check.',
+        },
+        {
+          text: '{ }',
+          label: 'The code inside will run only if the condition is TRUE.',
+        },
+        {
+          text: 'EnterSchool();',
+          label: 'The action the program performs.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check hasSchoolID',
+        'hasSchoolID == true?',
+        'YES → EnterSchool()',
+        'NO → Skip',
+        'END',
+      ],
+      takeaway:
+        'Use an if statement to check a condition before allowing an action to happen. If the condition is false, the action is skipped.',
     },
   },
 }
