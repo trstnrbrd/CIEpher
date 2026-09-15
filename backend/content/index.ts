@@ -9,6 +9,7 @@ import chapter1 from "./chapter-1.json" with { type: "json" };
 import chapter2 from "./chapter-2.json" with { type: "json" };
 import chapter3 from "./chapter-3.json" with { type: "json" };
 import chapter4 from "./chapter-4.json" with { type: "json" };
+import chapter5 from "./chapter-5.json" with { type: "json" };
 
 export type Question = {
   mission: number;
@@ -40,4 +41,5 @@ export const CHAPTERS: Chapter[] = [
   chapter2,
   chapter3,
   chapter4,
+  chapter5,
 ];
