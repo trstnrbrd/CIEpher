@@ -101,19 +101,6 @@
   transform: translateY(calc(-5 * var(--u)));
 }
 
-.journal-book-loading {
-  visibility: hidden;
-}
-
-.journal-loading-copy {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  margin: 0;
-  color: #2b2733;
-  font-size: max(calc(1.8 * var(--u)), 12px);
-}
-
 /* The notch where the two halves of the cover meet at the top. */
 .journal-book::before {
   content: '';
