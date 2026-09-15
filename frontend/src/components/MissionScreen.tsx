@@ -11,10 +11,10 @@ import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
   CLASSROOM_PAGE,
-  COMPUTER_READY_PAGE,
   JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
+  PROGRAMMING_LAB_PAGE,
   SCHOOL_GATE_PAGE,
   WELCOME_GATE_PAGE,
 } from '../storyPages'
@@ -101,8 +101,8 @@ function MissionScreen({
   const [showingClassroom, setShowingClassroom] = useState<boolean>(
     chapter === 1 && mission === 2,
   )
-  // Chapter 1, scene 3.1: mission 3 opens at the workstation as the computer
-  // reports SYSTEM READY before the hasPower challenge.
+  // Chapter 1, scene 3.1: mission 3 opens in the Programming Laboratory as
+  // the player finds the assigned computer turned off before the challenge.
   const [showingComputer, setShowingComputer] = useState<boolean>(
     chapter === 1 && mission === 3,
   )
@@ -319,14 +319,14 @@ function MissionScreen({
     )
   }
 
-  // Scene 3.1: mission 3 opens at the workstation as the computer reports
-  // SYSTEM READY, then the syntax challenge appears.
+  // Scene 3.1: mission 3 opens in the Programming Laboratory as the player
+  // finds the assigned computer turned off, then the challenge appears.
   if (showingComputer) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[COMPUTER_READY_PAGE]}
+          pages={[PROGRAMMING_LAB_PAGE]}
           onFinish={() => setShowingComputer(false)}
           onJournal={onJournal}
           onSettings={onSettings}

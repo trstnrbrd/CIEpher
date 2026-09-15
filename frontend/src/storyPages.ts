@@ -79,12 +79,14 @@ export const CLASSROOM_PAGE: StoryPage = {
   speaker: 'kiosk',
 }
 
-// Chapter 1 Scene 3.1 — The player reaches the workstation; the computer is
-// ready (and only turns on if there's power) before the syntax challenge.
-export const COMPUTER_READY_PAGE: StoryPage = {
+// Chapter 1 Scene 3.1 — The player enters the Programming Laboratory and
+// finds the assigned computer turned off before the hasPower challenge.
+export const PROGRAMMING_LAB_PAGE: StoryPage = {
   bg: powerImg,
-  lines: ['SYSTEM READY.'],
-  speaker: 'kiosk',
+  lines: [
+    'You enter the Programming Laboratory.',
+    'The assigned computer is turned off.',
+  ],
 }
 
 export { schoolImg, classroomImg, powerImg, guardImg }
