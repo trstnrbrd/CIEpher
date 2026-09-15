@@ -559,15 +559,11 @@ function MissionScreen({
       {lesson?.sceneBg && (
         <img className="mission-scene" src={lesson.sceneBg} alt="" />
       )}
-      {chapter === 1 && lesson?.sceneBg && (
+      {chapter === 1 && lesson?.sceneBg && mission === 1 && (
         <>
-          {mission === 1 && (
-            <img className="mission-guard" src={guardImg} alt="" />
-          )}
+          <img className="mission-guard" src={guardImg} alt="" />
           <img
-            className={`mission-avatar${
-              mission === 2 ? ' mission-avatar-center' : ''
-            }`}
+            className="mission-avatar"
             src={character === 'girl' ? girlImg : boyImg}
             alt=""
           />
