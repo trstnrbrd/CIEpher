@@ -4,7 +4,7 @@
    icons live at z 60, journal/settings at 90), above the fantasy backdrops. */
 .task-bar {
   position: fixed;
-  top: calc(1.1 * var(--h));
+  top: calc(1.1 * var(--h) + env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 55;
@@ -278,7 +278,7 @@
 /* Phone: shrink the bar so it still fits next to the corner icons. */
 @media (max-width: 620px) {
   .task-bar {
-    top: calc(0.9 * var(--h));
+    top: calc(0.9 * var(--h) + env(safe-area-inset-top, 0px));
   }
 
   .task-bar-track {

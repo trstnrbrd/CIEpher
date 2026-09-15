@@ -1,0 +1,344 @@
+/* Full-screen "next level unlocked" celebration. Sits above the mission
+   screen (same layer as the core breakdown / sakay video), blocks the
+   screen until the player taps CONTINUE. */
+.level-unlock {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 20px calc(18px + env(safe-area-inset-right, 0px))
+    calc(18px + env(safe-area-inset-bottom, 0px))
+    calc(18px + env(safe-area-inset-left, 0px));
+  background: rgba(8, 10, 28, 0.92);
+  animation: unlock-fade 0.35s ease both;
+}
+
+.unlock-card {
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 30px 26px 26px;
+  text-align: center;
+  background: #161b36;
+  border: 4px solid #ffe066;
+  border-radius: 18px;
+  box-shadow:
+    0 10px 0 #000000,
+    0 0 34px rgba(255, 224, 102, 0.35);
+  animation: unlock-card-pop 0.45s cubic-bezier(0.2, 1.35, 0.4, 1) both;
+}
+
+.unlock-kicker {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 2.6vw, 13px);
+  color: #ffe066;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 #000000;
+  animation: unlock-rise 0.4s ease 0.5s both;
+}
+
+.unlock-lock-wrap {
+  position: relative;
+  width: 160px;
+  height: 150px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* The padlock: a chunky body with a U-shaped shackle on top, composed in
+   CSS so no image assets are needed (matches the pixel-art styling). */
+.unlock-lock {
+  position: relative;
+  width: clamp(60px, 15vw, 76px);
+  height: clamp(52px, 13vw, 64px);
+  background: #ffd21f;
+  border: 4px solid #2a2d74;
+  border-radius: 13px;
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(255, 210, 31, 0.4);
+  animation: unlock-open 1.4s ease 0.2s both;
+}
+
+.unlock-lock::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -30px;
+  transform: translateX(-50%);
+  width: 46%;
+  height: 40px;
+  border: 6px solid #2a2d74;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  animation: shackle-open 1.4s ease 0.2s both;
+}
+
+.unlock-keyhole {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 13px;
+  background: #2a2d74;
+  border-radius: 5px 5px 1px 1px;
+}
+
+.unlock-keyhole::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 5px;
+  background: #2a2d74;
+  border-radius: 0 0 4px 4px;
+}
+
+/* Pixel sparks radiating around the moment it unlocks. */
+.unlock-spark {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffe066;
+  border: 2px solid #2a2d74;
+  border-radius: 2px;
+  animation: unlock-twinkle 1.15s ease-in-out infinite;
+}
+
+.unlock-spark.spark-a {
+  left: 4px;
+  top: 38px;
+}
+.unlock-spark.spark-b {
+  right: 4px;
+  top: 50px;
+  background: #39d353;
+  animation-delay: 0.15s;
+}
+.unlock-spark.spark-c {
+  left: 16px;
+  bottom: 6px;
+  animation-delay: 0.3s;
+}
+.unlock-spark.spark-d {
+  right: 18px;
+  bottom: 14px;
+  background: #39d353;
+  animation-delay: 0.45s;
+}
+.unlock-spark.spark-e {
+  left: 40px;
+  top: 8px;
+  animation-delay: 0.6s;
+}
+.unlock-spark.spark-f {
+  right: 42px;
+  top: 12px;
+  background: #39d353;
+  animation-delay: 0.75s;
+}
+
+.unlock-level {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.25rem, 6.5vw, 2.1rem);
+  line-height: 1.3;
+  color: #39d353;
+  text-shadow:
+    0 0 14px rgba(57, 211, 83, 0.85),
+    3px 3px 0 #000000;
+  animation: unlock-level-pop 0.5s ease 0.95s both;
+}
+
+.unlock-tag {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 2.8vw, 12px);
+  color: #ffffff;
+  background: #2e8b43;
+  border: 3px solid #39d353;
+  border-radius: 999px;
+  padding: 10px 18px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  animation: unlock-rise 0.4s ease 1.15s both;
+}
+
+.unlock-note {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 2.4vw, 11px);
+  line-height: 1.8;
+  color: #cfd9f5;
+  text-shadow: 2px 2px 0 #000000;
+  animation: unlock-rise 0.4s ease 1.35s both;
+}
+
+.unlock-continue {
+  margin-top: 4px;
+  padding: 14px 34px;
+  background: #2b6dd4;
+  color: #ffffff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(11px, 3vw, 14px);
+  animation:
+    unlock-rise 0.4s ease 1.55s both,
+    unlock-pulse 2s ease-in-out 1.7s infinite;
+}
+
+.unlock-continue:hover {
+  background: #3f86ff;
+}
+
+@keyframes unlock-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes unlock-card-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Shake while locked, then drop the body slightly, snap green and face
+   the player again: it's read as "this level just came unlocked". */
+@keyframes unlock-open {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  45% {
+    transform: rotate(-10deg);
+    background: #ffd21f;
+  }
+  58% {
+    transform: rotate(8deg);
+    background: #ffd21f;
+  }
+  72% {
+    transform: rotate(-6deg);
+    background: #ffd21f;
+  }
+  85% {
+    transform: rotate(0) translateY(3px);
+    background: #39d353;
+    box-shadow:
+      0 6px 0 rgba(0, 0, 0, 0.45),
+      0 0 26px rgba(57, 211, 83, 0.75);
+  }
+  100% {
+    transform: rotate(0) translateY(0);
+    background: #39d353;
+    box-shadow:
+      0 6px 0 rgba(0, 0, 0, 0.45),
+      0 0 26px rgba(57, 211, 83, 0.75);
+  }
+}
+
+@keyframes shackle-open {
+  0%,
+  70% {
+    transform: translateX(-50%) rotate(0);
+  }
+  85% {
+    transform: translateX(-50%) rotate(-32deg) translateY(-4px);
+  }
+  100% {
+    transform: translateX(-50%) rotate(-32deg) translateY(-4px);
+  }
+}
+
+@keyframes unlock-level-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes unlock-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes unlock-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes unlock-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 0 rgba(0, 0, 0, 0.42),
+      0 0 0 rgba(255, 224, 102, 0);
+  }
+  50% {
+    box-shadow:
+      0 4px 0 rgba(0, 0, 0, 0.42),
+      0 0 22px rgba(255, 224, 102, 0.8);
+  }
+}
+
+/* Phone: keep everything comfortably inside the viewport. */
+@media (max-width: 520px) {
+  .unlock-card {
+    gap: 14px;
+    padding: 22px 18px 20px;
+  }
+
+  .unlock-lock-wrap {
+    width: 140px;
+    height: 130px;
+  }
+
+  .unlock-spark {
+    width: 10px;
+    height: 10px;
+  }
+
+  .unlock-continue {
+    width: 100%;
+    max-width: 320px;
+    padding: 14px 0;
+  }
+}

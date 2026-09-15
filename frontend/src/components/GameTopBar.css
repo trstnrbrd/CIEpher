@@ -6,14 +6,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: calc(11.5 * var(--h));
+  height: calc(11.5 * var(--h) + env(safe-area-inset-top, 0px));
   z-index: 60;
   pointer-events: none;
 }
 
 .top-bar-btn {
   position: absolute;
-  top: calc(1.6 * var(--h));
+  top: calc(1.6 * var(--h) + env(safe-area-inset-top, 0px));
   z-index: 60;
   pointer-events: auto;
   padding: 0;
@@ -32,6 +32,94 @@
   width: calc(12 * var(--h));
   height: auto;
   object-fit: contain;
+}
+
+/* The hamburger that replaces the corner icons on small screens, and its
+   dropdown menu. Hidden on desktop: the corner icons stay put. */
+.top-bar-menu-toggle,
+.top-bar-menu,
+.top-bar-menu-backdrop {
+  display: none;
+}
+
+.top-bar-menu-toggle {
+  width: calc(7 * var(--h));
+  height: calc(7 * var(--h));
+  display: none;
+  position: absolute;
+  right: calc(1.6 * var(--h));
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 21, 46, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.top-bar-menu-toggle:hover {
+  border-color: #ffe066;
+}
+
+.top-bar-menu-bars {
+  position: relative;
+  display: block;
+  width: calc(3.4 * var(--h));
+  height: 0;
+  border-top: calc(0.5 * var(--h)) solid #ffffff;
+  box-shadow:
+    0 calc(1.1 * var(--h)) 0 0 #ffffff,
+    0 calc(2.2 * var(--h)) 0 0 #ffffff;
+}
+
+.top-bar-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 61;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.top-bar-menu {
+  position: absolute;
+  top: calc(9 * var(--h) + env(safe-area-inset-top, 0px));
+  right: calc(1.6 * var(--h) + env(safe-area-inset-right, 0px));
+  width: min(240px, 72vw);
+  z-index: 62;
+  background: #161b36;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 0 #000000;
+  padding: 8px;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.top-bar-menu-item {
+  display: block;
+  width: 100%;
+  background: #0c0f22;
+  border: 2px solid #39416e;
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.top-bar-menu-item:hover {
+  border-color: #ffe066;
+}
+
+.top-bar-menu-item:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 2px;
 }
 
 .top-bar-back {
@@ -70,5 +158,27 @@
 @media (max-width: 480px) {
   .top-bar-btn img {
     width: calc(13 * var(--h));
+  }
+}
+
+/* Phones and small windows: the two corner icons collapse into one
+   hamburger, so neither icon sits on top of the screen's content. */
+@media (max-width: 620px) {
+  .top-bar-journal,
+  .top-bar-settings {
+    display: none;
+  }
+
+  .top-bar-menu-toggle {
+    display: flex;
+    right: calc(1.6 * var(--h) + env(safe-area-inset-right, 0px));
+  }
+
+  .top-bar-menu-backdrop {
+    display: block;
+  }
+
+  .top-bar-menu {
+    display: flex;
   }
 }

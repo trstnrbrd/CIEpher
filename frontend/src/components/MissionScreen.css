@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding-bottom: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 .mission-screen::before {
@@ -42,6 +42,42 @@
   display: block;
 }
 
+/* Guard and avatar sprites layered on top of the school scene. */
+.mission-guard {
+  position: fixed;
+  right: 5%;
+  bottom: 8%;
+  width: clamp(120px, 18vw, 220px);
+  height: auto;
+  image-rendering: pixelated;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.mission-avatar {
+  position: fixed;
+  left: 5%;
+  bottom: 8%;
+  width: clamp(120px, 18vw, 220px);
+  height: auto;
+  image-rendering: pixelated;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+}
+
+/* Scene 2.1 (classroom): the player stands in the middle of the scene. */
+.mission-avatar-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mission-scene-bg .mission-guard,
+.mission-scene-bg .mission-avatar {
+  display: block;
+}
+
 .mission-screen::after {
   content: '';
   position: fixed;
@@ -56,7 +92,7 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  padding: 28px 20px 32px;
+  padding: 28px 20px calc(32px + env(safe-area-inset-bottom, 0px));
 }
 
 .mission-header {
@@ -186,14 +222,14 @@
   right: 0;
   bottom: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   box-sizing: border-box;
   padding: 22px 26px;
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(11px, 1.35vw, 20px);
-  line-height: normal;
+  line-height: 1.5;
   color: #080808;
-  white-space: pre;
+  white-space: pre-wrap;
   pointer-events: none;
   overflow: hidden;
 }
@@ -215,8 +251,10 @@
 
 .mission-input {
   flex: 1;
+  display: block;
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(11px, 1.35vw, 20px);
+  line-height: 1.5;
   color: #080808;
   background: #f2ecd6;
   border: 3px solid #ad201d;
@@ -226,6 +264,7 @@
   outline: none;
   min-height: 80px;
   box-sizing: border-box;
+  resize: none;
 }
 
 .mission-input:focus {
@@ -296,7 +335,8 @@
 /* Tablet: scale sizes down, keep the input + EXECUTE side by side. */
 @media (max-width: 768px) {
   .mission-content {
-    padding: 28px 16px 96px;
+    padding: calc(9 * var(--h) + env(safe-area-inset-top, 0px)) 16px
+      calc(96px + env(safe-area-inset-bottom, 0px));
   }
 
   .mission-header {
@@ -308,7 +348,8 @@
    the header/hint so everything fits above the fixed nav bar. */
 @media (max-width: 520px) {
   .mission-content {
-    padding: 20px 14px 96px;
+    padding: calc(9 * var(--h) + env(safe-area-inset-top, 0px)) 14px
+      calc(96px + env(safe-area-inset-bottom, 0px));
     gap: 16px;
   }
 
@@ -323,6 +364,16 @@
 
   .mission-hint-body {
     font-size: 11px;
+  }
+
+  .mission-choices {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mission-choice {
+    width: 100%;
+    min-width: 0;
   }
 
   .mission-form {

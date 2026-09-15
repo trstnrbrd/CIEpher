@@ -61,11 +61,25 @@
   left: 78%;
 }
 
+/* The guard sprite shown in chapter 1 school gate scene. */
+.story-guard {
+  --size: calc(74 * var(--h));
+  position: absolute;
+  right: 18%;
+  bottom: calc(-4 * var(--h));
+  height: var(--size);
+  width: auto;
+  object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
 /* The speech bubble used by every story page. */
 .story-bubble {
   position: absolute;
   left: 50%;
-  top: calc(8 * var(--h));
+  top: calc(8 * var(--h) + env(safe-area-inset-top, 0px));
   transform: translateX(-50%);
   width: min(80vw, calc(145 * var(--h)));
   display: flex;
@@ -93,6 +107,35 @@
   height: 34px;
   background: #fffff3;
   clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* When the guard speaks, the bubble points at him (right side) and uses a
+   navy guard-style palette so it reads as his line, not the player's. */
+.story-bubble-guard {
+  background: #2b3a67;
+  color: #ffffff;
+}
+
+.story-bubble-guard::after {
+  left: auto;
+  right: 10%;
+  background: #2b3a67;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* When the attendance kiosk speaks, the bubble uses a digital teal palette
+   so it reads as a machine's screen, not the player. The player avatar stays
+   centered (no extra sprite is shown for the kiosk). */
+.story-bubble-kiosk {
+  background: #0f4c5c;
+  color: #b8f2e6;
+}
+
+.story-bubble-kiosk::after {
+  left: auto;
+  right: 50%;
+  background: #0f4c5c;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
 .story-bubble:focus-visible {
@@ -165,7 +208,7 @@
 @media (max-width: 1024px) {
   .story-bubble {
     left: 50%;
-    top: calc(8 * var(--h));
+    top: calc(8 * var(--h) + env(safe-area-inset-top, 0px));
     transform: translateX(-50%);
     width: 92vw;
     padding: 6vw 6vw;
@@ -177,11 +220,15 @@
     left: 50%;
     bottom: calc(-4 * var(--h));
   }
+
+  .story-guard {
+    --size: calc(62 * var(--h));
+  }
 }
 
 @media (max-aspect-ratio: 1/1) {
   .story-bubble {
-    top: calc(6 * var(--h));
+    top: calc(14 * var(--h) + env(safe-area-inset-top, 0px));
     padding: 7vw 6vw;
   }
 
@@ -193,5 +240,22 @@
   .story-text {
     width: auto;
     font-size: clamp(10px, 3.2vw, 14px);
+  }
+
+  /* The "Tap to next" hint: big enough to read on a phone. */
+  .story-tap {
+    font-size: clamp(13px, 3.6vw, 18px);
+  }
+}
+
+/* Small screens (where the hamburger lives): keep the bubble clear of the
+   top-right menu button, whatever the phone's orientation. */
+@media (max-width: 620px) {
+  .story-bubble {
+    top: calc(14 * var(--h) + env(safe-area-inset-top, 0px));
+  }
+
+  .story-tap {
+    font-size: clamp(13px, 3.6vw, 18px);
   }
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Character } from '../api/client'
 import boyImg from '../assets/boy.png'
 import girlImg from '../assets/girl.png'
+import guardImg from '../chapter1/guard.png'
 import bedroomImg from '../assets/prologue/player bedroom.png'
 import closeDoorImg from '../assets/prologue/CloseDoor.png'
 import GameTopBar from './GameTopBar'
@@ -61,7 +62,9 @@ function PrologueStory({
   const [count, setCount] = useState(0)
 
   const list = pages ?? PAGES
-  const { bg, lines, pos, align } = list[page]
+  const { bg, lines, pos, align, guard, speaker } = list[page]
+  const guardSpeaking = speaker === 'guard' && guard
+  const kioskSpeaking = speaker === 'kiosk'
   const { starts, total } = lineStarts(lines)
   const done = count >= total
   const last = page === list.length - 1
@@ -131,7 +134,14 @@ function PrologueStory({
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <button
         type="button"
-        className={`story-bubble story-bubble-${character}`}
+        className={[
+          'story-bubble',
+          `story-bubble-${character}`,
+          guardSpeaking ? 'story-bubble-guard' : '',
+          kioskSpeaking ? 'story-bubble-kiosk' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         onClick={tapBubble}
       >
         <span className="story-text">
@@ -153,6 +163,9 @@ function PrologueStory({
         </span>
       </button>
 
+      {guard && (
+        <img className="story-guard" src={guardImg} alt="Security guard" />
+      )}
       <img className={personClass.join(' ')} src={sprite} alt={character} />
     </div>
   )
