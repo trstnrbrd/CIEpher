@@ -67,6 +67,12 @@
   display: none;
 }
 
+/* Scene 2.1 (classroom): the player stands in the middle of the scene. */
+.mission-avatar-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .mission-scene-bg .mission-guard,
 .mission-scene-bg .mission-avatar {
   display: block;

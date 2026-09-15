@@ -64,6 +64,7 @@ function PrologueStory({
   const list = pages ?? PAGES
   const { bg, lines, pos, align, guard, speaker } = list[page]
   const guardSpeaking = speaker === 'guard' && guard
+  const kioskSpeaking = speaker === 'kiosk'
   const { starts, total } = lineStarts(lines)
   const done = count >= total
   const last = page === list.length - 1
@@ -137,6 +138,7 @@ function PrologueStory({
           'story-bubble',
           `story-bubble-${character}`,
           guardSpeaking ? 'story-bubble-guard' : '',
+          kioskSpeaking ? 'story-bubble-kiosk' : '',
         ]
           .filter(Boolean)
           .join(' ')}

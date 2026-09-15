@@ -123,6 +123,21 @@
   clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
+/* When the attendance kiosk speaks, the bubble uses a digital teal palette
+   so it reads as a machine's screen, not the player. The player avatar stays
+   centered (no extra sprite is shown for the kiosk). */
+.story-bubble-kiosk {
+  background: #0f4c5c;
+  color: #b8f2e6;
+}
+
+.story-bubble-kiosk::after {
+  left: auto;
+  right: 50%;
+  background: #0f4c5c;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
 .story-bubble:focus-visible {
   outline: 3px solid #2a2d74;
   outline-offset: 4px;

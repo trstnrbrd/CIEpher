@@ -10,6 +10,7 @@ import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
+  CLASSROOM_PAGE,
   JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
@@ -94,6 +95,11 @@ function MissionScreen({
   // Chapter 1, scene 1.2: after mission 1's explanation, the guard welcomes
   // the player and the hallway video plays into the university.
   const [showingWelcomeGate, setShowingWelcomeGate] = useState<boolean>(false)
+  // Chapter 1, scene 2.1: mission 2 opens outside the classroom as the
+  // attendance kiosk asks the player to scan their ID.
+  const [showingClassroom, setShowingClassroom] = useState<boolean>(
+    chapter === 1 && mission === 2,
+  )
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -272,6 +278,28 @@ function MissionScreen({
           character={character}
           pages={[SCHOOL_GATE_PAGE]}
           onFinish={() => setShowingSchoolGate(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Scene 2.1: mission 2 opens outside the classroom as the attendance kiosk
+  // asks for the ID, then the syntax challenge appears.
+  if (showingClassroom) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CLASSROOM_PAGE]}
+          onFinish={() => setShowingClassroom(false)}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -533,9 +561,13 @@ function MissionScreen({
       )}
       {chapter === 1 && lesson?.sceneBg && (
         <>
-          <img className="mission-guard" src={guardImg} alt="" />
+          {mission === 1 && (
+            <img className="mission-guard" src={guardImg} alt="" />
+          )}
           <img
-            className="mission-avatar"
+            className={`mission-avatar${
+              mission === 2 ? ' mission-avatar-center' : ''
+            }`}
             src={character === 'girl' ? girlImg : boyImg}
             alt=""
           />

@@ -9,6 +9,7 @@ import closeDoorImg from './assets/prologue/CloseDoor.png'
 import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 import schoolImg from './chapter1/Schoool.png'
+import classroomImg from './chapter1/classroom.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -250,6 +251,57 @@ const LESSONS: Record<string, Lesson> = {
       ],
       takeaway:
         'Use an if statement to check a condition before allowing an action to happen. If the condition is false, the action is skipped.',
+    },
+  },
+  '1:2': {
+    chapter: 1,
+    mission: 2,
+    title: 'Record Attendance',
+    story: 'The attendance kiosk only records students who are present.',
+    lesson:
+      'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
+    code: 'if(isPresent)\n{\n    RecordAttendance();\n}',
+    sceneBg: classroomImg,
+    prompt:
+      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(isPresent)\n{\n    RecordAttendance();\n}',
+      'if(isPresent)\n    RecordAttendance();',
+    ],
+    core: {
+      incorrectExample: 'if(isPresent)\n    RecordAttendance();',
+      incorrectNote:
+        'It is missing the curly braces { } around the action.',
+      correctNote: 'This is the correct syntax.',
+      anatomy: [
+        {
+          text: 'if',
+          label: 'Tells the program: Make a decision.',
+        },
+        {
+          text: '(isPresent)',
+          label: 'The condition to check.',
+        },
+        {
+          text: '{ }',
+          label: 'The code inside will run only if the condition is TRUE.',
+        },
+        {
+          text: 'RecordAttendance();',
+          label: 'The action the program performs.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check isPresent',
+        'isPresent == true?',
+        'YES → RecordAttendance();',
+        'NO → Skip',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The if statement checks whether a condition (like being present) is true before executing a specific action (like recording attendance). If it is false, the action is bypassed.',
     },
   },
 }
