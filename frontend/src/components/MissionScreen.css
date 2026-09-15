@@ -360,6 +360,11 @@
     font-size: 11px;
   }
 
+  .mission-challenge {
+    padding: 28px 18px 24px;
+    gap: 28px;
+  }
+
   .mission-choices {
     flex-direction: column;
     gap: 12px;
@@ -377,12 +382,13 @@
   .mission-input {
     font-size: 13px;
     padding: 12px;
-    min-height: 48px;
+    min-height: 92px;
   }
 
   .mission-code-overlay {
     font-size: 13px;
     padding: 12px;
+    min-height: 92px;
   }
 
   .mission-execute {
