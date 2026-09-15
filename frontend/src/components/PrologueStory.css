@@ -36,7 +36,7 @@
    the bottom edge so the feet rest on the floor instead of floating. It's
    decorative, so it never steals taps from the bubble or the icons. */
 .story-person {
-  --size: calc(74 * var(--h));
+  --size: calc(88 * var(--h));
   position: absolute;
   left: 50%;
   bottom: calc(-4 * var(--h));
@@ -216,13 +216,13 @@
   }
 
   .story-person {
-    --size: calc(62 * var(--h));
+    --size: calc(72 * var(--h));
     left: 50%;
     bottom: calc(-4 * var(--h));
   }
 
   .story-guard {
-    --size: calc(62 * var(--h));
+    --size: calc(72 * var(--h));
   }
 }
 
@@ -233,7 +233,7 @@
   }
 
   .story-person {
-    --size: calc(50 * var(--h));
+    --size: calc(56 * var(--h));
     left: 50%;
   }
 
