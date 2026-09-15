@@ -42,27 +42,6 @@
   display: block;
 }
 
-/* Phone: the scene art stops being a full-page cover. It becomes a compact
-   banner along the top and the page turns a solid navy below it, so no
-   element covers the whole screen and the question stays centered. */
-@media (max-width: 620px) {
-  .mission-screen.mission-scene-bg {
-    background: #0f1326;
-  }
-
-  .mission-scene-bg .mission-scene {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: auto;
-    width: 100%;
-    height: 32vh;
-    object-fit: cover;
-    object-position: 50% 30%;
-  }
-}
-
 /* Guard and avatar sprites layered on top of the school scene. */
 .mission-guard {
   position: fixed;
