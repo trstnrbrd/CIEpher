@@ -14,8 +14,11 @@ import {
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
   SCHOOL_GATE_PAGE,
+  WELCOME_GATE_PAGE,
 } from '../storyPages'
 import guardImg from '../chapter1/guard.png'
+import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
+import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.png'
 import girlImg from '../assets/girl.png'
 import CoreBreakdown from './CoreBreakdown'
@@ -88,6 +91,9 @@ function MissionScreen({
   const [showingSchoolGate, setShowingSchoolGate] = useState<boolean>(
     chapter === 1 && mission === 1,
   )
+  // Chapter 1, scene 1.2: after mission 1's explanation, the guard welcomes
+  // the player and the hallway video plays into the university.
+  const [showingWelcomeGate, setShowingWelcomeGate] = useState<boolean>(false)
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -279,6 +285,31 @@ function MissionScreen({
     )
   }
 
+  // Scene 1.2: after mission 1's explanation, the guard welcomes the player.
+  // The hallway video plays once the player taps through the story.
+  if (showingWelcomeGate) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[WELCOME_GATE_PAGE]}
+          onFinish={() => {
+            setShowingWelcomeGate(false)
+            setShowingAnimation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   if (showingIntro) {
     return (
       <PostSelectWelcome
@@ -383,6 +414,10 @@ function MissionScreen({
       setDoorOpen(true)
     } else if (chapter === 0 && mission === 3) {
       setShowingAnimation(true)
+    } else if (chapter === 1 && mission === 1) {
+      // Scene 1.2: the guard welcomes the player into the university, then the
+      // hallway video plays before the next mission.
+      setShowingWelcomeGate(true)
     } else {
       advanceAfterSuccess()
     }
@@ -621,7 +656,12 @@ function MissionScreen({
       )}
 
       {showingAnimation && (
-        <SakayAnimation girl={character === 'girl'} onFinish={closeAnimation} />
+        <SakayAnimation
+          girl={character === 'girl'}
+          onFinish={closeAnimation}
+          videoSrc={chapter === 1 ? boyHallwayVideo : undefined}
+          videoSrcGirl={chapter === 1 ? girlHallwayVideo : undefined}
+        />
       )}
 
       {unlockChapter !== null && (

@@ -7,18 +7,29 @@ interface SakayAnimationProps {
   girl: boolean
   // Called when the video finishes (or the player skips it).
   onFinish: () => void
+  // Custom video sources for scenes other than the jeepney ride (e.g. the
+  // chapter 1 hallway walk into the university). Defaults to the sakay ride
+  // when omitted.
+  videoSrc?: string
+  videoSrcGirl?: string
 }
 
-// Full-screen player for the "sakay" animation that plays after the last
-// prologue puzzle: the jeepney ride to school. Plays automatically and
-// closes on its own when the video ends, or when the player hits SKIP.
-function SakayAnimation({ girl, onFinish }: SakayAnimationProps) {
+// Full-screen player for the mission cut-scene videos: the jeepney ride to
+// school after the prologue, or the hallway walk into the university after
+// chapter 1's gate exercise. Plays automatically and closes on its own when
+// the video ends, or when the player hits SKIP.
+function SakayAnimation({
+  girl,
+  onFinish,
+  videoSrc,
+  videoSrcGirl,
+}: SakayAnimationProps) {
   return (
     <div className="sakay-screen">
       <div className="sakay-card">
         <video
           className="sakay-video"
-          src={girl ? sakayVideoGirl : sakayVideo}
+          src={girl ? videoSrcGirl ?? sakayVideoGirl : videoSrc ?? sakayVideo}
           autoPlay
           muted
           playsInline

@@ -60,4 +60,13 @@ export const SCHOOL_GATE_PAGE: StoryPage = {
   speaker: 'guard',
 }
 
+// Chapter 1 Scene 1.2 — After the gate exercise, the guard lets the player in.
+export const WELCOME_GATE_PAGE: StoryPage = {
+  bg: schoolImg,
+  lines: ['Welcome to the university.'],
+  align: 'left',
+  guard: true,
+  speaker: 'guard',
+}
+
 export { schoolImg, guardImg }
