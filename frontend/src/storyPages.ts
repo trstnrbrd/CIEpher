@@ -7,6 +7,7 @@ import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
+import profClassroomImg from './chapter1/prof_classroom.jpg'
 import guardImg from './chapter1/guard.png'
 
 export type StoryPage = {
@@ -22,6 +23,9 @@ export type StoryPage = {
   guard?: boolean
   // Which character says the lines. Defaults to the player.
   speaker?: 'player' | 'guard' | 'kiosk'
+  // Hide the player sprite: some scenes already draw the people into the
+  // background art, so a separate sprite would double them up.
+  noSprite?: boolean
 }
 
 // The story beat right after mission 1's explanation closes: the door swings
@@ -89,4 +93,30 @@ export const PROGRAMMING_LAB_PAGE: StoryPage = {
   ],
 }
 
-export { schoolImg, classroomImg, powerImg, guardImg }
+// Chapter 1 Scene 3.2 — mission 4 opens in the professor's classroom as a
+// short programming exercise and notification appear. The professor and
+// students are part of the artwork, so no player sprite is drawn.
+export const HOMEWORK_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  lines: [
+    'The professor gives the class a short programming exercise.',
+    'Complete the activity before submitting it.',
+  ],
+}
+
+// Chapter 1 Scene 4.1 — after mission 4's explanation, the screen confirms
+// the activity was submitted. The characters stay inside the artwork.
+export const SUBMISSION_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  lines: ['Activity submitted successfully.'],
+}
+
+export {
+  schoolImg,
+  classroomImg,
+  powerImg,
+  profClassroomImg,
+  guardImg,
+}

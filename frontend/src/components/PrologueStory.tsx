@@ -62,7 +62,7 @@ function PrologueStory({
   const [count, setCount] = useState(0)
 
   const list = pages ?? PAGES
-  const { bg, lines, pos, align, guard, speaker } = list[page]
+  const { bg, lines, pos, align, guard, speaker, noSprite } = list[page]
   const guardSpeaking = speaker === 'guard' && guard
   const kioskSpeaking = speaker === 'kiosk'
   const { starts, total } = lineStarts(lines)
@@ -166,7 +166,9 @@ function PrologueStory({
       {guard && (
         <img className="story-guard" src={guardImg} alt="Security guard" />
       )}
-      <img className={personClass.join(' ')} src={sprite} alt={character} />
+      {!noSprite && (
+        <img className={personClass.join(' ')} src={sprite} alt={character} />
+      )}
     </div>
   )
 }

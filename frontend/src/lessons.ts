@@ -11,6 +11,7 @@ import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
+import profClassroomImg from './chapter1/prof_classroom.jpg'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -355,6 +356,58 @@ const LESSONS: Record<string, Lesson> = {
       flowGraphic: 'terminal',
       takeaway:
         'The if statement checks whether a condition (like having power) is true before executing a specific action (like starting the computer). If the condition is false, the action is bypassed entirely.',
+    },
+  },
+  '1:4': {
+    chapter: 1,
+    mission: 4,
+    title: 'Submit the Activity',
+    story: 'The system should only accept activities that are completed.',
+    lesson:
+      'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
+    code: 'if(isCompleted)\n{\n    SubmitActivity();\n}',
+    sceneBg: profClassroomImg,
+    prompt:
+      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(isCompleted)\n{\n    SubmitActivity();\n}',
+      'IF(isCompleted)\n{\n    SubmitActivity();\n}',
+    ],
+    core: {
+      incorrectExample: 'IF(isCompleted)\n{\n    SubmitActivity();\n}',
+      incorrectNote:
+        'C# keywords are case-sensitive. Always use lowercase if.',
+      correctNote:
+        'Correct! C# keywords are case-sensitive. Always use lowercase if.',
+      anatomy: [
+        {
+          text: 'if',
+          label: 'Tells the program: Make a decision.',
+        },
+        {
+          text: '(isCompleted)',
+          label: 'The condition to check.',
+        },
+        {
+          text: '{ }',
+          label: 'The code inside will run only if the condition is TRUE.',
+        },
+        {
+          text: 'SubmitActivity();',
+          label: 'The action the program performs.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check isCompleted',
+        'isCompleted == true?',
+        'YES → SubmitActivity();',
+        'NO → Skip',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The if statement checks whether a condition (like the activity being completed) is true before executing a specific action (like submitting it). If it is false, the action is bypassed.',
     },
   },
 }

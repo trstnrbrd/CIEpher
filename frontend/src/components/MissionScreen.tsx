@@ -11,11 +11,13 @@ import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
   CLASSROOM_PAGE,
+  HOMEWORK_PAGE,
   JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
   PROGRAMMING_LAB_PAGE,
   SCHOOL_GATE_PAGE,
+  SUBMISSION_PAGE,
   WELCOME_GATE_PAGE,
 } from '../storyPages'
 import guardImg from '../chapter1/guard.png'
@@ -106,6 +108,14 @@ function MissionScreen({
   const [showingComputer, setShowingComputer] = useState<boolean>(
     chapter === 1 && mission === 3,
   )
+  // Chapter 1, scene 3.2: mission 4 opens in the professor's classroom as a
+  // short programming exercise is given before the challenge.
+  const [showingHomework, setShowingHomework] = useState<boolean>(
+    chapter === 1 && mission === 4,
+  )
+  // Chapter 1, scene 4.1: after mission 4's explanation, the screen confirms
+  // the activity was submitted before moving on.
+  const [showingSubmission, setShowingSubmission] = useState<boolean>(false)
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -341,6 +351,28 @@ function MissionScreen({
     )
   }
 
+  // Scene 3.2: mission 4 opens in the professor's classroom as the exercise
+  // and notification appear, then the challenge appears.
+  if (showingHomework) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[HOMEWORK_PAGE]}
+          onFinish={() => setShowingHomework(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   // Scene 1.2: after mission 1's explanation, the guard welcomes the player.
   // The hallway video plays once the player taps through the story.
   if (showingWelcomeGate) {
@@ -352,6 +384,31 @@ function MissionScreen({
           onFinish={() => {
             setShowingWelcomeGate(false)
             setShowingAnimation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Scene 4.1: after mission 4's explanation, the screen confirms the
+  // activity was submitted before the next mission.
+  if (showingSubmission) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[SUBMISSION_PAGE]}
+          onFinish={() => {
+            setShowingSubmission(false)
+            advanceAfterSuccess()
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -474,6 +531,9 @@ function MissionScreen({
       // Scene 1.2: the guard welcomes the player into the university, then the
       // hallway video plays before the next mission.
       setShowingWelcomeGate(true)
+    } else if (chapter === 1 && mission === 4) {
+      // Scene 4.1: the submission confirmation plays before the next mission.
+      setShowingSubmission(true)
     } else {
       advanceAfterSuccess()
     }
