@@ -28,7 +28,7 @@
       "mission": 2,
       "question": 1,
       "answer": "if(isPresent)\n{\n    RecordAttendance();\n}",
-      "wrong": ["if(isPresent)\nRecordAttendance();"]
+      "wrong": ["if(isPresent)\n{\n    RecordAttendance();"]
     },
     {
       "mission": 3,
@@ -46,7 +46,7 @@
       "mission": 5,
       "question": 1,
       "answer": "if(hasAttendance)\n{\n    OpenQuiz();\n}",
-      "wrong": ["if(hasAttendance)\nOpenQuiz();"]
+      "wrong": ["if(hasAttendance)\n    OpenQuiz();\n}"]
     }
   ]
 }
