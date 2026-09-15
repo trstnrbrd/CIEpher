@@ -10,6 +10,7 @@ import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
+import powerImg from './chapter1/power.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -302,6 +303,58 @@ const LESSONS: Record<string, Lesson> = {
       flowGraphic: 'terminal',
       takeaway:
         'The if statement checks whether a condition (like being present) is true before executing a specific action (like recording attendance). If it is false, the action is bypassed.',
+    },
+  },
+  '1:3': {
+    chapter: 1,
+    mission: 3,
+    title: 'Start the Workstation',
+    story: 'The computer should only turn on if power is available.',
+    lesson:
+      'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
+    code: 'if(hasPower)\n{\n    StartComputer();\n}',
+    sceneBg: powerImg,
+    prompt:
+      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(hasPower)\n{\n    StartComputer();\n}',
+      'if(hasPower)\n{\n    StartComputer()\n}',
+    ],
+    core: {
+      incorrectExample: 'if(hasPower)\n{\n    StartComputer()\n}',
+      incorrectNote:
+        'It is missing the semicolon ; at the end of the statement.',
+      correctNote:
+        "Correct! Don't forget the semicolon (;) at the end of every statement.",
+      anatomy: [
+        {
+          text: 'if',
+          label: 'Tells the program: Make a decision.',
+        },
+        {
+          text: '(hasPower)',
+          label: 'The condition to check.',
+        },
+        {
+          text: '{ }',
+          label: 'The code inside will run only if the condition is TRUE.',
+        },
+        {
+          text: 'StartComputer();',
+          label: 'The action the program performs.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check hasPower',
+        'hasPower == true?',
+        'YES → StartComputer();',
+        'NO → Skip',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The if statement checks whether a condition (like having power) is true before executing a specific action (like starting the computer). If the condition is false, the action is bypassed entirely.',
     },
   },
 }

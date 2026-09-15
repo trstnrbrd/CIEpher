@@ -6,6 +6,7 @@ import outsideDoorImg from './assets/prologue/OutsideDoor.png'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
 import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
+import powerImg from './chapter1/power.png'
 import guardImg from './chapter1/guard.png'
 
 export type StoryPage = {
@@ -78,4 +79,12 @@ export const CLASSROOM_PAGE: StoryPage = {
   speaker: 'kiosk',
 }
 
-export { schoolImg, classroomImg, guardImg }
+// Chapter 1 Scene 3.1 — The player reaches the workstation; the computer is
+// ready (and only turns on if there's power) before the syntax challenge.
+export const COMPUTER_READY_PAGE: StoryPage = {
+  bg: powerImg,
+  lines: ['SYSTEM READY.'],
+  speaker: 'kiosk',
+}
+
+export { schoolImg, classroomImg, powerImg, guardImg }
