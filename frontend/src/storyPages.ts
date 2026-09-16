@@ -154,11 +154,11 @@ export const CH2_SCENE1_PAGE: StoryPage = {
 }
 
 // Chapter 2, Scene 1.1 — the purchase dialogue between mission 1's questions:
-// the player asks for the worksheet, then the cashier answers.
+// the player asks for the worksheet with the avatar centered, then the
+// cashier answers.
 export const CH2_PURCHASE_PAGES: StoryPage[] = [
   {
     bg: bookstoreImg,
-    align: 'left',
     lines: ["Hello, Ma'am, I would like to buy the programming worksheet."],
   },
   {

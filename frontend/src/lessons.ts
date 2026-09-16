@@ -12,6 +12,7 @@ import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
+import bookstoreImg from './chapter 2/bookstore.jpg'
 import wifiRoomImg from './chapter 2/wifiroom.jpg'
 import pcImg from './chapter 2/pc.png'
 
@@ -449,7 +450,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'An if...else statement checks a condition and runs one block of code when it is true, and a different block when it is false.',
     code: 'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
-    sceneBg: pcImg,
+    sceneBg: bookstoreImg,
     questions: [
       {
         prompt:
