@@ -10,44 +10,94 @@ interface CodeExplainedProps {
   onJournal: () => void
 }
 
-// The if statement's building blocks, recapped when Chapter 2 unlocks.
-const ANATOMY: { text: string; label: string }[] = [
-  {
-    text: 'if',
-    label:
-      'This keyword acts as a trigger. It tells the program that it needs to make a decision based on what follows.',
-  },
-  {
-    text: '(isCompleted)',
-    label:
-      'This is the specific condition the program is checking. It evaluates whether this status is true or false.',
-  },
-  {
-    text: '{ }',
-    label:
-      'These encapsulate a block of logic. Any code placed inside these brackets will only execute if the condition checked above is TRUE.',
-  },
-  {
-    text: 'SubmitActivity();',
-    label:
-      'This is the actual action or function the program will perform if the condition is met.',
-  },
-]
+type CodePart = {
+  text: string
+  label: string
+}
 
-const FLOW: { text: string; cls: string }[] = [
-  { text: 'START', cls: 'flow-point-start' },
-  { text: 'Check isCompleted', cls: '' },
-  { text: 'Is isCompleted == true?', cls: 'flow-decision' },
-  { text: 'YES → SubmitActivity(); — Activity submitted', cls: 'flow-yes' },
-  { text: 'NO — Activity not submitted', cls: 'flow-no' },
-  { text: 'END', cls: 'flow-point-end' },
-]
+type FlowStep = {
+  text: string
+  cls: string
+}
 
-// The recap shown instead of the padlock celebration when Chapter 2 unlocks:
-// the if statement broken down piece by piece (left) next to the same logic
-// as a program flow (right), with a teaser for the else statement.
+type CodeExplainedContent = {
+  anatomy: CodePart[]
+  flow: FlowStep[]
+  // The closing line / key takeaway banner.
+  takeaway: string
+}
+
+// Recap shown when a chapter unlocks: the previous lesson's building blocks
+// broken down piece by piece (left) next to the same logic as a program flow
+// (right). Chapter 1 ends on the teaser for if/else; Chapter 2 recaps the
+// if/else statement itself.
+const CONTENT: Record<number, CodeExplainedContent> = {
+  1: {
+    anatomy: [
+      {
+        text: 'if',
+        label:
+          'This keyword acts as a trigger. It tells the program that it needs to make a decision based on what follows.',
+      },
+      {
+        text: '(isCompleted)',
+        label:
+          'This is the specific condition the program is checking. It evaluates whether this status is true or false.',
+      },
+      {
+        text: '{ }',
+        label:
+          'These encapsulate a block of logic. Any code placed inside these brackets will only execute if the condition checked above is TRUE.',
+      },
+      {
+        text: 'SubmitActivity();',
+        label:
+          'This is the actual action or function the program will perform if the condition is met.',
+      },
+    ],
+    flow: [
+      { text: 'START', cls: 'flow-point-start' },
+      { text: 'Check isCompleted', cls: '' },
+      { text: 'Is isCompleted == true?', cls: 'flow-decision' },
+      { text: 'YES → SubmitActivity(); — Activity submitted', cls: 'flow-yes' },
+      { text: 'NO — Activity not submitted', cls: 'flow-no' },
+      { text: 'END', cls: 'flow-point-end' },
+    ],
+    takeaway:
+      'Does this breakdown help clarify how conditional statements operate, or would you like to explore how to write an else statement to handle the "NO" path in code?',
+  },
+  2: {
+    anatomy: [
+      { text: 'if', label: 'Checks if the condition is true.' },
+      { text: 'correctPassword', label: 'The condition to check.' },
+      {
+        text: 'ConnectWifi();',
+        label: 'Runs when the password is correct.',
+      },
+      { text: 'else', label: 'Runs when the condition is false.' },
+      {
+        text: 'DisplayConnectionError();',
+        label: 'Shows a connection error message.',
+      },
+    ],
+    flow: [
+      { text: 'START', cls: 'flow-point-start' },
+      { text: 'Check correctPassword', cls: '' },
+      { text: 'correctPassword == true?', cls: 'flow-decision' },
+      { text: 'YES → ConnectWifi(); · WiFi Connected', cls: 'flow-yes' },
+      { text: 'NO → DisplayConnectionError(); · Connection Error', cls: 'flow-no' },
+      { text: 'END', cls: 'flow-point-end' },
+    ],
+    takeaway:
+      'Use an if/else statement to give the program two different paths. If the condition is true, it does one thing; if the condition is false, it does something else.',
+  },
+}
+
 function CodeExplained({ chapter, onContinue, onJournal }: CodeExplainedProps) {
+  const content = CONTENT[chapter]
   const nextChapter = chapter + 1
+
+  if (!content) return null
 
   return (
     <div className="ce-screen">
@@ -59,7 +109,7 @@ function CodeExplained({ chapter, onContinue, onJournal }: CodeExplainedProps) {
           <section className="core-block">
             <h3 className="core-block-title">BREAKING DOWN THE CODE</h3>
             <div className="core-anatomy">
-              {ANATOMY.map((part, i) => (
+              {content.anatomy.map((part, i) => (
                 <div key={i} className="core-anatomy-row">
                   <span className={`core-anatomy-chip anatomy-${i}`}>
                     {part.text}
@@ -73,13 +123,10 @@ function CodeExplained({ chapter, onContinue, onJournal }: CodeExplainedProps) {
           <section className="core-block">
             <h3 className="core-block-title">THE PROGRAM FLOW</h3>
             <ol className="core-flow">
-              {FLOW.map((step, i) => (
-                <li
-                  key={i}
-                  className={`core-flow-step ${step.cls}`}
-                >
+              {content.flow.map((step, i) => (
+                <li key={i} className={`core-flow-step ${step.cls}`}>
                   <span className="flow-step-text">{step.text}</span>
-                  {i < FLOW.length - 1 && (
+                  {i < content.flow.length - 1 && (
                     <span className="flow-arrow" aria-hidden="true">
                       ↓
                     </span>
@@ -90,11 +137,7 @@ function CodeExplained({ chapter, onContinue, onJournal }: CodeExplainedProps) {
           </section>
         </div>
 
-        <p className="core-takeaway">
-          Does this breakdown help clarify how conditional statements operate,
-          or would you like to explore how to write an else statement to
-          handle the &ldquo;NO&rdquo; path in code?
-        </p>
+        <p className="core-takeaway">{content.takeaway}</p>
 
         <div className="ce-actions">
           <button

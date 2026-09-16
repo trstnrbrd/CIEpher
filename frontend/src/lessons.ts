@@ -12,6 +12,8 @@ import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
+import wifiRoomImg from './chapter 2/wifiroom.jpg'
+import pcImg from './chapter 2/pc.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -437,6 +439,244 @@ const LESSONS: Record<string, Lesson> = {
       'NO → Skip',
       'END',
     ],
+  },
+  '2:1': {
+    chapter: 2,
+    mission: 1,
+    title: 'Buy the Programming Worksheet',
+    story:
+      'Before the laboratory activity begins, students must purchase a programming worksheet from the campus bookstore. The worksheet costs ₱50. The cashier checks whether the student has enough coins.',
+    lesson:
+      'An if...else statement checks a condition and runs one block of code when it is true, and a different block when it is false.',
+    code: 'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
+    sceneBg: pcImg,
+    questions: [
+      {
+        prompt:
+          'Which C# control structure is most appropriate for this situation?',
+        choices: ['if', 'if...else'],
+        code: 'if...else',
+      },
+      {
+        prompt:
+          'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+        choices: [
+          'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
+          'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}',
+        ],
+        code: 'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
+      },
+    ],
+    core: {
+      incorrectExample:
+        'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}',
+      incorrectNote:
+        'C# keywords are case-sensitive. Always write "else" in lowercase.',
+      correctNote:
+        'Correct! An if...else statement runs one block of code when the condition is true and a different block when it is false.',
+      anatomy: [
+        { text: 'if', label: 'Checks if the condition is true.' },
+        {
+          text: 'coins >= 50',
+          label: 'The condition to check (has the player 50 or more coins?).',
+        },
+        {
+          text: 'BuyWorksheet();',
+          label: 'Runs when the player has enough coins.',
+        },
+        { text: 'else', label: 'Runs when the condition is false.' },
+        {
+          text: 'DisplayInsufffientCoins();',
+          label: 'Shows that there are not enough coins.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check coins',
+        'coins >= 50?',
+        'YES → BuyWorksheet(); · Worksheet Purchased',
+        'NO → DisplayInsufficientCoins(); · Not Enough Coins',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The if...else statement is used because there are two possible outcomes. If the student has enough money, the program buys the worksheet. Otherwise, the purchase cannot continue.',
+    },
+  },
+  '2:2': {
+    chapter: 2,
+    mission: 2,
+    title: 'Connect to the Wi-Fi',
+    story: 'The lab computer connects only if the Wi-Fi password is correct.',
+    lesson:
+      'An if...else statement runs one block of code when the condition is true, and a different block when it is false.',
+    code: 'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
+    sceneBg: wifiRoomImg,
+    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
+      'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();',
+    ],
+    core: {
+      incorrectExample:
+        'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();',
+      incorrectNote:
+        'It is missing the curly braces { } around the else block.',
+      correctNote:
+        "Correct! The else block contains the statements that execute when the condition is false. Use braces { } to clearly define the block.",
+      anatomy: [
+        { text: 'if', label: 'Checks if the condition is true.' },
+        { text: 'correctPassword', label: 'The condition to check.' },
+        {
+          text: 'ConnectWiFi();',
+          label: 'Runs when the password is correct.',
+        },
+        { text: 'else', label: 'Runs when the condition is false.' },
+        {
+          text: 'DisplayConnectionError();',
+          label: 'Shows a connection error message.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check correctPassword',
+        'correctPassword == true?',
+        'YES → ConnectWiFi(); · WiFi Connected',
+        'NO → DisplayConnectionError(); · Connection Error',
+        'END',
+      ],
+      takeaway:
+        'Use an if/else statement to give the program two different paths. If the condition is true, it does one thing; if the condition is false, it does something else.',
+    },
+  },
+  '2:3': {
+    chapter: 2,
+    mission: 3,
+    title: 'Access the Learning Portal',
+    story: 'The learning portal opens only if the student is logged in.',
+    lesson:
+      'An if...else statement controls access: the block under if runs on true, the one under else runs on false.',
+    code: 'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
+    sceneBg: pcImg,
+    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nElse\n{\n    DisplayLoginError();\n}',
+      'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nElse\n{\n    DisplayLoginError();\n}',
+      incorrectNote:
+        'C# keywords are case-sensitive. Always use lowercase else.',
+      correctNote:
+        'Correct! C# keywords are case-sensitive. Always write "else" in lowercase.',
+      anatomy: [
+        { text: 'if', label: 'Checks if the condition is true.' },
+        { text: 'isLoggedIn', label: 'The condition to check.' },
+        {
+          text: 'OpenLearningPortal();',
+          label: 'Runs when the student is logged in.',
+        },
+        { text: 'else', label: 'Runs when the condition is false.' },
+        { text: 'DisplayLoginError();', label: 'Shows a login error message.' },
+      ],
+      flow: [
+        'START',
+        'Check isLoggedIn',
+        'isLoggedIn == true?',
+        'YES → OpenLearningPortal(); · Portal Opened',
+        'NO → DisplayLoginError(); · Login Error',
+        'END',
+      ],
+      takeaway:
+        'Use an if/else statement to control access. If the required condition (being logged in) is true, the program grants entry; if it is false, the program provides an alternate response, like an error message.',
+    },
+  },
+  '2:4': {
+    chapter: 2,
+    mission: 4,
+    title: 'Submit the Laboratory Exercise',
+    story: 'The activity is submitted only if the upload completed.',
+    lesson:
+      'An if...else statement verifies a prerequisite: the block under if runs on true, the one under else runs on false.',
+    code: 'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
+    sceneBg: pcImg,
+    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
+      'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}',
+      incorrectNote: 'It is missing the semicolon ; at the end of the statement.',
+      correctNote: 'Correct! Every statement in C# must end with a semicolon (;).',
+      anatomy: [
+        { text: 'if', label: 'Checks if the condition is true.' },
+        { text: 'uploadComplete', label: 'The condition to check.' },
+        {
+          text: 'SubmitActivity();',
+          label: 'Runs when the upload is complete.',
+        },
+        { text: 'else', label: 'Runs when the condition is false.' },
+        { text: 'ShowUploadError();', label: 'Shows an upload error message.' },
+      ],
+      flow: [
+        'START',
+        'Check uploadComplete',
+        'uploadComplete == true?',
+        'YES → SubmitActivity(); · Activity Submitted',
+        'NO → ShowUploadError(); · Upload Error',
+        'END',
+      ],
+      takeaway:
+        'An if/else statement is perfect for verifying a prerequisite. If the condition (a completed upload) is met, the program finalizes the submission; if it is not, the program catches the issue and displays an error so the user knows it failed.',
+    },
+  },
+  '2:5': {
+    chapter: 2,
+    mission: 5,
+    title: 'Unlock the Laboratory Door',
+    story: 'The lab door unlocks only if the safety orientation is completed.',
+    lesson:
+      'An if...else statement handles both outcomes of a condition: one path when it is true, another when it is false.',
+    code: 'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
+    sceneBg: pcImg,
+    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
+      'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();',
+    ],
+    core: {
+      incorrectExample:
+        'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();',
+      incorrectNote:
+        'It is missing the curly braces { } around the else block.',
+      correctNote:
+        "Correct! Use if/else to handle both the true and the false case.",
+      anatomy: [
+        { text: 'if', label: 'Checks if the condition is true.' },
+        { text: 'hasCompletedOrientation', label: 'The condition to check.' },
+        {
+          text: 'UnlockDoor();',
+          label: 'Runs when the orientation is complete.',
+        },
+        { text: 'else', label: 'Runs when the condition is false.' },
+        {
+          text: 'DisplayAccessDenied();',
+          label: 'Shows an access denied message.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check hasCompletedOrientation',
+        'hasCompletedOrientation == true?',
+        'YES → UnlockDoor(); · Door Unlocked',
+        'NO → DisplayAccessDenied(); · Access Denied',
+        'END',
+      ],
+      takeaway: 'Use else to handle what happens when the condition is FALSE.',
+    },
   },
 }
 

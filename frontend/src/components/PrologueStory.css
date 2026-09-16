@@ -75,6 +75,20 @@
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
 }
 
+/* Professor Reyes, standing on the right of chapter 2's story beats. */
+.story-professor {
+  --size: calc(78 * var(--h));
+  position: absolute;
+  right: 18%;
+  bottom: calc(-4 * var(--h));
+  height: var(--size);
+  width: auto;
+  object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
 /* The speech bubble used by every story page. */
 .story-bubble {
   position: absolute;
@@ -135,6 +149,20 @@
   left: auto;
   right: 50%;
   background: #0f4c5c;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* When Professor Reyes speaks, the bubble uses a deep maroon palette so it
+   reads as his line, pointed at him on the right. */
+.story-bubble-professor {
+  background: #5a2336;
+  color: #ffe9c7;
+}
+
+.story-bubble-professor::after {
+  left: auto;
+  right: 10%;
+  background: #5a2336;
   clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 

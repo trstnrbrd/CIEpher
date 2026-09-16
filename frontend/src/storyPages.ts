@@ -9,6 +9,9 @@ import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
 import guardImg from './chapter1/guard.png'
+import bookstoreImg from './chapter 2/bookstore.jpg'
+import pcImg from './chapter 2/pc.png'
+import wifiRoomImg from './chapter 2/wifiroom.jpg'
 
 export type StoryPage = {
   bg: string
@@ -21,8 +24,10 @@ export type StoryPage = {
   align?: 'center' | 'left' | 'right'
   // Show the school guard sprite on the right of the scene.
   guard?: boolean
+  // Show Professor Reyes on the right of the scene instead of the player.
+  professor?: boolean
   // Which character says the lines. Defaults to the player.
-  speaker?: 'player' | 'guard' | 'kiosk'
+  speaker?: 'player' | 'guard' | 'kiosk' | 'professor'
   // Hide the player sprite: some scenes already draw the people into the
   // background art, so a separate sprite would double them up.
   noSprite?: boolean
@@ -133,10 +138,118 @@ export const REYES_CLOSING_PAGE: StoryPage = {
   ],
 }
 
+// Chapter 2, Scene 1 — mission 1 opens in the programming laboratory as
+// Professor Reyes begins the first laboratory activity on if...else before
+// the challenge. He stands on the right.
+export const CH2_SCENE1_PAGE: StoryPage = {
+  bg: pcImg,
+  professor: true,
+  speaker: 'professor',
+  noSprite: true,
+  lines: [
+    'In our previous lesson, you learned how to perform an action when a condition is true.',
+    "Today, you'll learn how a program responds when the condition is either true or false.",
+    "Let's begin.",
+  ],
+}
+
+// Chapter 2, Scene 1.1 — the purchase dialogue between mission 1's questions:
+// the player asks for the worksheet, then the cashier answers.
+export const CH2_PURCHASE_PAGES: StoryPage[] = [
+  {
+    bg: bookstoreImg,
+    align: 'left',
+    lines: ["Hello, Ma'am, I would like to buy the programming worksheet."],
+  },
+  {
+    bg: bookstoreImg,
+    noSprite: true,
+    lines: ['That will be 50 coins.'],
+  },
+]
+
+// Chapter 2, Scene 1.2 — after the syntax challenge, the purchase finishes:
+// the cashier hands over the worksheet. Professor Reyes watches from the
+// right as a text-bubble animation plays out.
+export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
+  bg: pcImg,
+  professor: true,
+  noSprite: true,
+  lines: [
+    'The player purchases the worksheet.',
+    'The cashier hands over the worksheet.',
+  ],
+}
+
+// Chapter 2, Scene 2.1 — after the Wi-Fi mission, the computer connects.
+export const CH2_WIFI_ON_PAGE: StoryPage = {
+  bg: wifiRoomImg,
+  noSprite: true,
+  lines: [
+    'The Wi-Fi icon turns green.',
+    'The computer connects successfully.',
+  ],
+}
+
+// Chapter 2, Scene 2.2 — the player heads to the learning portal.
+export const CH2_PORTAL_LINE_PAGE: StoryPage = {
+  bg: wifiRoomImg,
+  align: 'left',
+  lines: ["I need to access the school's learning portal."],
+}
+
+// Chapter 2, Scene 3.1 — after the portal mission, it opens successfully.
+export const CH2_PORTAL_OPENED_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  lines: ['The learning portal opens successfully.'],
+}
+
+// Chapter 2, Scene 3.2 — the player needs to upload today's activity.
+export const CH2_UPLOAD_LINE_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'left',
+  lines: ['I need to upload my learning activity in our portal.'],
+}
+
+// Chapter 2, Scene 4.1 — after the upload mission, the submission is accepted.
+export const CH2_SUBMITTED_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  lines: ['The submission is accepted.'],
+}
+
+// Chapter 2, Scene 4.2 — the professor challenges the player, then the player
+// agrees before mission 5.
+export const CH2_REVIEW_PAGES: StoryPage[] = [
+  {
+    bg: pcImg,
+    noSprite: true,
+    lines: ["Let's see if you can apply what you've learned."],
+  },
+  {
+    bg: pcImg,
+    align: 'left',
+    lines: ['Okay Sir.'],
+  },
+]
+
+// Chapter 2, Scene 5.1 — after the chapter unlocks, Professor Reyes closes it.
+export const CH2_CLOSING_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  lines: [
+    "Excellent work. You've learned that programs don't just make decisions—they also know what to do when a condition is false.",
+  ],
+}
+
 export {
   schoolImg,
   classroomImg,
   powerImg,
   profClassroomImg,
   guardImg,
+  bookstoreImg,
+  wifiRoomImg,
+  pcImg,
 }

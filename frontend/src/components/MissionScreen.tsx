@@ -10,6 +10,16 @@ import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
+  CH2_CLOSING_PAGE,
+  CH2_PORTAL_LINE_PAGE,
+  CH2_PORTAL_OPENED_PAGE,
+  CH2_PURCHASE_DONE_PAGE,
+  CH2_PURCHASE_PAGES,
+  CH2_REVIEW_PAGES,
+  CH2_SCENE1_PAGE,
+  CH2_SUBMITTED_PAGE,
+  CH2_UPLOAD_LINE_PAGE,
+  CH2_WIFI_ON_PAGE,
   CLASSROOM_PAGE,
   HOMEWORK_PAGE,
   JEEP_START_PAGE,
@@ -128,6 +138,26 @@ function MissionScreen({
   // Chapter 1, scene 5.1: after the chapter unlocks, Professor Reyes closes
   // the chapter before the player returns to the chapter list.
   const [showingScene51, setShowingScene51] = useState<boolean>(false)
+  // Chapter 2, Scene 1: mission 1 opens as Professor Reyes begins the first
+  // laboratory activity before the challenge.
+  const [showingCh2Scene1, setShowingCh2Scene1] = useState<boolean>(
+    chapter === 2 && mission === 1,
+  )
+  // Chapter 2, Scene 1.1: the purchase dialogue plays between mission 1's
+  // structure question and its syntax challenge.
+  const [showingCh2Scene11, setShowingCh2Scene11] = useState<boolean>(false)
+  // Chapter 2, Scene 1.2: the worksheet is bought before mission 2.
+  const [showingCh2Scene12, setShowingCh2Scene12] = useState<boolean>(false)
+  // Chapter 2, Scene 2: Wi-Fi connects, then the player heads to the portal.
+  const [showingCh2Scene21, setShowingCh2Scene21] = useState<boolean>(false)
+  // Chapter 2, Scene 3: the portal opens, then the player needs to upload.
+  const [showingCh2Scene31, setShowingCh2Scene31] = useState<boolean>(false)
+  // Chapter 2, Scene 4: the submission is accepted, then the professor
+  // challenges the player before mission 5.
+  const [showingCh2Scene41, setShowingCh2Scene41] = useState<boolean>(false)
+  // Chapter 2, Scene 5.1: after the chapter unlocks, Professor Reyes closes
+  // the chapter before the player returns to the chapter list.
+  const [showingCh2Scene51, setShowingCh2Scene51] = useState<boolean>(false)
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -482,6 +512,178 @@ function MissionScreen({
     )
   }
 
+  // Chapter 2, Scene 1: mission 1 opens with Professor Reyes introducing the
+  // laboratory activity on if...else before the challenge.
+  if (showingCh2Scene1) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_SCENE1_PAGE]}
+          onFinish={() => setShowingCh2Scene1(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 1.1: the purchase dialogue plays between mission 1's
+  // structure question and its syntax challenge.
+  if (showingCh2Scene11) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={CH2_PURCHASE_PAGES}
+          onFinish={() => {
+            setShowingCh2Scene11(false)
+            setQuestionNumber(2)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 1.2: after mission 1's explanation, the purchase finishes
+  // before the next mission.
+  if (showingCh2Scene12) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_PURCHASE_DONE_PAGE]}
+          onFinish={() => {
+            setShowingCh2Scene12(false)
+            advanceAfterSuccess()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects,
+  // then the player heads to the learning portal for mission 3.
+  if (showingCh2Scene21) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_WIFI_ON_PAGE, CH2_PORTAL_LINE_PAGE]}
+          onFinish={() => {
+            setShowingCh2Scene21(false)
+            advanceAfterSuccess()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 3: after mission 3's explanation, the portal opens, then
+  // the player needs to upload today's activity for mission 4.
+  if (showingCh2Scene31) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_PORTAL_OPENED_PAGE, CH2_UPLOAD_LINE_PAGE]}
+          onFinish={() => {
+            setShowingCh2Scene31(false)
+            advanceAfterSuccess()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 4: after mission 4's explanation, the submission is
+  // accepted, then the professor challenges the player before mission 5.
+  if (showingCh2Scene41) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_SUBMITTED_PAGE, ...CH2_REVIEW_PAGES]}
+          onFinish={() => {
+            setShowingCh2Scene41(false)
+            advanceAfterSuccess()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 5.1: after Chapter 3 unlocks, Professor Reyes closes the
+  // chapter before the player returns to the chapter list.
+  if (showingCh2Scene51) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_CLOSING_PAGE]}
+          onFinish={() => {
+            setShowingCh2Scene51(false)
+            onChapter()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   if (showingIntro) {
     return (
       <PostSelectWelcome
@@ -512,6 +714,19 @@ function MissionScreen({
         setWrongChoiceIndex(null)
         setAnswer('')
         await refreshProgress()
+        // Chapter 2, mission 1: both questions show the "UNDERSTAND THE CORE"
+        // explanation right after a correct answer. The purchase dialogue
+        // (Scene 1.1) plays after the first explanation, and Scene 1.2 after
+        // the second, so the question index is not advanced here.
+        if (
+          chapter === 2 &&
+          mission === 1 &&
+          (lesson?.core || lesson?.programFlow)
+        ) {
+          setShowCore(true)
+          setChecking(false)
+          return
+        }
         // Multi-question missions: advance to the next question first.
         const totalQuestions = lesson?.questions?.length ?? 1
         if (questionNumber < totalQuestions) {
@@ -596,6 +811,29 @@ function MissionScreen({
     } else if (chapter === 1 && mission === 5) {
       // Mission 5 is the readiness quiz: after its program flow, the result
       // shows and the CHAPTER CLEARED button leads to the chapter unlock.
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    } else if (chapter === 2 && mission === 1) {
+      // Scene 1.1: after the first question's explanation, the purchase
+      // dialogue plays before mission 1's second question. After the second
+      // question's explanation, Scene 1.2 plays before the next mission.
+      if (questionNumber === 1) {
+        setShowingCh2Scene11(true)
+      } else {
+        setShowingCh2Scene12(true)
+      }
+    } else if (chapter === 2 && mission === 2) {
+      // Scene 2.1: Wi-Fi connects, then the player heads to the portal.
+      setShowingCh2Scene21(true)
+    } else if (chapter === 2 && mission === 3) {
+      // Scene 3.1: the portal opens, then the player needs to upload.
+      setShowingCh2Scene31(true)
+    } else if (chapter === 2 && mission === 4) {
+      // Scene 4.1: the submission is accepted, then the professor challenges
+      // the player before mission 5.
+      setShowingCh2Scene41(true)
+    } else if (chapter === 2 && mission === 5) {
+      // Mission 5 ends the chapter: after its explanation, the result shows
+      // and the CHAPTER CLEARED button leads to the chapter unlock.
       setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     } else {
       advanceAfterSuccess()
@@ -851,16 +1089,21 @@ function MissionScreen({
         />
       )}
 
-      {unlockChapter !== null &&
-        (chapter === 1 ? (
+      {unlockChapter !== null && (
+        chapter === 1 || chapter === 2 ? (
           // Finishing Chapter 1 opens Chapter 2 with the "THE CODE EXPLAINED"
-          // recap of the if statement instead of the generic celebration.
+          // recap of the if statement; finishing Chapter 2 opens Chapter 3 with
+          // the if/else recap. Both replace the generic celebration.
           <CodeExplained
             chapter={chapter}
             onJournal={onJournal}
             onContinue={() => {
               setUnlockChapter(null)
-              setShowingScene51(true)
+              if (chapter === 1) {
+                setShowingScene51(true)
+              } else {
+                setShowingCh2Scene51(true)
+              }
             }}
           />
         ) : (
