@@ -192,6 +192,10 @@ function MissionScreen({
   // next level unlocking before the player returns to the chapter list.
   // Holds the chapter id being unlocked (the one after the current one).
   const [unlockChapter, setUnlockChapter] = useState<number | null>(null)
+  // Gate: after a correct answer, the next scene waits here until the player
+  // clicks CONTINUE. The string maps to the scene flag set in
+  // proceedFromPendingScene().
+  const [pendingScene, setPendingScene] = useState<string | null>(null)
 
   const refreshProgress = async (): Promise<void> => {
     try {
@@ -555,6 +559,7 @@ function MissionScreen({
           pages={CH2_PURCHASE_PAGES}
           onFinish={() => {
             setShowingCh2Scene11(false)
+            setFeedback(null)
             setQuestionNumber(2)
           }}
           onJournal={onJournal}
@@ -824,40 +829,48 @@ function MissionScreen({
     setWrongChoiceIndex(null)
   }
 
-  // The player finished the learning screen. The location only changes after
-  // the explanation: mission 1's door swings open, then the player steps
-  // outside. Mission 3 plays the sakay animation; the other missions just
-  // celebrate. Chapter 2's missions play their purchase and instructional
-  // scenes before the next level.
+  // The player finished the learning screen. Instead of auto-routing to the
+  // next scene, store it in pendingScene so the CONTINUE button gates the
+  // transition. This prevents the question from re-showing and gives the
+  // player control over progression.
   const closeCore = (): void => {
     setShowCore(false)
+    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     if (chapter === 0 && mission === 1) {
-      setDoorOpen(true)
+      setPendingScene('door')
     } else if (chapter === 0 && mission === 3) {
-      setShowingAnimation(true)
+      setPendingScene('animation')
     } else if (chapter === 1 && mission === 1) {
-      setShowingWelcomeGate(true)
+      setPendingScene('welcomeGate')
     } else if (chapter === 1 && mission === 4) {
-      setShowingSubmission(true)
-    } else if (chapter === 1 && mission === 5) {
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+      setPendingScene('submission')
     } else if (chapter === 2 && mission === 1) {
-      if (questionNumber === 1) {
-        setShowingCh2Scene11(true)
-      } else {
-        setShowingCh2Scene12(true)
-      }
+      setPendingScene(questionNumber === 1 ? 'scene11' : 'scene12')
     } else if (chapter === 2 && mission === 2) {
-      setShowingCh2Scene21(true)
+      setPendingScene('scene21')
     } else if (chapter === 2 && mission === 3) {
-      setShowingCh2Scene31(true)
+      setPendingScene('scene31')
     } else if (chapter === 2 && mission === 4) {
-      setShowingCh2Scene41(true)
-    } else if (chapter === 2 && mission === 5) {
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
-    } else {
-      advanceAfterSuccess()
+      setPendingScene('scene41')
     }
+    // ch1-m5, ch2-m5, and fallback: feedback only, no scene.
+  }
+
+  // Map the pendingScene string to the actual scene setter.
+  const proceedFromPendingScene = (): void => {
+    if (!pendingScene) return
+    switch (pendingScene) {
+      case 'door': setDoorOpen(true); break
+      case 'animation': setShowingAnimation(true); break
+      case 'welcomeGate': setShowingWelcomeGate(true); break
+      case 'submission': setShowingSubmission(true); break
+      case 'scene11': setShowingCh2Scene11(true); break
+      case 'scene12': setShowingCh2Scene12(true); break
+      case 'scene21': setShowingCh2Scene21(true); break
+      case 'scene31': setShowingCh2Scene31(true); break
+      case 'scene41': setShowingCh2Scene41(true); break
+    }
+    setPendingScene(null)
   }
 
   // The sakay animation finished (or was skipped): continue to the next scene.
@@ -984,7 +997,7 @@ function MissionScreen({
         onOpenMission={onOpenMission}
       />
       <div className="mission-content">
-        {currentQuestion ? (
+        {currentQuestion && !done ? (
           <div className="mission-challenge">
             <p className="mission-challenge-prompt">{currentQuestion.prompt}</p>
             {currentQuestion.choices && (
@@ -1046,6 +1059,10 @@ function MissionScreen({
               </button>
             </form>
           </div>
+        ) : done ? (
+          <div className="mission-completed">
+            <p className="mission-completed-label">MISSION COMPLETED ✓</p>
+          </div>
         ) : (
           <div className="mission-hint">
             <p className="mission-hint-label">MISSION CONTENT</p>
@@ -1061,7 +1078,17 @@ function MissionScreen({
           </p>
         )}
 
-        {done && nextMission !== null && (
+        {done && pendingScene && (
+          <button
+            type="button"
+            className="pixel-button mission-next"
+            onClick={proceedFromPendingScene}
+          >
+            CONTINUE →
+          </button>
+        )}
+
+        {done && !pendingScene && nextMission !== null && (
           <button
             type="button"
             className="pixel-button mission-next"
@@ -1071,7 +1098,7 @@ function MissionScreen({
           </button>
         )}
 
-        {done && nextMission === null && (
+        {done && !pendingScene && nextMission === null && (
           <button
             type="button"
             className="pixel-button mission-next"

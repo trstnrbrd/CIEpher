@@ -324,6 +324,19 @@
   color: #ff8a8a;
 }
 
+.mission-completed {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.mission-completed-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #39d353;
+  text-shadow: 2px 2px 0 #000000;
+  margin: 0;
+}
+
 .mission-empty {
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
