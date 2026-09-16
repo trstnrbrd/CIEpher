@@ -23,6 +23,9 @@
   cursor: pointer;
   font-family: 'Press Start 2P', monospace;
   color: #ffffff;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .task-bar-track:hover {
@@ -38,6 +41,7 @@
   font-size: calc(1.5 * var(--h));
   color: #ffe066;
   white-space: nowrap;
+  overflow-wrap: break-word;
 }
 
 /* Books on top, the green progress cells chugging along underneath. */
@@ -45,6 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: calc(0.5 * var(--h));
+  min-width: 0;
 }
 
 .task-books {
@@ -185,6 +190,9 @@
   left: 50%;
   transform: translateX(-50%);
   width: min(360px, 92vw);
+  max-width: calc(100vw - 16px);
+  min-width: 0;
+  box-sizing: border-box;
   z-index: 58;
   background: #161b36;
   border: 3px solid #ffffff;
@@ -203,6 +211,9 @@
   margin: 0 0 2px;
   text-align: center;
   text-shadow: 2px 2px 0 #000000;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .task-part {

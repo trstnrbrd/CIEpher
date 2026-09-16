@@ -34,6 +34,8 @@
   text-shadow: 3px 3px 0 #000000;
   margin: 0;
   text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Green "this is correct" banner. */
@@ -48,6 +50,8 @@
   margin: 0 auto;
   padding: 12px 18px;
   text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* The INCORRECT / CORRECT comparison panels. */
@@ -65,6 +69,7 @@
   align-items: center;
   gap: 10px;
   box-shadow: 0 6px 0 #000000;
+  min-width: 0;
 }
 
 .core-panel-wrong {
@@ -97,6 +102,8 @@
   font-size: 11px;
   margin: 0;
   color: #ffffff;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .core-panel-wrong .core-panel-tag {
@@ -116,6 +123,13 @@
   border-radius: 6px;
   background: #0c0f22;
   border: 2px solid #39416e;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .core-code-wrong {
@@ -132,6 +146,8 @@
   margin: 0;
   text-align: center;
   line-height: 1.6;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .core-panel-wrong .core-note {
@@ -158,6 +174,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .core-block-title {
@@ -166,6 +183,8 @@
   color: #ffe066;
   margin: 0;
   text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Code anatomy: color-coded rows. */
@@ -177,8 +196,9 @@
 
 .core-anatomy-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
+  min-width: 0;
 }
 
 .core-anatomy-chip {
@@ -189,6 +209,8 @@
   border-radius: 6px;
   padding: 6px 10px;
   flex-shrink: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .anatomy-0 {
@@ -216,6 +238,10 @@
   font-size: 10px;
   color: #ffffff;
   line-height: 1.6;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Program flow: vertical blocks + the door graphic. */
@@ -224,6 +250,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
+  min-width: 0;
 }
 
 .core-flow {
@@ -234,6 +261,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .core-flow-step {
@@ -241,6 +269,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  min-width: 0;
 }
 
 .flow-step-text {
@@ -251,6 +280,9 @@
   border-radius: 6px;
   padding: 8px 12px;
   text-align: center;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
 }
 
 .flow-point-start .flow-step-text {
@@ -277,6 +309,11 @@
   align-self: center;
   max-width: 100%;
   text-align: left;
+  width: auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .flow-point-end .flow-step-text {
@@ -379,6 +416,8 @@
   padding: 12px 16px;
   text-align: center;
   line-height: 1.6;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .core-takeaway strong {

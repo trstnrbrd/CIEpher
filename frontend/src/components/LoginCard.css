@@ -24,6 +24,8 @@
   border-radius: 16px;
   padding: 4vh 4vw;
   width: min(90vw, 420px);
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -50,6 +52,8 @@
   text-align: center;
   line-height: 1.6;
   text-shadow: 2px 2px 0 #000;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .login-form {
@@ -57,6 +61,7 @@
   display: flex;
   flex-direction: column;
   gap: 1vh;
+  min-width: 0;
 }
 
 .login-label {
@@ -64,6 +69,8 @@
   font-size: clamp(0.55rem, 1.4vw, 0.8rem);
   color: #ccc;
   margin-top: 0.5vh;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .login-input {
@@ -102,6 +109,7 @@
   align-items: center;
   margin-top: 1.5vh;
   width: 100%;
+  min-width: 0;
 }
 
 .login-actions-centered {
@@ -132,6 +140,8 @@
   line-height: 1.6;
   text-align: center;
   margin-top: 0.5vh;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Shown right after registering or changing the password. */
@@ -142,6 +152,8 @@
   line-height: 1.6;
   text-align: center;
   margin: 0;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* "Forgot password?" under the password box. */
@@ -168,11 +180,15 @@
   line-height: 1.8;
   text-align: center;
   margin: 0;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .login-enter {
   color: #fff;
   text-shadow: 1px 1px 0 #000;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .login-enter:hover {
