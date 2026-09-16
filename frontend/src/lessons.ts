@@ -12,6 +12,7 @@ import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
+import bookstoreImg from './chapter 2/bookstore.jpg'
 import noWifiImg from './chapter 2/no wifi.jpg'
 import pcImg from './chapter 2/pc.png'
 
@@ -47,6 +48,9 @@ export type Question = {
   prompt: string
   choices?: string[]
   code: string
+  // Where this question happens, when it differs from the lesson's sceneBg
+  // (e.g. the purchase happens at the bookstore but the lesson is in the lab).
+  sceneBg?: string
 }
 
 export type Lesson = {
@@ -465,6 +469,7 @@ const LESSONS: Record<string, Lesson> = {
           'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}',
         ],
         code: 'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
+        sceneBg: bookstoreImg,
       },
     ],
     core: {
@@ -507,7 +512,8 @@ const LESSONS: Record<string, Lesson> = {
     chapter: 2,
     mission: 2,
     title: 'Connect to the Wi-Fi',
-    story: 'The lab computer connects only if the Wi-Fi password is correct.',
+    story:
+      'The laboratory computers require an internet connection before students can access the online learning platform.',
     lesson:
       'An if...else statement runs one block of code when the condition is true, and a different block when it is false.',
     code: 'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',

@@ -20,6 +20,7 @@ import {
   CH2_SUBMITTED_PAGE,
   CH2_UPLOAD_LINE_PAGE,
   CH2_WIFI_ON_PAGE,
+  CH2_WIFI_SETUP_PAGE,
   CLASSROOM_PAGE,
   HOMEWORK_PAGE,
   JEEP_START_PAGE,
@@ -150,6 +151,11 @@ function MissionScreen({
   const [showingCh2Scene12, setShowingCh2Scene12] = useState<boolean>(false)
   // Chapter 2, Scene 2: Wi-Fi connects, then the player heads to the portal.
   const [showingCh2Scene21, setShowingCh2Scene21] = useState<boolean>(false)
+  // Chapter 2, Scene 2 opening: mission 2 opens with the situation that the
+  // lab computer has no connection before the Wi-Fi challenge.
+  const [showingCh2Scene2, setShowingCh2Scene2] = useState<boolean>(
+    chapter === 2 && mission === 2,
+  )
   // Chapter 2, Scene 3: the portal opens, then the player needs to upload.
   const [showingCh2Scene31, setShowingCh2Scene31] = useState<boolean>(false)
   // Chapter 2, Scene 4: the submission is accepted, then the professor
@@ -209,6 +215,11 @@ function MissionScreen({
     }
     return null
   })()
+
+  // The background behind the challenge: a question can move the scene (e.g.
+  // mission 1's syntax challenge happens at the bookstore), otherwise the
+  // lesson's own scene is kept.
+  const sceneBg = currentQuestion?.sceneBg ?? lesson?.sceneBg
 
   useEffect(() => {
     let active = true
@@ -584,6 +595,28 @@ function MissionScreen({
     )
   }
 
+  // Chapter 2, Scene 2 opening: mission 2 opens with the connection situation
+  // before the Wi-Fi coding challenge appears.
+  if (showingCh2Scene2) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_WIFI_SETUP_PAGE]}
+          onFinish={() => setShowingCh2Scene2(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects,
   // then the player heads to the learning portal for mission 3.
   if (showingCh2Scene21) {
@@ -941,14 +974,12 @@ function MissionScreen({
 
   return (
     <div
-      className={['mission-screen', lesson?.sceneBg ? 'mission-scene-bg' : '']
+      className={['mission-screen', sceneBg ? 'mission-scene-bg' : '']
         .filter(Boolean)
         .join(' ')}
     >
-      {lesson?.sceneBg && (
-        <img className="mission-scene" src={lesson.sceneBg} alt="" />
-      )}
-      {chapter === 1 && lesson?.sceneBg && mission === 1 && (
+      {sceneBg && <img className="mission-scene" src={sceneBg} alt="" />}
+      {chapter === 1 && sceneBg && mission === 1 && (
         <>
           <img className="mission-guard" src={guardImg} alt="" />
           <img

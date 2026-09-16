@@ -181,6 +181,16 @@ export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
   ],
 }
 
+// Chapter 2, Scene 2 — mission 2 opens in the programming laboratory as the
+// player finds the computer has no connection before the challenge.
+export const CH2_WIFI_SETUP_PAGE: StoryPage = {
+  bg: noWifiImg,
+  noSprite: true,
+  lines: [
+    'The laboratory computers require an internet connection before students can access the online learning platform.',
+  ],
+}
+
 // Chapter 2, Scene 2.1 — after the Wi-Fi mission, the computer connects.
 export const CH2_WIFI_ON_PAGE: StoryPage = {
   bg: connectedImg,
