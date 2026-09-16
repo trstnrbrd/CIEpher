@@ -824,14 +824,37 @@ function MissionScreen({
     setWrongChoiceIndex(null)
   }
 
-  // The player finished the learning screen. Multi-question missions step
-  // through each question; the last question's OK advances straight to the
-  // next level. All scenes between missions are skipped.
+  // The player finished the learning screen. The location only changes after
+  // the explanation: mission 1's door swings open, then the player steps
+  // outside. Mission 3 plays the sakay animation; the other missions just
+  // celebrate. Chapter 2's missions play their purchase and instructional
+  // scenes before the next level.
   const closeCore = (): void => {
     setShowCore(false)
-    const totalQuestions = lesson?.questions?.length ?? 1
-    if (questionNumber < totalQuestions) {
-      setQuestionNumber((n) => n + 1)
+    if (chapter === 0 && mission === 1) {
+      setDoorOpen(true)
+    } else if (chapter === 0 && mission === 3) {
+      setShowingAnimation(true)
+    } else if (chapter === 1 && mission === 1) {
+      setShowingWelcomeGate(true)
+    } else if (chapter === 1 && mission === 4) {
+      setShowingSubmission(true)
+    } else if (chapter === 1 && mission === 5) {
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    } else if (chapter === 2 && mission === 1) {
+      if (questionNumber === 1) {
+        setShowingCh2Scene11(true)
+      } else {
+        setShowingCh2Scene12(true)
+      }
+    } else if (chapter === 2 && mission === 2) {
+      setShowingCh2Scene21(true)
+    } else if (chapter === 2 && mission === 3) {
+      setShowingCh2Scene31(true)
+    } else if (chapter === 2 && mission === 4) {
+      setShowingCh2Scene41(true)
+    } else if (chapter === 2 && mission === 5) {
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     } else {
       advanceAfterSuccess()
     }
