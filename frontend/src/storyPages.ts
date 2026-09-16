@@ -10,8 +10,9 @@ import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
 import guardImg from './chapter1/guard.png'
 import bookstoreImg from './chapter 2/bookstore.jpg'
+import connectedImg from './chapter 2/connected.jpg'
+import noWifiImg from './chapter 2/no wifi.jpg'
 import pcImg from './chapter 2/pc.png'
-import wifiRoomImg from './chapter 2/wifiroom.jpg'
 
 export type StoryPage = {
   bg: string
@@ -163,7 +164,6 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
   },
   {
     bg: bookstoreImg,
-    noSprite: true,
     lines: ['That will be 50 coins.'],
   },
 ]
@@ -172,18 +172,26 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
 // the cashier hands over the worksheet. Professor Reyes watches from the
 // right as a text-bubble animation plays out.
 export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
-  bg: pcImg,
-  professor: true,
-  noSprite: true,
+  bg: bookstoreImg,
   lines: [
     'The player purchases the worksheet.',
     'The cashier hands over the worksheet.',
   ],
 }
 
+// Chapter 2, Scene 2 — mission 2 opens in the programming laboratory as the
+// player finds the computer has no connection before the challenge.
+export const CH2_WIFI_SETUP_PAGE: StoryPage = {
+  bg: noWifiImg,
+  noSprite: true,
+  lines: [
+    'The laboratory computers require an internet connection before students can access the online learning platform.',
+  ],
+}
+
 // Chapter 2, Scene 2.1 — after the Wi-Fi mission, the computer connects.
 export const CH2_WIFI_ON_PAGE: StoryPage = {
-  bg: wifiRoomImg,
+  bg: connectedImg,
   noSprite: true,
   lines: [
     'The Wi-Fi icon turns green.',
@@ -193,7 +201,7 @@ export const CH2_WIFI_ON_PAGE: StoryPage = {
 
 // Chapter 2, Scene 2.2 — the player heads to the learning portal.
 export const CH2_PORTAL_LINE_PAGE: StoryPage = {
-  bg: wifiRoomImg,
+  bg: connectedImg,
   align: 'left',
   lines: ["I need to access the school's learning portal."],
 }
@@ -250,6 +258,7 @@ export {
   profClassroomImg,
   guardImg,
   bookstoreImg,
-  wifiRoomImg,
+  noWifiImg,
+  connectedImg,
   pcImg,
 }

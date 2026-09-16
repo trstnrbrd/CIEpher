@@ -147,6 +147,7 @@
   display: flex;
   flex-direction: column;
   gap: 52px;
+  overflow: hidden;
 }
 
 .mission-challenge-prompt {
@@ -156,6 +157,9 @@
   margin: 0;
   text-align: center;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .mission-choices {
@@ -320,6 +324,15 @@
 
 .mission-next {
   background: #2b6dd4;
+  border-radius: 0 !important;
+  padding: 14px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.42),
+    0 6px 12px rgba(0, 0, 0, 0.24) !important;
+  min-width: 220px;
+  text-align: center;
 }
 
 .mission-next:hover {
