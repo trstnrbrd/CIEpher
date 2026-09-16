@@ -163,7 +163,6 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
   },
   {
     bg: bookstoreImg,
-    noSprite: true,
     lines: ['That will be 50 coins.'],
   },
 ]
