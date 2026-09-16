@@ -5,6 +5,8 @@ import levelboard from '../icons/levelboard.png'
 import './ChapterSelect.css'
 
 interface ChapterSelectProps {
+  // Back to the home menu.
+  onBack: () => void
   onExit: () => void
   onOpenMission: (chapter: number, mission: number) => void
   onJournal: () => void
@@ -176,6 +178,7 @@ function Tile({
 }
 
 function ChapterSelect({
+  onBack,
   onExit,
   onOpenMission,
   onJournal,
@@ -251,6 +254,10 @@ function ChapterSelect({
   return (
     <div className="chapter-select">
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+
+      <button type="button" className="chapter-back" onClick={onBack}>
+        BACK
+      </button>
 
       <h1 className="chapter-plaque">
         <span className="chapter-plaque-select">SELECT</span>

@@ -19,6 +19,37 @@
   font-family: 'Press Start 2P', monospace;
 }
 
+/* BACK to the home menu, the same cream pill as the journal notebook's. */
+.chapter-back {
+  position: absolute;
+  z-index: 2;
+  left: calc(3.4 * var(--u));
+  bottom: calc(2 * var(--u) + env(safe-area-inset-bottom, 0px));
+  padding: calc(1.6 * var(--u)) calc(3.8 * var(--u));
+  font-family: inherit;
+  font-size: max(calc(2.2 * var(--u)), 11px);
+  line-height: 1;
+  color: #1e1a14;
+  background: #f6efd9;
+  border: max(calc(0.45 * var(--u)), 2px) solid #2e2418;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.chapter-back:hover {
+  transform: translateY(-2px);
+}
+
+.chapter-back:active {
+  transform: translateY(1px);
+}
+
+.chapter-back:focus-visible {
+  outline: max(2px, calc(0.45 * var(--u))) solid #fffdf0;
+  outline-offset: calc(0.6 * var(--u));
+}
+
 /* ---------- the SELECT Chapter sign ---------- */
 
 .chapter-plaque {
@@ -171,5 +202,13 @@ button.chapter-tile:focus-visible {
 
   .chapter-notice {
     font-size: clamp(9px, 2.6vw, 14px);
+  }
+
+  .chapter-back {
+    left: 16px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 18px;
+    font-size: 12px;
+    border-width: 3px;
   }
 }
