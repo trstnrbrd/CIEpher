@@ -34,6 +34,8 @@ import {
   WELCOME_GATE_PAGE,
 } from '../storyPages'
 import guardImg from '../chapter1/guard.png'
+import loginPcImg from '../chapter 2/LOGIN_PC.jpg'
+import loggedInImg from '../chapter 2/LOGGED_IN.jpg'
 import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.png'
@@ -972,13 +974,24 @@ function MissionScreen({
 
   const done = missionStatus.completed || feedback?.ok === true
 
+  // Mission 3 (scene 2.2): the login PC is shown while the challenge is open,
+  // and switches to the logged-in screen once the correct answer is done.
+  const effectiveSceneBg =
+    chapter === 2 && mission === 3
+      ? done
+        ? loggedInImg
+        : loginPcImg
+      : sceneBg
+
   return (
     <div
-      className={['mission-screen', sceneBg ? 'mission-scene-bg' : '']
+      className={['mission-screen', effectiveSceneBg ? 'mission-scene-bg' : '']
         .filter(Boolean)
         .join(' ')}
     >
-      {sceneBg && <img className="mission-scene" src={sceneBg} alt="" />}
+      {effectiveSceneBg && (
+        <img className="mission-scene" src={effectiveSceneBg} alt="" />
+      )}
       {chapter === 1 && sceneBg && mission === 1 && (
         <>
           <img className="mission-guard" src={guardImg} alt="" />
