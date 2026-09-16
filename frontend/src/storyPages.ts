@@ -172,7 +172,7 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
 // the cashier hands over the worksheet. Professor Reyes watches from the
 // right as a text-bubble animation plays out.
 export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
-  bg: pcImg,
+  bg: bookstoreImg,
   professor: true,
   noSprite: true,
   lines: [
