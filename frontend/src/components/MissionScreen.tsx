@@ -997,7 +997,7 @@ function MissionScreen({
         onOpenMission={onOpenMission}
       />
       <div className="mission-content">
-        {currentQuestion && !done ? (
+        {currentQuestion ? (
           <div className="mission-challenge">
             <p className="mission-challenge-prompt">{currentQuestion.prompt}</p>
             {currentQuestion.choices && (
@@ -1058,10 +1058,6 @@ function MissionScreen({
                 {checking ? 'CHECKING…' : 'EXECUTE'}
               </button>
             </form>
-          </div>
-        ) : done ? (
-          <div className="mission-completed">
-            <p className="mission-completed-label">MISSION COMPLETED ✓</p>
           </div>
         ) : (
           <div className="mission-hint">
