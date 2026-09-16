@@ -239,6 +239,132 @@ Deno.test(
   },
 );
 
+// ---------- the "I'm not a robot" check on register ----------
+
+// A stand-in for Cloudflare Turnstile: only "human-token" passes.
+function fakeHumanCheck(calls: [string, string | undefined][] = []) {
+  return (token: string, ip: string | undefined) => {
+    calls.push([token, ip]);
+    return Promise.resolve(token === "human-token");
+  };
+}
+
+Deno.test(
+  "register: with the robot check on, a token is required",
+  async () => {
+    let registered = false;
+    const app = testApp({
+      humanCheck: fakeHumanCheck(),
+      accounts: fakeAccounts({
+        register: () => {
+          registered = true;
+          return Promise.resolve({ session: null, profile: PLAYER });
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/register", VALID_REGISTRATION);
+    assertEquals(res.status, 400);
+    assertEquals(await res.json(), {
+      error: {
+        code: "HUMAN_CHECK_REQUIRED",
+        message: 'Please tick the "I\'m not a robot" check first.',
+        field: "turnstileToken",
+      },
+    });
+    assertFalse(registered);
+  },
+);
+
+Deno.test("register: a token Cloudflare refuses makes no account", async () => {
+  let registered = false;
+  const app = testApp({
+    humanCheck: fakeHumanCheck(),
+    accounts: fakeAccounts({
+      register: () => {
+        registered = true;
+        return Promise.resolve({ session: null, profile: PLAYER });
+      },
+    }),
+  });
+  const res = await postJson(app, "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    turnstileToken: "bot-token",
+  });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.code, "HUMAN_CHECK_FAILED");
+  assertEquals(body.error.field, "turnstileToken");
+  assertFalse(registered);
+});
+
+Deno.test(
+  "register: a person's token creates the account; the token isn't passed on",
+  async () => {
+    const calls: [string, string | undefined][] = [];
+    let received: RegisterInput | undefined;
+    const app = testApp({
+      humanCheck: fakeHumanCheck(calls),
+      accounts: fakeAccounts({
+        register: (input) => {
+          received = input;
+          return Promise.resolve({ session: null, profile: PLAYER });
+        },
+      }),
+    });
+    const res = await app.request("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-forwarded-for": "203.0.113.7, 10.0.0.1",
+      },
+      body: JSON.stringify({
+        ...VALID_REGISTRATION,
+        turnstileToken: "human-token",
+      }),
+    });
+    assertEquals(res.status, 201);
+    assertEquals(calls, [["human-token", "203.0.113.7"]]);
+    assertEquals(received, VALID_REGISTRATION);
+  },
+);
+
+Deno.test(
+  "register: if Cloudflare can't be reached, the player can try again later",
+  async () => {
+    const reported: unknown[] = [];
+    let registered = false;
+    const app = testApp({
+      humanCheck: () => Promise.reject(new Error("network down")),
+      reportError: (error) => reported.push(error),
+      accounts: fakeAccounts({
+        register: () => {
+          registered = true;
+          return Promise.resolve({ session: null, profile: PLAYER });
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/register", {
+      ...VALID_REGISTRATION,
+      turnstileToken: "human-token",
+    });
+    assertEquals(res.status, 503);
+    const body = await res.json();
+    assertEquals(body.error.code, "HUMAN_CHECK_UNAVAILABLE");
+    assertFalse(registered);
+    assertEquals(reported, []);
+  },
+);
+
+Deno.test("register: a far too long robot token is refused", async () => {
+  const res = await postJson(testApp(), "/api/auth/register", {
+    ...VALID_REGISTRATION,
+    turnstileToken: "x".repeat(2049),
+  });
+  assertEquals(res.status, 400);
+  const body = await res.json();
+  assertEquals(body.error.field, "turnstileToken");
+});
+
 Deno.test("register: rejects a bad username and names the field", async () => {
   const res = await postJson(testApp(), "/api/auth/register", {
     ...VALID_REGISTRATION,

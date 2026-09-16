@@ -2,6 +2,7 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 import { supabaseAccounts } from "./accounts.ts";
 import { createApp } from "./app.ts";
 import { supabaseGame } from "./game.ts";
+import { turnstileCheck } from "./humans.ts";
 import { sentryReporter } from "./sentry.ts";
 
 // Comma-separated list from the environment, e.g. "http://localhost:5173".
@@ -27,6 +28,8 @@ Deno.serve(
       Deno.env.get("SENTRY_DSN"),
       Deno.env.get("SENTRY_ENVIRONMENT") ?? "unknown",
     ),
+    // The "I'm not a robot" check turns on once its secret key is set.
+    humanCheck: turnstileCheck(Deno.env.get("TURNSTILE_SECRET_KEY")),
   }).fetch,
 );
 

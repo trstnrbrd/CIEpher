@@ -19,6 +19,8 @@ export type RegisterInput = {
   email: string
   password: string
   privacyConsent: boolean
+  // From the "I'm not a robot" widget; required where the check is on.
+  turnstileToken?: string
 }
 
 // Where the player is in the game. The prologue is chapter 0. The server

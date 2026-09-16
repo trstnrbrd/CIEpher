@@ -9,6 +9,7 @@ import {
   type ReportError,
 } from "./errors.ts";
 import type { Game } from "./game.ts";
+import type { HumanCheck } from "./humans.ts";
 import {
   characterSchema,
   forgotPasswordSchema,
@@ -31,6 +32,10 @@ export type AppConfig = {
   // Where bugs (the 500s) are reported: Sentry in index.ts, a fake in tests.
   // Left out, bugs are only logged.
   reportError?: ReportError;
+  // The "I'm not a robot" check on registering: Cloudflare Turnstile in
+  // index.ts when its secret key is set, a fake in tests. Left out,
+  // registering needs no check.
+  humanCheck?: HumanCheck;
 };
 
 // Builds the whole API. Settings come in as arguments (not read from the
@@ -40,6 +45,7 @@ export function createApp({
   accounts,
   game,
   reportError,
+  humanCheck,
 }: AppConfig) {
   const app = new Hono<Env>().basePath("/api");
 
@@ -73,7 +79,15 @@ export function createApp({
   app.get("/health", (c) => c.json({ status: "ok" }));
 
   app.post("/auth/register", async (c) => {
-    const input = parse(registerSchema, await readJson(c));
+    const { turnstileToken, ...input } = parse(
+      registerSchema,
+      await readJson(c),
+    );
+    if (humanCheck) {
+      // The first address in X-Forwarded-For is the player's.
+      const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
+      await confirmHuman(humanCheck, turnstileToken, ip);
+    }
     const result = await accounts.register(input);
     return c.json(result, 201);
   });
@@ -128,6 +142,41 @@ async function readJson(c: Context): Promise<unknown> {
       400,
       "VALIDATION_ERROR",
       "The request body must be valid JSON.",
+    );
+  }
+}
+
+// Refuses a register request unless Cloudflare says a person sent it.
+async function confirmHuman(
+  check: HumanCheck,
+  token: string | undefined,
+  ip: string | undefined,
+): Promise<void> {
+  if (!token) {
+    throw new ApiError(
+      400,
+      "HUMAN_CHECK_REQUIRED",
+      'Please tick the "I\'m not a robot" check first.',
+      "turnstileToken",
+    );
+  }
+  let passed: boolean;
+  try {
+    passed = await check(token, ip);
+  } catch (error) {
+    console.error("Turnstile check failed:", error);
+    throw new ApiError(
+      503,
+      "HUMAN_CHECK_UNAVAILABLE",
+      "We couldn't run the robot check right now. Please try again in a moment.",
+    );
+  }
+  if (!passed) {
+    throw new ApiError(
+      400,
+      "HUMAN_CHECK_FAILED",
+      "The robot check didn't go through. Please try it again.",
+      "turnstileToken",
     );
   }
 }

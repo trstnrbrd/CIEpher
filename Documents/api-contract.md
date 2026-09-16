@@ -96,16 +96,20 @@ Request:
   "username": "player_one",
   "email": "player@example.com",
   "password": "secret123",
-  "privacyConsent": true
+  "privacyConsent": true,
+  "turnstileToken": "0.AbCd..."
 }
 ```
 
-| Field            | Rule                                                                                                 |
-| ---------------- | ---------------------------------------------------------------------------------------------------- |
-| `username`       | 3–20 letters, numbers, or `_`. Unique ignoring capitals (`Vhan` and `vhan` are the same).            |
-| `email`          | A valid email address.                                                                               |
-| `password`       | 8–72 characters, with at least one letter and one number.                                            |
-| `privacyConsent` | Must be `true`: the player ticked "I agree to the privacy notice". Required by the Data Privacy Act. |
+| Field            | Rule                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `username`       | 3–20 letters, numbers, or `_`. Unique ignoring capitals (`Vhan` and `vhan` are the same).                                    |
+| `email`          | A valid email address.                                                                                                       |
+| `password`       | 8–72 characters, with at least one letter and one number.                                                                    |
+| `privacyConsent` | Must be `true`: the player ticked "I agree to the privacy notice". Required by the Data Privacy Act.                         |
+| `turnstileToken` | The token from the "I'm not a robot" widget (Cloudflare Turnstile). Required wherever the check is on (staging, production). |
+
+**The "I'm not a robot" check.** The Register card shows the Cloudflare Turnstile widget (`frontend/src/components/TurnstileWidget.tsx`) and sends its token as `turnstileToken`. A token works **once** and for 5 minutes, so reset the widget after every failed register attempt. The site key is public and comes from `VITE_TURNSTILE_SITE_KEY`; without it (e.g. locally), the widget isn't shown and no token is sent. Locally the check is off unless `TURNSTILE_SECRET_KEY` is set in `backend/supabase/functions/.env`; Cloudflare's test keys (site `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`) always pass.
 
 `gender` and `yearLevel` are **not stored yet** (waiting on the client). Don't send them for now.
 
@@ -124,7 +128,14 @@ Success, **201**:
 
 `session` is always `null` for register.
 
-Errors: `400 VALIDATION_ERROR`, `409 USERNAME_TAKEN`, `409 EMAIL_TAKEN`.
+| Status | code                      | Show the player                                                                 |
+| ------ | ------------------------- | ------------------------------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR`        | `message`, under the field named in `field`                                     |
+| 400    | `HUMAN_CHECK_REQUIRED`    | `message` (no token was sent); `field` is `turnstileToken`                      |
+| 400    | `HUMAN_CHECK_FAILED`      | `message`, then reset the widget so the player can tick it again                |
+| 409    | `USERNAME_TAKEN`          | `message`, under the username                                                   |
+| 409    | `EMAIL_TAKEN`             | `message`, under the email                                                      |
+| 503    | `HUMAN_CHECK_UNAVAILABLE` | `message` (Cloudflare couldn't be reached); reset the widget and let them retry |
 
 ### ✅ `POST /auth/login`
 

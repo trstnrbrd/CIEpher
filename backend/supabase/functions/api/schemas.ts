@@ -31,6 +31,12 @@ export const registerSchema = z.object({
   privacyConsent: z.literal(true, {
     error: "You must agree to the privacy notice.",
   }),
+  // The token from the "I'm not a robot" widget. Required only while the
+  // check is switched on (see humanCheck in app.ts).
+  turnstileToken: z
+    .string({ error: "The robot check token must be text." })
+    .max(2048, "The robot check token is too long.")
+    .optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

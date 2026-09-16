@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts supabase/functions/api/csharp.test.ts tools/answers.ts",
+    "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts supabase/functions/api/csharp.test.ts supabase/functions/api/humans.test.ts tools/answers.ts",
     "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/",
     "lint": "deno lint --config supabase/functions/api/deno.json supabase/functions/api/ tools/ content/",
     "db:reset": "supabase db reset",
