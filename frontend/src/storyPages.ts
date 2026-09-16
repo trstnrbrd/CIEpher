@@ -113,6 +113,26 @@ export const SUBMISSION_PAGE: StoryPage = {
   lines: ['Activity submitted successfully.'],
 }
 
+// Chapter 1 Scene 4.2 — mission 5 opens as the professor announces a short
+// readiness quiz before starting the lesson.
+export const QUIZ_ANNOUNCEMENT_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  lines: [
+    'The professor announces a short readiness quiz before the lesson begins.',
+    'Only students with recorded attendance may take it.',
+  ],
+}
+
+// Chapter 1 Scene 5.1 — after the quiz, the professor closes the chapter.
+export const REYES_CLOSING_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  lines: [
+    "Excellent work. Today you've learned how the if statement helps a program make decisions based on a single condition.",
+  ],
+}
+
 export {
   schoolImg,
   classroomImg,

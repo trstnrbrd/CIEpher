@@ -16,6 +16,8 @@ import {
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
   PROGRAMMING_LAB_PAGE,
+  QUIZ_ANNOUNCEMENT_PAGE,
+  REYES_CLOSING_PAGE,
   SCHOOL_GATE_PAGE,
   SUBMISSION_PAGE,
   WELCOME_GATE_PAGE,
@@ -26,6 +28,8 @@ import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.png'
 import girlImg from '../assets/girl.png'
 import CoreBreakdown from './CoreBreakdown'
+import ProgramFlow from './ProgramFlow'
+import CodeExplained from './CodeExplained'
 import SakayAnimation from './SakayAnimation'
 import LevelUnlock from './LevelUnlock'
 import TaskBar from './TaskBar'
@@ -116,6 +120,14 @@ function MissionScreen({
   // Chapter 1, scene 4.1: after mission 4's explanation, the screen confirms
   // the activity was submitted before moving on.
   const [showingSubmission, setShowingSubmission] = useState<boolean>(false)
+  // Chapter 1, scene 4.2: mission 5 opens as the professor announces the
+  // readiness quiz before the challenge.
+  const [showingQuiz, setShowingQuiz] = useState<boolean>(
+    chapter === 1 && mission === 5,
+  )
+  // Chapter 1, scene 5.1: after the chapter unlocks, Professor Reyes closes
+  // the chapter before the player returns to the chapter list.
+  const [showingScene51, setShowingScene51] = useState<boolean>(false)
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
   const [doorOpen, setDoorOpen] = useState<boolean>(false)
@@ -373,6 +385,28 @@ function MissionScreen({
     )
   }
 
+  // Scene 4.2: mission 5 opens as the professor announces the readiness quiz,
+  // then the syntax challenge appears.
+  if (showingQuiz) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[QUIZ_ANNOUNCEMENT_PAGE]}
+          onFinish={() => setShowingQuiz(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
   // Scene 1.2: after mission 1's explanation, the guard welcomes the player.
   // The hallway video plays once the player taps through the story.
   if (showingWelcomeGate) {
@@ -409,6 +443,31 @@ function MissionScreen({
           onFinish={() => {
             setShowingSubmission(false)
             advanceAfterSuccess()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Scene 5.1: after Chapter 2 unlocks, Professor Reyes closes the chapter
+  // before the player returns to the chapter list.
+  if (showingScene51) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[REYES_CLOSING_PAGE]}
+          onFinish={() => {
+            setShowingScene51(false)
+            onChapter()
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -460,7 +519,7 @@ function MissionScreen({
           setChecking(false)
           return
         }
-        if (lesson?.core) {
+        if (lesson?.core || lesson?.programFlow) {
           // The learning screen (program flow / explanation) always plays
           // right after a correct answer. Any location change waits until
           // the player closes it.
@@ -534,6 +593,10 @@ function MissionScreen({
     } else if (chapter === 1 && mission === 4) {
       // Scene 4.1: the submission confirmation plays before the next mission.
       setShowingSubmission(true)
+    } else if (chapter === 1 && mission === 5) {
+      // Mission 5 is the readiness quiz: after its program flow, the result
+      // shows and the CHAPTER CLEARED button leads to the chapter unlock.
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     } else {
       advanceAfterSuccess()
     }
@@ -763,7 +826,15 @@ function MissionScreen({
         )}
       </div>
 
-      {showCore && lesson?.core && (
+      {showCore && lesson?.programFlow && (
+        <ProgramFlow
+          code={lesson.code}
+          flow={lesson.programFlow}
+          onClose={closeCore}
+        />
+      )}
+
+      {showCore && lesson?.programFlow === undefined && lesson?.core && (
         <CoreBreakdown
           code={lesson.code}
           core={lesson.core}
@@ -780,15 +851,27 @@ function MissionScreen({
         />
       )}
 
-      {unlockChapter !== null && (
-        <LevelUnlock
-          chapter={chapter}
-          onContinue={() => {
-            setUnlockChapter(null)
-            onChapter()
-          }}
-        />
-      )}
+      {unlockChapter !== null &&
+        (chapter === 1 ? (
+          // Finishing Chapter 1 opens Chapter 2 with the "THE CODE EXPLAINED"
+          // recap of the if statement instead of the generic celebration.
+          <CodeExplained
+            chapter={chapter}
+            onJournal={onJournal}
+            onContinue={() => {
+              setUnlockChapter(null)
+              setShowingScene51(true)
+            }}
+          />
+        ) : (
+          <LevelUnlock
+            chapter={chapter}
+            onContinue={() => {
+              setUnlockChapter(null)
+              onChapter()
+            }}
+          />
+        ))}
     </div>
   )
 }

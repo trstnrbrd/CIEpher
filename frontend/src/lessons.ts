@@ -66,6 +66,10 @@ export type Lesson = {
   prompt?: string
   choices?: string[]
   core?: CoreBreakdown
+  // A readiness quiz / chapter-end mission: after a correct answer the game
+  // shows program flow of the entered code first (no anatomy breakdown),
+  // then the result. Takes priority over `core`.
+  programFlow?: string[]
   // Multi-question missions: each question has its own prompt, choices, and
   // code. When present, this overrides the single prompt/choices/code above.
   questions?: Question[]
@@ -409,6 +413,30 @@ const LESSONS: Record<string, Lesson> = {
       takeaway:
         'The if statement checks whether a condition (like the activity being completed) is true before executing a specific action (like submitting it). If it is false, the action is bypassed.',
     },
+  },
+  '1:5': {
+    chapter: 1,
+    mission: 5,
+    title: 'The Readiness Quiz',
+    story: 'Only students with recorded attendance may take the quiz.',
+    lesson:
+      'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
+    code: 'if(hasAttendance)\n{\n    OpenQuiz();\n}',
+    sceneBg: profClassroomImg,
+    prompt:
+      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'if(hasAttendance)\n{\n    OpenQuiz();\n}',
+      'if(hasAttendance)\nOpenQuiz();',
+    ],
+    programFlow: [
+      'START',
+      'Check hasAttendance',
+      'hasAttendance == true?',
+      'YES → OpenQuiz();',
+      'NO → Skip',
+      'END',
+    ],
   },
 }
 
