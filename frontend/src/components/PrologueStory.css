@@ -112,29 +112,11 @@
   box-shadow: none;
 }
 
-.story-bubble::after {
-  content: '';
-  position: absolute;
-  left: 8%;
-  bottom: -22px;
-  width: 38px;
-  height: 34px;
-  background: #fffff3;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-/* When the guard speaks, the bubble points at him (right side) and uses a
-   navy guard-style palette so it reads as his line, not the player's. */
+/* When the guard speaks, the bubble uses a navy guard-style palette so it
+   reads as his line, not the player's. */
 .story-bubble-guard {
   background: #2b3a67;
   color: #ffffff;
-}
-
-.story-bubble-guard::after {
-  left: auto;
-  right: 10%;
-  background: #2b3a67;
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
 /* When the attendance kiosk speaks, the bubble uses a digital teal palette
@@ -145,25 +127,11 @@
   color: #b8f2e6;
 }
 
-.story-bubble-kiosk::after {
-  left: auto;
-  right: 50%;
-  background: #0f4c5c;
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-
 /* When Professor Reyes speaks, the bubble uses a deep maroon palette so it
-   reads as his line, pointed at him on the right. */
+   reads as his line. */
 .story-bubble-professor {
   background: #5a2336;
   color: #ffe9c7;
-}
-
-.story-bubble-professor::after {
-  left: auto;
-  right: 10%;
-  background: #5a2336;
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
 .story-bubble:focus-visible {
@@ -173,10 +141,12 @@
 
 .story-text {
   display: block;
-  width: 66ch;
+  width: auto;
+  max-width: 100%;
   text-align: center;
   font-size: min(1.45vw, calc(2.6 * var(--h)));
   line-height: 1.5;
+  overflow-wrap: break-word;
 }
 
 .story-line {
@@ -266,7 +236,6 @@
   }
 
   .story-text {
-    width: auto;
     font-size: clamp(10px, 3.2vw, 14px);
   }
 
