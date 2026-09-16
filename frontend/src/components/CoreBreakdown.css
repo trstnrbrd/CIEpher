@@ -207,6 +207,10 @@
   background: #ff6fc3;
 }
 
+.anatomy-4 {
+  background: #c678ff;
+}
+
 .core-anatomy-label {
   font-family: 'Press Start 2P', monospace;
   font-size: 10px;
@@ -252,6 +256,27 @@
 .flow-point-start .flow-step-text {
   background: #2b6dd4;
   color: #ffffff;
+}
+
+/* YES / NO branches of a decision: green vs red, used by the flow-only and
+   code-explained screens. */
+.flow-yes .flow-step-text {
+  background: #1f7a33;
+  color: #c8ffd3;
+}
+
+.flow-no .flow-step-text {
+  background: #7a241c;
+  color: #ffd4cf;
+}
+
+/* The typed syntax accepted before a flow: green on dark, with margins. */
+.core-code-ok {
+  color: #39d353;
+  border: 3px solid #39d353;
+  align-self: center;
+  max-width: 100%;
+  text-align: left;
 }
 
 .flow-point-end .flow-step-text {

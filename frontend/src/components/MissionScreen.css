@@ -67,12 +67,6 @@
   display: none;
 }
 
-/* Scene 2.1 (classroom): the player stands in the middle of the scene. */
-.mission-avatar-center {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .mission-scene-bg .mission-guard,
 .mission-scene-bg .mission-avatar {
   display: block;
@@ -348,9 +342,10 @@
    the header/hint so everything fits above the fixed nav bar. */
 @media (max-width: 520px) {
   .mission-content {
-    padding: calc(9 * var(--h) + env(safe-area-inset-top, 0px)) 14px
+    width: min(440px, 94vw);
+    padding: calc(6 * var(--h) + env(safe-area-inset-top, 0px)) 14px
       calc(96px + env(safe-area-inset-bottom, 0px));
-    gap: 16px;
+    gap: 12px;
   }
 
   .mission-header {
@@ -366,33 +361,51 @@
     font-size: 11px;
   }
 
+  .mission-challenge {
+    min-height: 0;
+    padding: 20px 14px 18px;
+    gap: 18px;
+  }
+
+  .mission-challenge-prompt {
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
   .mission-choices {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .mission-choice {
     width: 100%;
     min-width: 0;
+    padding: 10px 14px;
+    font-size: 12px;
   }
 
   .mission-form {
     flex-direction: column;
+    gap: 12px;
   }
 
   .mission-input {
-    font-size: 13px;
-    padding: 12px;
-    min-height: 48px;
+    font-size: 12px;
+    padding: 10px 12px;
+    min-height: 76px;
   }
 
   .mission-code-overlay {
-    font-size: 13px;
-    padding: 12px;
+    font-size: 12px;
+    padding: 10px 12px;
+    min-height: 76px;
   }
 
   .mission-execute {
-    min-height: 52px;
+    min-height: 46px;
+    min-width: 0;
+    width: 100%;
   }
 
   .mission-feedback,
