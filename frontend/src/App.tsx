@@ -221,7 +221,6 @@ function App() {
   if (view.screen === 'chapters') {
     screen = (
       <ChapterSelect
-        onBack={() => navigate({ screen: 'home' })}
         onExit={handleLogout}
         onOpenMission={openMission}
         onJournal={openJournal}
