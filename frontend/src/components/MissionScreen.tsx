@@ -846,13 +846,14 @@ function MissionScreen({
       // shows and the CHAPTER CLEARED button leads to the chapter unlock.
       setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
     } else if (chapter === 2 && mission === 1) {
-      // Scene 1.1: after the first question's explanation, the purchase
-      // dialogue plays before mission 1's second question. After the second
-      // question's explanation, Scene 1.2 plays before the next mission.
+      // The OK closes straight into the flow: mission 1's first question
+      // moves directly to its syntax challenge, and the second question's
+      // OK advances straight to the next mission. The purchase dialogue
+      // (Scenes 1.1/1.2) no longer plays between them.
       if (questionNumber === 1) {
-        setShowingCh2Scene11(true)
+        setQuestionNumber(2)
       } else {
-        setShowingCh2Scene12(true)
+        advanceAfterSuccess()
       }
     } else if (chapter === 2 && mission === 2) {
       // Scene 2.1: Wi-Fi connects, then the player heads to the portal.

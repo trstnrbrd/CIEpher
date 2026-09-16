@@ -388,6 +388,11 @@
 .core-ok {
   align-self: center;
   background: #3f8c2b;
+  border-radius: 0 !important;
+  padding: 14px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
 }
 
 .core-ok:hover {
