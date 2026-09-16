@@ -1,6 +1,13 @@
-import { useState, type ChangeEvent, type SubmitEvent } from 'react'
+import {
+  useCallback,
+  useState,
+  type ChangeEvent,
+  type SubmitEvent,
+} from 'react'
 import { ApiError, register, type Profile } from '../api/client'
 import PasswordInput from './PasswordInput'
+import { TURNSTILE_SITE_KEY } from '../turnstile'
+import TurnstileWidget from './TurnstileWidget'
 import './RegisterCard.css'
 
 interface RegisterCardProps {
@@ -16,6 +23,7 @@ const FIELDS = [
   'password',
   'confirmPassword',
   'privacyConsent',
+  'turnstileToken',
 ] as const
 type Field = (typeof FIELDS)[number]
 type FieldErrors = Partial<Record<Field, string>>
@@ -51,6 +59,18 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [formError, setFormError] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  // The "I'm not a robot" token, and a counter that restarts the check: a
+  // token works only once, so every failed attempt needs a fresh one.
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [turnstileRound, setTurnstileRound] = useState<number>(0)
+
+  // Stable, so the widget isn't redrawn every time the player types.
+  const handleTurnstileToken = useCallback((token: string | null): void => {
+    setTurnstileToken(token)
+    if (token) {
+      setFieldErrors((errors) => ({ ...errors, turnstileToken: undefined }))
+    }
+  }, [])
 
   // Empty or mismatched fields, checked before anything is sent. The API
   // checks everything again; this is only so players get instant feedback.
@@ -67,6 +87,9 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
     }
     if (!privacyConsent) {
       problems.privacyConsent = 'You must agree to the privacy notice.'
+    }
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      problems.turnstileToken = `Please tick the "I'm not a robot" check first.`
     }
     return problems
   }
@@ -90,9 +113,13 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
         email,
         password,
         privacyConsent,
+        turnstileToken: turnstileToken ?? undefined,
       })
       onRegistered(profile)
     } catch (err) {
+      // The token was used up by this attempt: start a new check.
+      setTurnstileToken(null)
+      setTurnstileRound((round) => round + 1)
       if (!(err instanceof ApiError)) {
         setFormError('Something went wrong. Please try again.')
         return
@@ -234,6 +261,14 @@ function RegisterCard({ onBack, onClose, onRegistered }: RegisterCardProps) {
                 <span>I agree to the privacy notice</span>
               </label>
               <FieldError message={fieldErrors.privacyConsent} />
+            </div>
+
+            <div className="field field-wide">
+              <TurnstileWidget
+                key={turnstileRound}
+                onToken={handleTurnstileToken}
+              />
+              <FieldError message={fieldErrors.turnstileToken} />
             </div>
           </div>
 
