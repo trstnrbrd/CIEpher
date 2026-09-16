@@ -824,51 +824,14 @@ function MissionScreen({
     setWrongChoiceIndex(null)
   }
 
-  // The player finished the learning screen. The location only changes after
-  // the explanation: mission 1's door swings open and the player goes outside
-  // before the CORRECT! message; mission 3 plays the sakay animation; the
-  // other missions just celebrate.
+  // The player finished the learning screen. Multi-question missions step
+  // through each question; the last question's OK advances straight to the
+  // next level. All scenes between missions are skipped.
   const closeCore = (): void => {
     setShowCore(false)
-    if (chapter === 0 && mission === 1) {
-      setDoorOpen(true)
-    } else if (chapter === 0 && mission === 3) {
-      setShowingAnimation(true)
-    } else if (chapter === 1 && mission === 1) {
-      // Scene 1.2: the guard welcomes the player into the university, then the
-      // hallway video plays before the next mission.
-      setShowingWelcomeGate(true)
-    } else if (chapter === 1 && mission === 4) {
-      // Scene 4.1: the submission confirmation plays before the next mission.
-      setShowingSubmission(true)
-    } else if (chapter === 1 && mission === 5) {
-      // Mission 5 is the readiness quiz: after its program flow, the result
-      // shows and the CHAPTER CLEARED button leads to the chapter unlock.
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
-    } else if (chapter === 2 && mission === 1) {
-      // The OK closes straight into the flow: mission 1's first question
-      // moves directly to its syntax challenge, and the second question's
-      // OK advances straight to the next mission. The purchase dialogue
-      // (Scenes 1.1/1.2) no longer plays between them.
-      if (questionNumber === 1) {
-        setQuestionNumber(2)
-      } else {
-        advanceAfterSuccess()
-      }
-    } else if (chapter === 2 && mission === 2) {
-      // Scene 2.1: Wi-Fi connects, then the player heads to the portal.
-      setShowingCh2Scene21(true)
-    } else if (chapter === 2 && mission === 3) {
-      // Scene 3.1: the portal opens, then the player needs to upload.
-      setShowingCh2Scene31(true)
-    } else if (chapter === 2 && mission === 4) {
-      // Scene 4.1: the submission is accepted, then the professor challenges
-      // the player before mission 5.
-      setShowingCh2Scene41(true)
-    } else if (chapter === 2 && mission === 5) {
-      // Mission 5 ends the chapter: after its explanation, the result shows
-      // and the CHAPTER CLEARED button leads to the chapter unlock.
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    const totalQuestions = lesson?.questions?.length ?? 1
+    if (questionNumber < totalQuestions) {
+      setQuestionNumber((n) => n + 1)
     } else {
       advanceAfterSuccess()
     }
