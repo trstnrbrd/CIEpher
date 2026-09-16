@@ -12,7 +12,7 @@ import schoolImg from './chapter1/Schoool.png'
 import classroomImg from './chapter1/classroom.png'
 import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
-import wifiRoomImg from './chapter 2/wifiroom.jpg'
+import noWifiImg from './chapter 2/no wifi.jpg'
 import pcImg from './chapter 2/pc.png'
 
 // One piece of the code being taught, e.g. the name of a method.
@@ -511,7 +511,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'An if...else statement runs one block of code when the condition is true, and a different block when it is false.',
     code: 'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
-    sceneBg: wifiRoomImg,
+    sceneBg: noWifiImg,
     prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',

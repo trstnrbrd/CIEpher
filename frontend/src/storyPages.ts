@@ -10,8 +10,9 @@ import powerImg from './chapter1/power.png'
 import profClassroomImg from './chapter1/prof_classroom.jpg'
 import guardImg from './chapter1/guard.png'
 import bookstoreImg from './chapter 2/bookstore.jpg'
+import connectedImg from './chapter 2/connected.jpg'
+import noWifiImg from './chapter 2/no wifi.jpg'
 import pcImg from './chapter 2/pc.png'
-import wifiRoomImg from './chapter 2/wifiroom.jpg'
 
 export type StoryPage = {
   bg: string
@@ -182,7 +183,7 @@ export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
 
 // Chapter 2, Scene 2.1 — after the Wi-Fi mission, the computer connects.
 export const CH2_WIFI_ON_PAGE: StoryPage = {
-  bg: wifiRoomImg,
+  bg: connectedImg,
   noSprite: true,
   lines: [
     'The Wi-Fi icon turns green.',
@@ -192,7 +193,7 @@ export const CH2_WIFI_ON_PAGE: StoryPage = {
 
 // Chapter 2, Scene 2.2 — the player heads to the learning portal.
 export const CH2_PORTAL_LINE_PAGE: StoryPage = {
-  bg: wifiRoomImg,
+  bg: connectedImg,
   align: 'left',
   lines: ["I need to access the school's learning portal."],
 }
@@ -249,6 +250,7 @@ export {
   profClassroomImg,
   guardImg,
   bookstoreImg,
-  wifiRoomImg,
+  noWifiImg,
+  connectedImg,
   pcImg,
 }
