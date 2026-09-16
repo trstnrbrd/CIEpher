@@ -28,15 +28,15 @@ const CHAPTERS = ROWS.flat()
 // The chapter tiles are drawn pixel by pixel on a 40 x 49 grid, so they stay
 // pixel art at any size: a gold plate with a bevel, a chunky outlined number,
 // and - when the chapter is locked - silver nuts and a padlock plate.
-// The digits are 6 x 7 with two-pixel strokes; '#' is an on pixel.
+// The digits are 5 x 7 with one-pixel strokes; '#' is an on pixel.
 const DIGITS: Record<number, string[]> = {
-  1: ['..##..', '.###..', '..##..', '..##..', '..##..', '..##..', '.####.'],
-  2: ['.####.', '##..##', '...##.', '..##..', '.##...', '##....', '######'],
-  3: ['.####.', '##..##', '....##', '..###.', '....##', '##..##', '.####.'],
-  4: ['...##.', '..###.', '.####.', '##.##.', '######', '...##.', '...##.'],
-  5: ['######', '##....', '#####.', '....##', '....##', '##..##', '.####.'],
-  6: ['..###.', '.##...', '##....', '#####.', '##..##', '##..##', '.####.'],
-  7: ['######', '....##', '...##.', '..##..', '..##..', '.##...', '.##...'],
+  1: ['..#..', '.##..', '..#..', '..#..', '..#..', '..#..', '.###.'],
+  2: ['.###.', '#...#', '....#', '..##.', '.##..', '#....', '#####'],
+  3: ['.###.', '#...#', '....#', '..##.', '....#', '#...#', '.###.'],
+  4: ['...#.', '..##.', '.#.#.', '##.#.', '#####', '...#.', '...#.'],
+  5: ['#####', '#....', '####.', '....#', '....#', '#...#', '.###.'],
+  6: ['..##.', '.##..', '#....', '####.', '#...#', '#...#', '.###.'],
+  7: ['#####', '....#', '...##', '..#..', '..#..', '.#...', '.#...'],
 }
 
 // One digit. `size` is how many grid units each of its pixels takes.
@@ -95,7 +95,7 @@ function Tile({
   // A locked plate shows a smaller number above its padlock; an open one
   // shows a big number in the middle.
   const size = locked ? 2 : 3
-  const digitX = locked ? 14 : 11
+  const digitX = locked ? 15 : 12
   const digitY = locked ? 6 : 14
   // A thin outline: one grid unit out in all eight directions, so it has no
   // gaps where the digit steps diagonally.
