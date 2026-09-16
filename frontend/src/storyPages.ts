@@ -173,8 +173,6 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
 // right as a text-bubble animation plays out.
 export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
   bg: bookstoreImg,
-  professor: true,
-  noSprite: true,
   lines: [
     'The player purchases the worksheet.',
     'The cashier hands over the worksheet.',
