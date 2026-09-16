@@ -13,6 +13,20 @@ interface JournalShelfProps {
   onExit: () => void
 }
 
+// The client's book pictures, by lesson number: src/icons/lesson1-book.png,
+// lesson2-book.png and so on. Dropping a new file in that folder is enough;
+// a lesson without a picture keeps the drawn book below.
+const BOOK_PICTURES: Record<number, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<{ default: string }>('../icons/lesson*-book.png', {
+      eager: true,
+    }),
+  ).flatMap(([path, module]) => {
+    const found = /lesson(\d+)-book/.exec(path)
+    return found ? [[Number(found[1]), module.default]] : []
+  }),
+)
+
 // The mockup's EXIT tag, pixel by pixel (44 x 14): x, y, w, h.
 const EXIT_FILL: [number, number, number, number][] = [
   [4, 1, 36, 12],
@@ -158,7 +172,15 @@ function JournalShelf({
               onClick={() => onOpen(index)}
               aria-label={lesson.title}
             >
-              <Book number={lesson.chapter} />
+              {BOOK_PICTURES[lesson.chapter] ? (
+                <img
+                  className="journal-shelf-picture"
+                  src={BOOK_PICTURES[lesson.chapter]}
+                  alt=""
+                />
+              ) : (
+                <Book number={lesson.chapter} />
+              )}
             </button>
           ))}
         </div>

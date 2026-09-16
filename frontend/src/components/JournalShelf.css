@@ -87,7 +87,9 @@
 }
 
 .journal-shelf-book {
+  position: relative;
   width: var(--book);
+  aspect-ratio: 120 / 95;
   padding: 0;
   border: 0;
   background: none;
@@ -99,10 +101,21 @@
     filter 0.15s ease;
 }
 
+/* The client's book picture has transparent space around it (the book fills
+   83.4% of the file, 6.17% in from the left and 10% down), so it is blown up
+   and shifted until it sits exactly where the drawn book would. */
+.journal-shelf-picture {
+  position: absolute;
+  left: -7.4%;
+  top: -10.9%;
+  width: 119.9%;
+  height: auto;
+}
+
 .journal-shelf-book svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   overflow: visible;
 }
 
