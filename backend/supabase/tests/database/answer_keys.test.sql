@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(11);
+select plan(15);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1, 2, 3)$$,
+    where chapter_id not in (0, 1, 2, 3, 4, 5)$$,
   'every chapter with missions has a content file'
 );
 
@@ -126,6 +126,52 @@ select results_eq(
     (4, 1, E'if(score >=95)\n{\n    AwardGold();\n}\nelse if(score >=85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}'),
     (5, 1, E'if(score >=90)\n{\n    ShowExcellent();\n}\nelse if(score >=80)\n{\n    ShowVeryGood();\n}\nelse if(score >=75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}')$keys$,
   'chapter 3: its answer keys'
+);
+
+-- Chapter 4: The switch statement. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 4 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 4: its missions and questions'
+);
+
+-- Chapter 4's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 4 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'switch'),
+    (1, 2, E'switch(option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n\n    case 2:\n        ViewGrades();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}'),
+    (2, 1, E'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n\n    case 2:\n        OpenPC2();\n        break;\n\n    default:\n        DisplayUnavailable();\n        break;\n}'),
+    (3, 1, E'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n\n    case 2:\n        ShowOperators();\n        break;\n\n    case 3:\n        ShowControlStructures();\n        break;\n\n    default:\n        InvalidChoice();\n        break;\n}'),
+    (4, 1, E'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n\n    case 2:\n        GoToCafeteria();\n        break;\n\n    case 3:\n        GoToProgrammingLab();\n        break;\n\n    default:\n        ShowInvalidDestination();\n        break;\n}'),
+    (5, 1, E'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n\n    case 2:\n        ViewInstructions();\n        break;\n\n    case 3:\n        ExitLab();\n        break;\n\n    default:\n        InvalidChoice();\n        break;\n}')$keys$,
+  'chapter 4: its answer keys'
+);
+
+-- Chapter 5: The while loop. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 5 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 5: its missions and questions'
+);
+
+-- Chapter 5's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 5 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'while'),
+    (1, 2, E'while(books < 5)\n{\n    CollectBook();\n    books++;\n}'),
+    (2, 1, E'while(progress < 100)\n{\n    DownloadModule();\n    progress += 20;\n}'),
+    (3, 1, E'while(studentCount < totalStudents)\n{\n    PrintID();\n    studentCount++;\n}'),
+    (4, 1, E'while(uploadedFiles < totalFiles)\n{\n    UploadFile();\n    uploadedFiles++;\n}'),
+    (5, 1, E'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission();\n    reviewed++;\n}')$keys$,
+  'chapter 5: its answer keys'
 );
 
 select * from finish();

@@ -1,11 +1,5 @@
-import { useState } from 'react'
-import {
-  loadSoundEnabled,
-  loadSoundVolume,
-  playClick,
-  saveSoundEnabled,
-  saveSoundVolume,
-} from '../sound'
+import { useState, type CSSProperties } from 'react'
+import { loadVolume, playClick, saveVolume, type SoundKind } from '../sound'
 import './SettingsScreen.css'
 
 interface SettingsScreenProps {
@@ -14,94 +8,111 @@ interface SettingsScreenProps {
   onLogout: () => void
 }
 
-function SettingsScreen({ onBack, onChapter, onLogout }: SettingsScreenProps) {
-  const [sound, setSound] = useState<boolean>(loadSoundEnabled)
-  const [volume, setVolume] = useState<number>(() =>
-    loadSoundEnabled() ? loadSoundVolume() : 0,
+// The round blue buttons on the client's mockup: a music note for music, a
+// speaker for sound effects.
+function SoundIcon({ kind }: { kind: SoundKind }) {
+  return (
+    <span className="settings-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <circle className="settings-icon-shadow" cx="24" cy="26" r="21" />
+        <circle className="settings-icon-face" cx="24" cy="23" r="21" />
+        <ellipse
+          className="settings-icon-shine"
+          cx="16"
+          cy="13"
+          rx="4"
+          ry="6"
+        />
+        {kind === 'music' ? (
+          <g className="settings-icon-art">
+            <path d="M31 10 L19 14 v17 a5 5 0 1 0 3 4.6 V19 l9-3 v9 a5 5 0 1 0 3 4.6 V10 z" />
+          </g>
+        ) : (
+          <g className="settings-icon-art">
+            <path d="M13 19 h6 l8-7 v24 l-8-7 h-6 z" />
+            <path
+              className="settings-icon-waves"
+              d="M31 18 a8 8 0 0 1 0 12 M35 14 a13 13 0 0 1 0 20"
+            />
+          </g>
+        )}
+      </svg>
+    </span>
   )
-  const [volumeBeforeMute, setVolumeBeforeMute] = useState<number>(() => {
-    const saved = loadSoundVolume()
-    return saved > 0 ? saved : 70
-  })
+}
 
-  const toggleMute = (): void => {
-    if (sound) {
-      const previous = volume > 0 ? volume : volumeBeforeMute
-      setVolumeBeforeMute(previous)
-      setVolume(0)
-      saveSoundVolume(0)
-      setSound(false)
-      saveSoundEnabled(false)
-      return
-    }
+function VolumeRow({
+  kind,
+  label,
+  volume,
+  onChange,
+}: {
+  kind: SoundKind
+  label: string
+  volume: number
+  onChange: (volume: number) => void
+}) {
+  return (
+    <div className="settings-row">
+      <SoundIcon kind={kind} />
+      <input
+        className="settings-slider"
+        style={{ '--filled': `${volume}%` } as CSSProperties}
+        type="range"
+        min="0"
+        max="100"
+        value={volume}
+        onChange={(event) => onChange(Number(event.target.value))}
+        aria-label={label}
+      />
+    </div>
+  )
+}
 
-    const restored = volumeBeforeMute > 0 ? volumeBeforeMute : 70
-    setVolume(restored)
-    saveSoundVolume(restored)
-    setSound(true)
-    saveSoundEnabled(true)
-    playClick(restored / 100)
+function SettingsScreen({ onBack, onChapter, onLogout }: SettingsScreenProps) {
+  const [music, setMusic] = useState<number>(() => loadVolume('music'))
+  const [sfx, setSfx] = useState<number>(() => loadVolume('sfx'))
+
+  const changeMusic = (next: number): void => {
+    setMusic(next)
+    saveVolume('music', next)
   }
 
-  const changeVolume = (next: number): void => {
-    setVolume(next)
-    saveSoundVolume(next)
-    if (next > 0) {
-      setVolumeBeforeMute(next)
-      if (!sound) {
-        setSound(true)
-        saveSoundEnabled(true)
-      }
-    } else if (sound) {
-      setSound(false)
-      saveSoundEnabled(false)
-    }
-    if (sound && next > 0) playClick(next / 100)
+  // A click at the new level, so the player hears what they picked.
+  const changeSfx = (next: number): void => {
+    setSfx(next)
+    saveVolume('sfx', next)
+    if (next > 0) playClick(next / 100)
   }
 
   return (
     <div className="settings-screen">
-      <h1 className="settings-title">SETTINGS</h1>
-
       <div className="settings-card">
-        <div className="settings-row">
-          <label className="settings-label" htmlFor="sound-volume">
-            SOUND
-          </label>
-          <div className="settings-audio-controls">
-            <input
-              id="sound-volume"
-              className="settings-slider"
-              type="range"
-              min="0"
-              max="100"
-              value={volume}
-              onChange={(event) => changeVolume(Number(event.target.value))}
-              aria-label="Sound volume"
-            />
-            <button
-              type="button"
-              className={`settings-mute ${sound ? '' : 'muted'}`}
-              aria-pressed={!sound}
-              onClick={toggleMute}
-            >
-              {sound ? 'MUTE' : 'UNMUTE'}
-            </button>
-          </div>
+        <VolumeRow
+          kind="music"
+          label="Music volume"
+          volume={music}
+          onChange={changeMusic}
+        />
+        <VolumeRow
+          kind="sfx"
+          label="Sound effects volume"
+          volume={sfx}
+          onChange={changeSfx}
+        />
+
+        <div className="settings-actions">
+          <button type="button" className="settings-btn" onClick={onBack}>
+            BACK
+          </button>
+          <button type="button" className="settings-btn" onClick={onChapter}>
+            CHAPTER
+          </button>
+          <button type="button" className="settings-btn" onClick={onLogout}>
+            EXIT
+          </button>
         </div>
-
-        <button type="button" className="settings-chapter" onClick={onChapter}>
-          CHAPTER
-        </button>
-
-        <button type="button" className="settings-logout" onClick={onLogout}>
-          LOG OUT
-        </button>
       </div>
-
-      <button type="button" className="settings-close" onClick={onBack}>
-        CLOSE
-      </button>
     </div>
   )
 }

@@ -25,7 +25,11 @@ export type JournalLesson = {
   syntax: string
   syntaxNotes: string[]
   mistakes: JournalMistake[]
+  // Real-world uses, in words.
   uses: string[]
+  // Code for the real-world use, line breaks kept. It's shown as a code
+  // block under the uses; code inside `uses` would lose its line breaks.
+  example?: string
 }
 
 export const JOURNAL: JournalLesson[] = [
@@ -43,10 +47,9 @@ export const JOURNAL: JournalLesson[] = [
         fix: 'The word if must be lowercase. Uppercase letters generate an error.',
       },
     ],
-    uses: [
-      'Showing your school ID at the entrance if you have it with you.',
+    uses: ['Showing your school ID at the entrance if you have it with you.'],
+    example:
       'if (hasSchoolId)\n{\n    Console.WriteLine("Access granted. Welcome to school!");\n}',
-    ],
   },
   {
     chapter: 2,
@@ -65,8 +68,9 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'A phone connects to the internet if the password is right; otherwise it shows an error.',
-      'if (enteredPassword == correctPassword)\n{\n    Console.WriteLine("Connected to Wi-Fi.");\n}\nelse\n{\n    Console.WriteLine("Error: Incorrect password.");\n}',
     ],
+    example:
+      'if (enteredPassword == correctPassword)\n{\n    Console.WriteLine("Connected to Wi-Fi.");\n}\nelse\n{\n    Console.WriteLine("Error: Incorrect password.");\n}',
   },
   {
     chapter: 3,
@@ -85,8 +89,9 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'A grading system checks whether a student has a grade of 90, 80, or 70, or a failing grade.',
-      'int grade = 85;\n\nif (grade >= 90)\n{\n    Console.WriteLine("Grade: A (Excellent)");\n}\nelse if (grade >= 80)\n{\n    Console.WriteLine("Grade: B (Good)");\n}\nelse if (grade >= 70)\n{\n    Console.WriteLine("Grade: C (Pass)");\n}\nelse\n{\n    Console.WriteLine("Failing grade.");\n}',
     ],
+    example:
+      'int grade = 85;\n\nif (grade >= 90)\n{\n    Console.WriteLine("Grade: A (Excellent)");\n}\nelse if (grade >= 80)\n{\n    Console.WriteLine("Grade: B (Good)");\n}\nelse if (grade >= 70)\n{\n    Console.WriteLine("Grade: C (Pass)");\n}\nelse\n{\n    Console.WriteLine("Failing grade.");\n}',
   },
   {
     chapter: 4,
@@ -105,8 +110,9 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'Menu navigation in an activity tab can open an exercise for variables or operators.',
-      'switch (selectedActivity)\n{\n    case "Variables":\n        Console.WriteLine("Opening Variables practice exercise...");\n        break;\n\n    case "Operators":\n        Console.WriteLine("Opening Operators practice exercise...");\n        break;\n\n    default:\n        Console.WriteLine("Unknown menu selection.");\n        break;\n}',
     ],
+    example:
+      'switch (selectedActivity)\n{\n    case "Variables":\n        Console.WriteLine("Opening Variables practice exercise...");\n        break;\n\n    case "Operators":\n        Console.WriteLine("Opening Operators practice exercise...");\n        break;\n\n    default:\n        Console.WriteLine("Unknown menu selection.");\n        break;\n}',
   },
   {
     chapter: 5,
@@ -125,8 +131,9 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'Downloading the learning module while the computer is still connected to the internet.',
-      'while (isConnected && downloadProgress < 100)\n{\n    downloadProgress += 25;\n    Console.WriteLine("Downloading: " + downloadProgress + "%");\n}',
     ],
+    example:
+      'while (isConnected && downloadProgress < 100)\n{\n    downloadProgress += 25;\n    Console.WriteLine("Downloading: " + downloadProgress + "%");\n}',
   },
   {
     chapter: 6,
@@ -145,16 +152,17 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'A retry login prompt asks for credentials at least once and keeps prompting while the input remains invalid.',
-      'do\n{\n    Console.Write("Enter your PIN: ");\n    inputPin = Console.ReadLine();\n}\nwhile (inputPin != "1234");\n\nConsole.WriteLine("PIN accepted. Logged in successfully!");',
     ],
+    example:
+      'do\n{\n    Console.Write("Enter your PIN: ");\n    inputPin = Console.ReadLine();\n}\nwhile (inputPin != "1234");\n\nConsole.WriteLine("PIN accepted. Logged in successfully!");',
   },
   {
     chapter: 7,
-    title: 'Lesson 7: The For while Loop',
+    title: 'Lesson 7: The for Loop',
     definition: [
       'The for loop illustrates how many times you want to loop through a block of code. Use the for loop instead of a while loop for this pattern.',
     ],
-    syntax: 'for (int i = 0; i < 5; i++) {\n  cout << i << "\\n";\n}',
+    syntax: 'for (int i = 0; i < 5; i++)\n{\n  Console.WriteLine(i);\n}',
     syntaxNotes: [],
     mistakes: [
       {
@@ -164,7 +172,8 @@ export const JOURNAL: JournalLesson[] = [
     ],
     uses: [
       'A queue of five students arrives at the university entrance gate one by one. The security system checks each student for a valid school ID.',
-      'for (int i = 0; i < hasValidId.Length; i++) {\n    if (hasValidId[i]) {\n        Console.WriteLine($"Student {i + 1}: Valid ID presented. Access granted.");\n    } else {\n        Console.WriteLine($"Student {i + 1}: No ID detected. Access denied.");\n    }\n}',
     ],
+    example:
+      'for (int i = 0; i < hasValidId.Length; i++) {\n    if (hasValidId[i]) {\n        Console.WriteLine($"Student {i + 1}: Valid ID presented. Access granted.");\n    } else {\n        Console.WriteLine($"Student {i + 1}: No ID detected. Access denied.");\n    }\n}',
   },
 ]

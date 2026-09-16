@@ -171,46 +171,52 @@ type Step =
   | { kind: "missing"; before: number };
 
 // The fewest changes that turn the typed pieces into the answer's pieces
-// (edit distance), as a list of steps.
+// (edit distance), as a list of steps. When several are equally short, it
+// lines pieces up as early as it can, so a missing part is marked after the
+// last right piece: a missing "case 2: ... break;" is marked after the
+// "break;" before it, not inside the "Call();" before that.
 function alignment(typed: string[], answer: string[]): Step[] {
   const n = typed.length;
   const m = answer.length;
+  // cost[i][j]: the fewest changes from typed[i..] to answer[j..].
   const cost: number[][] = Array.from({ length: n + 1 }, (_, i) =>
-    Array.from({ length: m + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+    Array.from({ length: m + 1 }, (_, j) =>
+      i === n ? m - j : j === m ? n - i : 0,
+    ),
   );
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      const same = typed[i - 1] === answer[j - 1];
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      const same = typed[i] === answer[j];
       cost[i][j] = Math.min(
-        cost[i - 1][j - 1] + (same ? 0 : 1),
-        cost[i - 1][j] + 1,
-        cost[i][j - 1] + 1,
+        cost[i + 1][j + 1] + (same ? 0 : 1),
+        cost[i + 1][j] + 1,
+        cost[i][j + 1] + 1,
       );
     }
   }
   const steps: Step[] = [];
-  let i = n;
-  let j = m;
-  while (i > 0 || j > 0) {
+  let i = 0;
+  let j = 0;
+  while (i < n || j < m) {
     if (
-      i > 0 &&
-      j > 0 &&
-      typed[i - 1] === answer[j - 1] &&
-      cost[i][j] === cost[i - 1][j - 1]
+      i < n &&
+      j < m &&
+      typed[i] === answer[j] &&
+      cost[i][j] === cost[i + 1][j + 1]
     ) {
-      steps.push({ kind: "same", typed: --i });
-      j--;
-    } else if (i > 0 && j > 0 && cost[i][j] === cost[i - 1][j - 1] + 1) {
-      steps.push({ kind: "changed", typed: --i });
-      j--;
-    } else if (i > 0 && cost[i][j] === cost[i - 1][j] + 1) {
-      steps.push({ kind: "extra", typed: --i });
+      steps.push({ kind: "same", typed: i++ });
+      j++;
+    } else if (i < n && j < m && cost[i][j] === cost[i + 1][j + 1] + 1) {
+      steps.push({ kind: "changed", typed: i++ });
+      j++;
+    } else if (i < n && cost[i][j] === cost[i + 1][j] + 1) {
+      steps.push({ kind: "extra", typed: i++ });
     } else {
       steps.push({ kind: "missing", before: i });
-      j--;
+      j++;
     }
   }
-  return steps.reverse();
+  return steps;
 }
 
 // Which parts of a wrong answer to point out, compared with the closest of the

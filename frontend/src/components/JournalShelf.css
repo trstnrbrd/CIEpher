@@ -1,0 +1,186 @@
+/* The Code Journal's first screen: one book per finished chapter, on the
+   welcome screens' sky. Positions are the client's mockup, in % of the
+   screen; --book is a book's width, capped by the height on wide screens. */
+.journal-shelf {
+  --book: min(15.2vw, calc(27.8 * var(--h)));
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  background: #5ccdfb url('/src/assets/welcome background.jpg') center / cover
+    no-repeat;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.journal-shelf-title {
+  position: absolute;
+  top: 2%;
+  left: 49.3%;
+  width: min(84vw, calc(153 * var(--h)));
+  margin: 0;
+  transform: translateX(-50%);
+  line-height: 0;
+}
+
+.journal-shelf-title svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* The same yellow letters and navy outline as WELCOME TO CIEPHER. */
+.journal-shelf-title text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 43px;
+  fill: #ffcf00;
+  stroke: #2a2d74;
+  stroke-width: 8px;
+  stroke-linejoin: miter;
+  paint-order: stroke;
+  word-spacing: -0.55em;
+}
+
+.journal-shelf-exit {
+  position: absolute;
+  z-index: 1;
+  top: 0.4%;
+  right: 1.9%;
+  width: max(min(7.1vw, calc(13 * var(--h))), 56px);
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.journal-shelf-exit svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.journal-shelf-exit text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  fill: #1b1b1b;
+}
+
+.journal-shelf-exit:hover {
+  transform: translateY(-2px);
+}
+
+.journal-shelf-exit:active {
+  transform: translateY(1px);
+}
+
+/* Four books to a row, starting where the mockup's first book is. */
+.journal-shelf-books {
+  position: absolute;
+  top: 31%;
+  left: 7.9%;
+  display: grid;
+  grid-template-columns: repeat(4, var(--book));
+  column-gap: calc(0.46 * var(--book));
+  row-gap: calc(6 * var(--h));
+}
+
+.journal-shelf-book {
+  width: var(--book);
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.18));
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.journal-shelf-book svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.journal-shelf-book-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  fill: #fff;
+}
+
+.journal-shelf-book:hover {
+  transform: translateY(-4%);
+  filter: brightness(1.08) drop-shadow(0 6px 0 rgba(0, 0, 0, 0.18));
+}
+
+.journal-shelf-book:active {
+  transform: translateY(2%);
+}
+
+.journal-shelf-exit:focus-visible,
+.journal-shelf-book:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 4px;
+}
+
+/* Loading, an error, or no lessons yet. */
+.journal-shelf-notice {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  width: min(80vw, 560px);
+  margin: 0;
+  padding: 20px 24px;
+  transform: translate(-50%, -50%);
+  font-size: clamp(10px, 1.3vw, 14px);
+  line-height: 1.8;
+  text-align: center;
+  color: #2b2733;
+  background: #fffff3;
+  border: 3px solid #2a2d74;
+  border-radius: 14px;
+}
+
+/* Small phones held sideways: a narrower title, clear of EXIT. */
+@media (max-height: 480px) {
+  .journal-shelf-title {
+    width: min(76vw, calc(153 * var(--h)));
+  }
+}
+
+/* Phones held upright: the title across the top under EXIT, and the books
+   two to a row. */
+@media (max-aspect-ratio: 1/1) {
+  .journal-shelf {
+    --book: min(36vw, calc(15 * var(--h)));
+  }
+
+  .journal-shelf-title {
+    top: 44px;
+    left: 50%;
+    width: 94vw;
+  }
+
+  .journal-shelf-exit {
+    top: 10px;
+    right: 12px;
+    width: 64px;
+  }
+
+  .journal-shelf-books {
+    top: calc(44px + 18vw + 4 * var(--h));
+    left: 50%;
+    grid-template-columns: repeat(2, var(--book));
+    column-gap: 8vw;
+    row-gap: calc(3 * var(--h));
+    transform: translateX(-50%);
+  }
+
+  .journal-shelf-notice {
+    font-size: 11px;
+  }
+}

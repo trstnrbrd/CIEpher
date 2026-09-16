@@ -37,7 +37,7 @@
       "question": 1,
       "answer": "if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}",
       "wrong": [
-        "if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();"
+        "if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n    DisplayConnectionError();\n}"
       ]
     },
     {
@@ -61,7 +61,7 @@
       "question": 1,
       "answer": "if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}",
       "wrong": [
-        "if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();"
+        "if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();"
       ]
     }
   ]

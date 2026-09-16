@@ -220,6 +220,27 @@ Deno.test("mistakes: missing braces", () => {
   ]);
 });
 
+const SWITCH =
+  "switch(option){case 1:ViewSchedule();break;case 2:ViewGrades();break;default:ShowInvalidOption();break;}";
+
+Deno.test("mistakes: a missing case is marked after the last break", () => {
+  // The whole "case 2:" block is left out: marked right after case 1's
+  // "break;", not inside "ViewSchedule();".
+  const typed =
+    "switch(option){case 1:ViewSchedule();break;default:ShowInvalidOption();break;}";
+  assertEquals(findMistakes(typed, [SWITCH]), [{ start: 43, end: 43 }]);
+});
+
+Deno.test("mistakes: missing breaks are marked after each statement", () => {
+  // Right after "ViewSchedule();" and "ShowInvalidOption();".
+  const typed =
+    "switch(option){case 1:ViewSchedule();default:ShowInvalidOption();}";
+  assertEquals(findMistakes(typed, [SWITCH]), [
+    { start: 37, end: 37 },
+    { start: 65, end: 65 },
+  ]);
+});
+
 Deno.test("mistakes: wrong pieces next to each other are one mistake", () => {
   assertEquals(findMistakes("Open Door();", ["OpenDoor();"]), [
     { start: 0, end: 9 },

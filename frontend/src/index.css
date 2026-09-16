@@ -69,8 +69,7 @@ button.settings-chapter,
 button.settings-logout,
 button.settings-close,
 button.confirm-btn,
-button.btn-submit,
-button.login-enter {
+button.btn-submit {
   border-radius: 12px !important;
   border-width: 4px !important;
   border-style: solid !important;
@@ -91,8 +90,7 @@ button.settings-chapter:hover,
 button.settings-logout:hover,
 button.settings-close:hover,
 button.confirm-btn:hover,
-button.btn-submit:hover,
-button.login-enter:hover {
+button.btn-submit:hover {
   transform: translateY(-2px);
 }
 
@@ -105,8 +103,7 @@ button.settings-chapter:active,
 button.settings-logout:active,
 button.settings-close:active,
 button.confirm-btn:active,
-button.btn-submit:active,
-button.login-enter:active {
+button.btn-submit:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.42) !important;
 }

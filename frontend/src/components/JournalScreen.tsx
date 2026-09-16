@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { ApiError, getProgress, type Progress } from '../api/client'
 import { JOURNAL, type JournalLesson } from '../journal'
+import JournalShelf from './JournalShelf'
 import './JournalScreen.css'
 
 interface JournalScreenProps {
@@ -47,6 +48,29 @@ function Heading({ children }: { children: ReactNode }) {
   return <h2 className="journal-heading">{children}</h2>
 }
 
+// Code with its line breaks kept. A line too long for the page wraps with a
+// hanging indent (the line's own indent + 2), so the wrapped part reads as
+// the same line of code. The spaces stay in the text, so copied code keeps
+// its indentation.
+function CodeBlock({ code }: { code: string }) {
+  return (
+    <pre className="journal-code">
+      {code.split('\n').map((line, index) => {
+        const hang = line.length - line.trimStart().length + 2
+        return (
+          <span
+            key={index}
+            className="journal-code-line"
+            style={{ paddingLeft: `${hang}ch`, textIndent: `-${hang}ch` }}
+          >
+            {line}
+          </span>
+        )
+      })}
+    </pre>
+  )
+}
+
 function LeftPage({ lesson }: { lesson: JournalLesson }) {
   return (
     <>
@@ -57,7 +81,7 @@ function LeftPage({ lesson }: { lesson: JournalLesson }) {
         </p>
       ))}
       <Heading>Basic Syntax</Heading>
-      <pre className="journal-code">{lesson.syntax}</pre>
+      <CodeBlock code={lesson.syntax} />
       {lesson.syntaxNotes.length > 0 && (
         <ul className="journal-list">
           {lesson.syntaxNotes.map((note) => (
@@ -85,30 +109,29 @@ function RightPage({ lesson }: { lesson: JournalLesson }) {
           <li key={use}>{use}</li>
         ))}
       </ul>
+      {lesson.example && <CodeBlock code={lesson.example} />}
     </>
   )
 }
 
+// The journal opens on its books (JournalShelf); a book opens that lesson's
+// notes in the notebook, and BACK goes back to the books.
 function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
   const [progress, setProgress] = useState<Progress | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  // The open lesson; null opens the newest one.
-  const [picked, setPicked] = useState<number | null>(null)
+  // The open lesson, by its place among the written ones; null shows the
+  // books. `last` is the one to focus when going back to them.
+  const [open, setOpen] = useState<number | null>(null)
+  const [last, setLast] = useState<number | null>(null)
 
   useEffect(() => {
     let active = true
     getProgress()
       .then((p) => {
-        if (active) {
-          setPicked(null)
-          setProgress(p)
-          setLoading(false)
-        }
+        if (active) setProgress(p)
       })
       .catch((err) => {
         if (!active) return
-        setLoading(false)
         if (err instanceof ApiError && err.status === 401) {
           onUnauthorized()
           return
@@ -133,29 +156,51 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
         ),
       )
     : []
-  const current = Math.min(picked ?? lessons.length - 1, lessons.length - 1)
-  const lesson: JournalLesson | undefined = loading
-    ? undefined
-    : lessons[current]
-  const hasPrevious = !loading && current > 0
-  const hasNext = !loading && current < lessons.length - 1
+  const lesson: JournalLesson | undefined =
+    open === null ? undefined : lessons[open]
+  const hasPrevious = open !== null && open > 0
+  const hasNext = open !== null && open < lessons.length - 1
 
-  // Arrow keys turn the pages; Escape closes the journal.
+  const backToBooks = (): void => {
+    setLast(open)
+    setOpen(null)
+  }
+
+  // Escape goes back to the books, then closes the journal. In the notes,
+  // the arrow keys turn to the next or previous lesson.
   useEffect(() => {
     function handleKey(event: KeyboardEvent): void {
-      if (event.key === 'Escape') onBack()
-      else if (event.key === 'ArrowLeft' && hasPrevious) setPicked(current - 1)
-      else if (event.key === 'ArrowRight' && hasNext) setPicked(current + 1)
+      if (event.key === 'Escape') {
+        if (open === null) onBack()
+        else {
+          setLast(open)
+          setOpen(null)
+        }
+      } else if (open === null) return
+      else if (event.key === 'ArrowLeft' && hasPrevious) setOpen(open - 1)
+      else if (event.key === 'ArrowRight' && hasNext) setOpen(open + 1)
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [onBack, current, hasPrevious, hasNext])
+  }, [onBack, open, hasPrevious, hasNext])
 
-  let notice: string | null = null
-  if (error) notice = error
-  else if (loading) notice = 'Loading…'
-  else if (!lesson)
-    notice = 'No lessons yet. Finish a chapter and its lesson is written here.'
+  if (open === null || !lesson) {
+    let notice: string | null = null
+    if (error) notice = error
+    else if (!progress) notice = 'Loading…'
+    else if (lessons.length === 0)
+      notice =
+        'No lessons yet. Finish a chapter and its lesson is written here.'
+    return (
+      <JournalShelf
+        lessons={lessons}
+        notice={notice}
+        focus={last}
+        onOpen={setOpen}
+        onExit={onBack}
+      />
+    )
+  }
 
   return (
     <div className="journal-screen">
@@ -165,25 +210,15 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
       <Cloud className="journal-cloud-4" />
       <div className="journal-ground" aria-hidden="true" />
 
-      <h1 className="journal-title">
-        {lesson ? lesson.title : 'Code Journal'}
-      </h1>
+      <h1 className="journal-title">{lesson.title}</h1>
 
-      {loading && <p className="journal-loading-copy">Loading…</p>}
-
-      <div className={`journal-book ${loading ? 'journal-book-loading' : ''}`}>
+      <div className="journal-book">
         <div className="journal-spread">
           <section className="journal-page journal-page-left">
-            {loading ? (
-              <p className="journal-text">Loading…</p>
-            ) : lesson ? (
-              <LeftPage lesson={lesson} />
-            ) : (
-              <p className="journal-text">{notice}</p>
-            )}
+            <LeftPage lesson={lesson} />
           </section>
           <section className="journal-page journal-page-right">
-            {lesson && <RightPage lesson={lesson} />}
+            <RightPage lesson={lesson} />
           </section>
         </div>
         <div className="journal-spiral" aria-hidden="true" />
@@ -192,7 +227,7 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
           className="journal-arrow journal-arrow-previous"
           aria-label="Previous lesson"
           disabled={!hasPrevious}
-          onClick={() => setPicked(current - 1)}
+          onClick={() => setOpen(open - 1)}
         >
           <Arrow />
         </button>
@@ -201,13 +236,13 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
           className="journal-arrow journal-arrow-next"
           aria-label="Next lesson"
           disabled={!hasNext}
-          onClick={() => setPicked(current + 1)}
+          onClick={() => setOpen(open + 1)}
         >
           <Arrow />
         </button>
       </div>
 
-      <button type="button" className="journal-back" onClick={onBack}>
+      <button type="button" className="journal-back" onClick={backToBooks}>
         BACK
       </button>
     </div>

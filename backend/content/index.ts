@@ -8,6 +8,8 @@ import chapter0 from "./chapter-0.json" with { type: "json" };
 import chapter1 from "./chapter-1.json" with { type: "json" };
 import chapter2 from "./chapter-2.json" with { type: "json" };
 import chapter3 from "./chapter-3.json" with { type: "json" };
+import chapter4 from "./chapter-4.json" with { type: "json" };
+import chapter5 from "./chapter-5.json" with { type: "json" };
 
 export type Question = {
   mission: number;
@@ -33,4 +35,11 @@ export type Chapter = {
   questions: Question[];
 };
 
-export const CHAPTERS: Chapter[] = [chapter0, chapter1, chapter2, chapter3];
+export const CHAPTERS: Chapter[] = [
+  chapter0,
+  chapter1,
+  chapter2,
+  chapter3,
+  chapter4,
+  chapter5,
+];
