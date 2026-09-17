@@ -1,9 +1,9 @@
 // The one place that decides what happens right after a correct answer on any
 // mission. Every level's post-correct flow is a short queue of steps that
-// MissionScreen consumes one by one: the learning screen ("UNDERSTAND THE
-// CORE" / Program Flow), then a location scene that waits for CONTINUE, then
-// either the next question of the same mission or the advance to the next
-// mission. Missions that leave the queue empty just show the continue buttons.
+// MissionScreen plays one after another: the learning screen ("UNDERSTAND
+// THE CORE" / Program Flow), then a location scene, then either the next
+// question of the same mission or the advance to the next mission. Missions
+// that leave the queue empty just show the continue buttons.
 //
 // Data (matches frontend/src/lessons.ts):
 //   ch0 m1  core -> door scene
