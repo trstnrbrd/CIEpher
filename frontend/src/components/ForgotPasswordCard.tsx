@@ -1,5 +1,7 @@
-import { useState, type SubmitEvent } from 'react'
+import { useCallback, useState, type SubmitEvent } from 'react'
 import { ApiError, requestPasswordReset } from '../api/client'
+import { TURNSTILE_SITE_KEY } from '../turnstile'
+import TurnstileWidget from './TurnstileWidget'
 import './LoginCard.css'
 
 interface ForgotPasswordCardProps {
@@ -14,6 +16,16 @@ function ForgotPasswordCard({ onBack, onClose }: ForgotPasswordCardProps) {
   const [error, setError] = useState<string>('')
   const [sending, setSending] = useState<boolean>(false)
   const [sent, setSent] = useState<boolean>(false)
+  // The "I'm not a robot" token, and a counter that restarts the check: a
+  // token works only once, so every failed attempt needs a fresh one.
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [turnstileRound, setTurnstileRound] = useState<number>(0)
+
+  // Stable, so the widget isn't redrawn every time the player types.
+  const handleTurnstileToken = useCallback((token: string | null): void => {
+    setTurnstileToken(token)
+    if (token) setError('')
+  }, [])
 
   const handleSend = async (e: SubmitEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
@@ -22,11 +34,18 @@ function ForgotPasswordCard({ onBack, onClose }: ForgotPasswordCardProps) {
       setError('Type your username first.')
       return
     }
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError(`Please tick the "I'm not a robot" check first.`)
+      return
+    }
     setSending(true)
     try {
-      await requestPasswordReset(username.trim())
+      await requestPasswordReset(username.trim(), turnstileToken ?? undefined)
       setSent(true)
     } catch (err) {
+      // The token was used up by this attempt: start a new check.
+      setTurnstileToken(null)
+      setTurnstileRound((round) => round + 1)
       setError(
         err instanceof ApiError
           ? err.message
@@ -78,6 +97,11 @@ function ForgotPasswordCard({ onBack, onClose }: ForgotPasswordCardProps) {
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
+            />
+
+            <TurnstileWidget
+              key={turnstileRound}
+              onToken={handleTurnstileToken}
             />
 
             {error && (

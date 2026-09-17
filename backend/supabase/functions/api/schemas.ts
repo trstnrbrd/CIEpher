@@ -4,6 +4,14 @@ import { ApiError } from "./errors.ts";
 // What each endpoint accepts. These rules must match the database (profiles
 // table) and Supabase Auth's settings (config.toml), and Documents/api-contract.md.
 
+// The token from the "I'm not a robot" widget, sent with register and forgot
+// password. Required only while the check is switched on (humanCheck in
+// app.ts).
+const turnstileToken = z
+  .string({ error: "The robot check token must be text." })
+  .max(2048, "The robot check token is too long.")
+  .optional();
+
 export const registerSchema = z.object({
   username: z
     .string({ error: "Username is required." })
@@ -31,12 +39,7 @@ export const registerSchema = z.object({
   privacyConsent: z.literal(true, {
     error: "You must agree to the privacy notice.",
   }),
-  // The token from the "I'm not a robot" widget. Required only while the
-  // check is switched on (see humanCheck in app.ts).
-  turnstileToken: z
-    .string({ error: "The robot check token must be text." })
-    .max(2048, "The robot check token is too long.")
-    .optional(),
+  turnstileToken,
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -58,7 +61,11 @@ export const loginSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 
 // "Forgot password?": the player gives the username they log in with.
-export const forgotPasswordSchema = loginSchema.pick({ username: true });
+// It's also behind the robot check, so a script can't use it to flood
+// inboxes or use up the hourly email limit.
+export const forgotPasswordSchema = loginSchema
+  .pick({ username: true })
+  .extend({ turnstileToken });
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
