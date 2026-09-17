@@ -5,16 +5,16 @@
 // A mission only appears in the journal once the player has completed it.
 // Adding an entry here for a new mission grows the journal automatically.
 
-import closeDoorImg from './assets/prologue/CloseDoor.png'
-import outsideDoorImg from './assets/prologue/OutsideDoor.png'
-import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
-import schoolImg from './chapter1/Schoool.png'
-import classroomImg from './chapter1/classroom.png'
-import powerImg from './chapter1/power.png'
-import profClassroomImg from './chapter1/prof_classroom.jpg'
-import bookstoreImg from './chapter 2/bookstore.jpg'
-import noWifiImg from './chapter 2/no wifi.jpg'
-import pcImg from './chapter 2/pc.png'
+import closeDoorImg from './assets/prologue/CloseDoor.webp'
+import outsideDoorImg from './assets/prologue/OutsideDoor.webp'
+import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.webp'
+import schoolImg from './chapter1/Schoool.webp'
+import classroomImg from './chapter1/classroom.webp'
+import powerImg from './chapter1/power.webp'
+import profClassroomImg from './chapter1/prof_classroom.webp'
+import bookstoreImg from './chapter 2/bookstore.webp'
+import noWifiImg from './chapter 2/no wifi.webp'
+import pcImg from './chapter 2/pc.webp'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {

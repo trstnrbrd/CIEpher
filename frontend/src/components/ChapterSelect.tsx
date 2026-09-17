@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ApiError, getProgress, type Progress } from '../api/client'
 import GameTopBar from './GameTopBar'
-import levelboard from '../icons/levelboard.png'
+import levelboard from '../icons/levelboard.webp'
 import './ChapterSelect.css'
 
 interface ChapterSelectProps {

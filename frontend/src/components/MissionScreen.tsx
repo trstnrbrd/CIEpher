@@ -41,13 +41,13 @@ import {
   SUBMISSION_PAGE,
   WELCOME_GATE_PAGE,
 } from '../storyPages'
-import guardImg from '../chapter1/guard.png'
-import loginPcImg from '../chapter 2/LOGIN_PC.jpg'
-import loggedInImg from '../chapter 2/LOGGED_IN.jpg'
+import guardImg from '../chapter1/guard.webp'
+import loginPcImg from '../chapter 2/LOGIN_PC.webp'
+import loggedInImg from '../chapter 2/LOGGED_IN.webp'
 import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
-import boyImg from '../assets/boy.png'
-import girlImg from '../assets/girl.png'
+import boyImg from '../assets/boy.webp'
+import girlImg from '../assets/girl.webp'
 import CoreBreakdown from './CoreBreakdown'
 import ProgramFlow from './ProgramFlow'
 import CodeExplained from './CodeExplained'

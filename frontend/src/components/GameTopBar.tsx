@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import journalImg from '../icons/journal.png'
-import settingsImg from '../icons/settings.png'
+import journalImg from '../icons/journal.webp'
+import settingsImg from '../icons/settings.webp'
 import './GameTopBar.css'
 
 interface GameTopBarProps {

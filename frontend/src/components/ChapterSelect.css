@@ -14,7 +14,7 @@
   gap: calc(4 * var(--u));
   /* Keep the sign and the board above the grass strip at the bottom. */
   padding-bottom: max(calc(10 * var(--h)), 44px);
-  background: #5ccdfb url('/src/assets/welcome background.jpg') center / cover
+  background: #5ccdfb url('/src/assets/welcome background.webp') center / cover
     no-repeat;
   font-family: 'Press Start 2P', monospace;
 }

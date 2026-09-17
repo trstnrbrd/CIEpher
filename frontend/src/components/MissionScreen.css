@@ -12,7 +12,7 @@
   content: '';
   position: fixed;
   inset: 0;
-  background: url('/src/assets/background opening.jpg') no-repeat center;
+  background: url('/src/assets/background opening.webp') no-repeat center;
   background-size: cover;
   image-rendering: pixelated;
   z-index: -2;
@@ -292,13 +292,19 @@
   opacity: 1;
 }
 
+/* Buttons don't take the page's font by themselves, so the pixel font is set
+   here. It's wide enough for "CHECKING…" too, so the box doesn't jump. */
 .mission-execute {
   background: #f2ecd6;
   border: 3px solid #ad201d;
   border-radius: 999px;
   box-shadow: none;
   color: #080808;
-  min-width: 145px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(11px, 1.1vw, 16px);
+  line-height: 1.5;
+  padding: 0 20px;
+  min-width: calc(9ch + 48px);
 }
 
 .mission-execute:hover {
@@ -446,6 +452,7 @@
     min-height: 46px;
     min-width: 0;
     width: 100%;
+    font-size: 12px;
   }
 
   .mission-feedback,

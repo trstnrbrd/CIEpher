@@ -1,19 +1,19 @@
 // The reusable story beats played around the prologue's missions, grouped so
 // screens can call on them without mixing data into component files.
 
-import openDoorImg from './assets/prologue/OpenDoor.png'
-import outsideDoorImg from './assets/prologue/OutsideDoor.png'
-import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.png'
-import schoolImg from './chapter1/Schoool.png'
-import classroomImg from './chapter1/classroom.png'
-import powerImg from './chapter1/power.png'
-import profClassroomImg from './chapter1/prof_classroom.jpg'
-import guardImg from './chapter1/guard.png'
-import bookstoreImg from './chapter 2/bookstore.jpg'
-import connectedImg from './chapter 2/connected.jpg'
-import loginPcImg from './chapter 2/LOGIN_PC.jpg'
-import noWifiImg from './chapter 2/no wifi.jpg'
-import pcImg from './chapter 2/pc.png'
+import openDoorImg from './assets/prologue/OpenDoor.webp'
+import outsideDoorImg from './assets/prologue/OutsideDoor.webp'
+import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.webp'
+import schoolImg from './chapter1/Schoool.webp'
+import classroomImg from './chapter1/classroom.webp'
+import powerImg from './chapter1/power.webp'
+import profClassroomImg from './chapter1/prof_classroom.webp'
+import guardImg from './chapter1/guard.webp'
+import bookstoreImg from './chapter 2/bookstore.webp'
+import connectedImg from './chapter 2/connected.webp'
+import loginPcImg from './chapter 2/LOGIN_PC.webp'
+import noWifiImg from './chapter 2/no wifi.webp'
+import pcImg from './chapter 2/pc.webp'
 
 export type StoryPage = {
   bg: string

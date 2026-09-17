@@ -10,7 +10,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/src/assets/welcome background.jpg') center/cover no-repeat;
+  background: url('/src/assets/welcome background.webp') center/cover no-repeat;
   z-index: 0;
 }
 

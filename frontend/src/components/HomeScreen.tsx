@@ -1,6 +1,6 @@
 import type { Profile } from '../api/client'
-import boyImg from '../assets/boy.png'
-import girlImg from '../assets/girl.png'
+import boyImg from '../assets/boy.webp'
+import girlImg from '../assets/girl.webp'
 import GameTopBar from './GameTopBar'
 import './HomeScreen.css'
 

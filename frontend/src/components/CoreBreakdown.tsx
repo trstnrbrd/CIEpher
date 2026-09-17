@@ -1,5 +1,5 @@
 import type { CoreBreakdown as CoreBreakdownData } from '../lessons'
-import doorImg from '../assets/prologue/CloseDoor.png'
+import doorImg from '../assets/prologue/CloseDoor.webp'
 import './CoreBreakdown.css'
 
 interface CoreBreakdownProps {
