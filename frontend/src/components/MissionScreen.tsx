@@ -260,7 +260,11 @@ function MissionScreen({
       return lesson.questions[questionNumber - 1] ?? null
     }
     if (lesson?.prompt) {
-      return { prompt: lesson.prompt, choices: lesson.choices, code: lesson.code }
+      return {
+        prompt: lesson.prompt,
+        choices: lesson.choices,
+        code: lesson.code,
+      }
     }
     return null
   })()
@@ -843,7 +847,12 @@ function MissionScreen({
     setFeedback(null)
     setServerError(null)
     try {
-      const { correct } = await submitAnswer(chapter, mission, answer, questionNumber)
+      const { correct } = await submitAnswer(
+        chapter,
+        mission,
+        answer,
+        questionNumber,
+      )
       if (correct) {
         setWrongChars([])
         setMissingTail(false)
@@ -894,6 +903,7 @@ function MissionScreen({
         setServerError('Something went wrong. Please try again.')
       }
     } finally {
+      submittingRef.current = false
       setChecking(false)
     }
   }
@@ -921,29 +931,49 @@ function MissionScreen({
     setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
   }
 
-// The next post-correct step is a scene: its CONTINUE button starts it and
+  // The next post-correct step is a scene: its CONTINUE button starts it and
   // consumes the step. The scene's own onFinish then advances the mission.
   const consumeSceneStep = (): void => {
     const [head, ...rest] = steps
     if (head?.kind !== 'scene') return
     setSteps(rest)
     switch (head.id) {
-      case 'door': setDoorOpen(true); break
-      case 'animation': setShowingAnimation(true); break
-      case 'welcomeGate': setShowingWelcomeGate(true); break
-      case 'submission': setShowingSubmission(true); break
-      case 'scene11': setShowingCh2Scene11(true); break
-      case 'scene12': setShowingCh2Scene12(true); break
-      case 'scene21': setShowingCh2Scene21(true); break
-      case 'scene31': setShowingCh2Scene31(true); break
-      case 'scene32': setShowingCh2Scene32(true); break
-      case 'scene41': setShowingCh2Scene41(true); break
+      case 'door':
+        setDoorOpen(true)
+        break
+      case 'animation':
+        setShowingAnimation(true)
+        break
+      case 'welcomeGate':
+        setShowingWelcomeGate(true)
+        break
+      case 'submission':
+        setShowingSubmission(true)
+        break
+      case 'scene11':
+        setShowingCh2Scene11(true)
+        break
+      case 'scene12':
+        setShowingCh2Scene12(true)
+        break
+      case 'scene21':
+        setShowingCh2Scene21(true)
+        break
+      case 'scene31':
+        setShowingCh2Scene31(true)
+        break
+      case 'scene32':
+        setShowingCh2Scene32(true)
+        break
+      case 'scene41':
+        setShowingCh2Scene41(true)
+        break
     }
   }
 
   // A post-correct scene finished. If another scene waits in the queue, its
   // CONTINUE starts it; otherwise the mission advances as usual.
-const continueFromScene = (): void => {
+  const continueFromScene = (): void => {
     if (steps[0]?.kind === 'scene') {
       consumeSceneStep()
     } else {
@@ -1007,9 +1037,7 @@ const continueFromScene = (): void => {
   // one (progress was refreshed before reaching here), play the celebration;
   // otherwise head straight to the chapter list.
   const finishChapter = (): void => {
-    const nextChapter = progress?.chapters.find(
-      (c) => c.id === chapter + 1,
-    )
+    const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
     if (nextChapter?.unlocked) {
       setUnlockChapter(nextChapter.id)
     } else {
@@ -1256,8 +1284,8 @@ const continueFromScene = (): void => {
         />
       )}
 
-      {unlockChapter !== null && (
-        chapter === 1 || chapter === 2 ? (
+      {unlockChapter !== null &&
+        (chapter === 1 || chapter === 2 ? (
           // Finishing Chapter 1 opens Chapter 2 with the "THE CODE EXPLAINED"
           // recap of the if statement; finishing Chapter 2 opens Chapter 3 with
           // the if/else recap. Both replace the generic celebration.

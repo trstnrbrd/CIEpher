@@ -21,8 +21,8 @@
 //   ch2 m5  core only
 //
 // New levels just add a row here (or use the fallback below). Unknown missions
-// follow the default: explanation if the lesson has one, otherwise straight to
-// the continue buttons.
+// follow the default: an earlier question goes straight to the next one; the
+// last shows the explanation if the lesson has one, then the continue buttons.
 
 export type SceneId =
   | 'door'
@@ -41,38 +41,36 @@ export type CorrectStep =
   | { kind: 'scene'; id: SceneId }
   | { kind: 'advance-question' }
 
-const POST_CORRECT_STEPS: Record<
-  string,
-  (question: number) => CorrectStep[]
-> = {
-  '0:1': () => [{ kind: 'core' }, { kind: 'scene', id: 'door' }],
-  '0:2': () => [{ kind: 'core' }],
-  '0:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'animation' }],
-  '1:1': (question) =>
-    question === 1
-      ? [{ kind: 'advance-question' }]
-      : [{ kind: 'core' }, { kind: 'scene', id: 'welcomeGate' }],
-  '1:2': () => [{ kind: 'core' }],
-  '1:3': () => [{ kind: 'core' }],
-  '1:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'submission' }],
-  '1:5': () => [{ kind: 'core' }],
-  '2:1': (question) =>
-    question === 1
-      ? [
-          { kind: 'core' },
-          { kind: 'scene', id: 'scene11' },
-          { kind: 'advance-question' },
-        ]
-      : [{ kind: 'core' }, { kind: 'scene', id: 'scene12' }],
-  '2:2': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene21' }],
-  '2:3': () => [
-    { kind: 'core' },
-    { kind: 'scene', id: 'scene31' },
-    { kind: 'scene', id: 'scene32' },
-  ],
-  '2:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene41' }],
-  '2:5': () => [{ kind: 'core' }],
-}
+const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
+  {
+    '0:1': () => [{ kind: 'core' }, { kind: 'scene', id: 'door' }],
+    '0:2': () => [{ kind: 'core' }],
+    '0:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'animation' }],
+    '1:1': (question) =>
+      question === 1
+        ? [{ kind: 'advance-question' }]
+        : [{ kind: 'core' }, { kind: 'scene', id: 'welcomeGate' }],
+    '1:2': () => [{ kind: 'core' }],
+    '1:3': () => [{ kind: 'core' }],
+    '1:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'submission' }],
+    '1:5': () => [{ kind: 'core' }],
+    '2:1': (question) =>
+      question === 1
+        ? [
+            { kind: 'core' },
+            { kind: 'scene', id: 'scene11' },
+            { kind: 'advance-question' },
+          ]
+        : [{ kind: 'core' }, { kind: 'scene', id: 'scene12' }],
+    '2:2': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene21' }],
+    '2:3': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'scene31' },
+      { kind: 'scene', id: 'scene32' },
+    ],
+    '2:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene41' }],
+    '2:5': () => [{ kind: 'core' }],
+  }
 
 export function postCorrectSteps(
   chapter: number,
@@ -85,11 +83,12 @@ export function postCorrectSteps(
   if (row) {
     return row(question)
   }
-  // Future levels: the lesson's explanation if it has one, then the continue
-  // buttons. Multi-question missions without an extra scene show the next
-  // question once progress reflects the last question, so add a row when one
-  // is released.
-  void totalQuestions
+  // Future levels: an earlier question moves on to the next one; the last
+  // question shows the lesson's explanation if it has one, then the continue
+  // buttons. Add a row when a level needs scenes.
+  if (question < totalQuestions) {
+    return [{ kind: 'advance-question' }]
+  }
   return hasLearningScreen ? [{ kind: 'core' }] : []
 }
 
