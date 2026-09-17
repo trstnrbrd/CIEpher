@@ -29,15 +29,26 @@ import {
   CH2_UPLOAD_LINE_PAGE,
   CH2_WIFI_ON_PAGE,
   CH2_WIFI_SETUP_PAGE,
+  CLASSROOM_ARRIVAL_PAGE,
+  CLASSROOM_ATTENDANCE_RECORDED_PAGE,
+  CLASSROOM_CORRECT_PAGE,
+  CLASSROOM_KIOSK_PAGE,
   CLASSROOM_PAGE,
+  CLASSROOM_SITUATION_PAGE,
   HOMEWORK_PAGE,
   JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
+  PROGRAMMING_LAB_ENTRY_PAGE,
+  PROGRAMMING_LAB_CORRECT_PAGE,
   PROGRAMMING_LAB_PAGE,
+  PROGRAMMING_LAB_SITUATION_PAGE,
   QUIZ_ANNOUNCEMENT_PAGE,
   REYES_CLOSING_PAGE,
   SCHOOL_GATE_PAGE,
+  SCHOOL_GATE_CHOICE_CORRECT_PAGE,
+  SCHOOL_GATE_SYNTAX_CORRECT_PAGE,
+  SCHOOL_GATE_SITUATION_PAGE,
   SUBMISSION_PAGE,
   WELCOME_GATE_PAGE,
 } from '../storyPages'
@@ -120,6 +131,11 @@ function MissionScreen({
   const [showingSchoolGate, setShowingSchoolGate] = useState<boolean>(
     chapter === 1 && mission === 1,
   )
+  // Chapter 1, mission 1: the Correct card after question 1 ("if"), before
+  // the syntax challenge.
+  const [showingGateCorrect, setShowingGateCorrect] = useState<boolean>(false)
+  const [showingGateSyntaxCorrect, setShowingGateSyntaxCorrect] =
+    useState<boolean>(false)
   // Chapter 1, scene 1.2: after mission 1's explanation, the guard welcomes
   // the player and the hallway video plays into the university.
   const [showingWelcomeGate, setShowingWelcomeGate] = useState<boolean>(false)
@@ -128,6 +144,12 @@ function MissionScreen({
   const [showingClassroom, setShowingClassroom] = useState<boolean>(
     chapter === 1 && mission === 2,
   )
+  const [showingClassroomCorrect, setShowingClassroomCorrect] =
+    useState<boolean>(false)
+  const [showingClassroomAttendance, setShowingClassroomAttendance] =
+    useState<boolean>(false)
+  const [showingProgrammingLabCorrect, setShowingProgrammingLabCorrect] =
+    useState<boolean>(false)
   // Chapter 1, scene 3.1: mission 3 opens in the Programming Laboratory as
   // the player finds the assigned computer turned off before the challenge.
   const [showingComputer, setShowingComputer] = useState<boolean>(
@@ -315,8 +337,23 @@ function MissionScreen({
       case 'animation':
         setShowingAnimation(true)
         break
+      case 'gateCorrect':
+        setShowingGateCorrect(true)
+        break
+      case 'gateSyntaxCorrect':
+        setShowingGateSyntaxCorrect(true)
+        break
       case 'welcomeGate':
         setShowingWelcomeGate(true)
+        break
+      case 'classroomCorrect':
+        setShowingClassroomCorrect(true)
+        break
+      case 'classroomAttendance':
+        setShowingClassroomAttendance(true)
+        break
+      case 'programmingLabCorrect':
+        setShowingProgrammingLabCorrect(true)
         break
       case 'submission':
         setShowingSubmission(true)
@@ -530,8 +567,33 @@ function MissionScreen({
       <>
         <PrologueStory
           character={character}
-          pages={[SCHOOL_GATE_PAGE]}
+          pages={[SCHOOL_GATE_PAGE, SCHOOL_GATE_SITUATION_PAGE]}
           onFinish={() => setShowingSchoolGate(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 1, mission 1: question 1 was right, so the Correct card plays
+  // over the gate scene, then the syntax challenge.
+  if (showingGateCorrect) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[SCHOOL_GATE_CHOICE_CORRECT_PAGE]}
+          onFinish={() => {
+            setShowingGateCorrect(false)
+            continueFromScene()
+          }}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -552,8 +614,62 @@ function MissionScreen({
       <>
         <PrologueStory
           character={character}
-          pages={[CLASSROOM_PAGE]}
+          pages={[
+            CLASSROOM_ARRIVAL_PAGE,
+            CLASSROOM_KIOSK_PAGE,
+            CLASSROOM_PAGE,
+            CLASSROOM_SITUATION_PAGE,
+          ]}
           onFinish={() => setShowingClassroom(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Mission 2's Correct card appears after Understand the Core and before
+  // the player continues to the next mission.
+  if (showingClassroomCorrect) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CLASSROOM_CORRECT_PAGE]}
+          onFinish={() => {
+            setShowingClassroomCorrect(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Mission 2's kiosk confirms the attendance after the Correct card.
+  if (showingClassroomAttendance) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CLASSROOM_ATTENDANCE_RECORDED_PAGE]}
+          onFinish={() => {
+            setShowingClassroomAttendance(false)
+            continueFromScene()
+          }}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -574,8 +690,36 @@ function MissionScreen({
       <>
         <PrologueStory
           character={character}
-          pages={[PROGRAMMING_LAB_PAGE]}
+          pages={[
+            PROGRAMMING_LAB_ENTRY_PAGE,
+            PROGRAMMING_LAB_PAGE,
+            PROGRAMMING_LAB_SITUATION_PAGE,
+          ]}
           onFinish={() => setShowingComputer(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Mission 3's Correct card appears after Understand the Core.
+  if (showingProgrammingLabCorrect) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[PROGRAMMING_LAB_CORRECT_PAGE]}
+          onFinish={() => {
+            setShowingProgrammingLabCorrect(false)
+            continueFromScene()
+          }}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -620,6 +764,31 @@ function MissionScreen({
           character={character}
           pages={[QUIZ_ANNOUNCEMENT_PAGE]}
           onFinish={() => setShowingQuiz(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 1, mission 1: the syntax answer was right, so show the separate
+  // explanation card before the guard welcomes the player.
+  if (showingGateSyntaxCorrect) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[SCHOOL_GATE_SYNTAX_CORRECT_PAGE]}
+          onFinish={() => {
+            setShowingGateSyntaxCorrect(false)
+            continueFromScene()
+          }}
           onJournal={onJournal}
           onSettings={onSettings}
         />

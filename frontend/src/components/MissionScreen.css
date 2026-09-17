@@ -80,7 +80,11 @@
   z-index: -1;
 }
 
+/* Above the scene's guard and player sprites (z 0), so they stand behind
+   the question card instead of covering it. */
 .mission-content {
+  position: relative;
+  z-index: 1;
   width: min(960px, 92vw);
   max-width: 100%;
   display: flex;

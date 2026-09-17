@@ -6,6 +6,7 @@ import outsideDoorImg from './assets/prologue/OutsideDoor.webp'
 import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.webp'
 import schoolImg from './chapter1/Schoool.webp'
 import classroomImg from './chapter1/classroom.webp'
+import hallwayImg from './chapter1/Hallway.webp'
 import powerImg from './chapter1/power.webp'
 import profClassroomImg from './chapter1/prof_classroom.webp'
 import guardImg from './chapter1/guard.webp'
@@ -30,9 +31,16 @@ export type StoryPage = {
   professor?: boolean
   // Which character says the lines. Defaults to the player.
   speaker?: 'player' | 'guard' | 'kiosk' | 'professor'
+  // Use the yellow kiosk dialog treatment for scene-specific machine prompts.
+  bubble?: 'yellow'
   // Hide the player sprite: some scenes already draw the people into the
   // background art, so a separate sprite would double them up.
   noSprite?: boolean
+  // A card with this title instead of a speech bubble, like the chapter
+  // docs' "Situation" before a question or "Correct" after an answer:
+  // `lines` are its paragraphs, shown in full over the same scene, with a
+  // Next button.
+  card?: string
 }
 
 // The story beat right after mission 1's explanation closes: the door swings
@@ -73,6 +81,47 @@ export const SCHOOL_GATE_PAGE: StoryPage = {
   speaker: 'guard',
 }
 
+// Chapter 1, mission 1's situation, over the same gate scene, before its
+// first question.
+export const SCHOOL_GATE_SITUATION_PAGE: StoryPage = {
+  bg: schoolImg,
+  lines: [
+    'The university follows a No ID, No Entry policy.',
+    'Before writing the program, determine the correct control structure for this situation.',
+  ],
+  align: 'left',
+  guard: true,
+  card: 'SITUATION',
+}
+
+// Chapter 1, mission 1: after the if/while choice is answered right, before
+// the syntax challenge.
+export const SCHOOL_GATE_CHOICE_CORRECT_PAGE: StoryPage = {
+  bg: schoolImg,
+  lines: [
+    'The if statement is used because the action should happen only when a condition is true.',
+    'In this case:',
+    'If the student has a valid ID, the gate opens.',
+  ],
+  align: 'left',
+  guard: true,
+  card: 'Correct',
+}
+
+// Chapter 1, mission 1: after the syntax answer is correct, before the guard
+// welcomes the player into the university.
+export const SCHOOL_GATE_SYNTAX_CORRECT_PAGE: StoryPage = {
+  bg: schoolImg,
+  lines: [
+    'The if statement executes a block of code only when its condition is true.',
+    '✓ Used to check a single condition.',
+    '✓ Executes only when the condition is true.',
+  ],
+  align: 'left',
+  guard: true,
+  card: 'Correct',
+}
+
 // Chapter 1 Scene 1.2 — After the gate exercise, the guard lets the player in.
 export const WELCOME_GATE_PAGE: StoryPage = {
   bg: schoolImg,
@@ -82,22 +131,82 @@ export const WELCOME_GATE_PAGE: StoryPage = {
   speaker: 'guard',
 }
 
-// Chapter 1 Scene 2.1 — The player arrives outside the classroom. The
-// attendance kiosk asks for the ID before the if-statement challenge.
-export const CLASSROOM_PAGE: StoryPage = {
-  bg: classroomImg,
-  lines: ['Scan your ID to record your attendance.'],
+// Chapter 1 Scene 2.1 — The player arrives outside the classroom.
+export const CLASSROOM_ARRIVAL_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['The player arrives outside the classroom.'],
+}
+
+// The attendance kiosk is waiting before it asks the player to scan an ID.
+export const CLASSROOM_KIOSK_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['A digital attendance kiosk is waiting for students.'],
   speaker: 'kiosk',
 }
 
-// Chapter 1 Scene 3.1 — The player enters the Programming Laboratory and
-// finds the assigned computer turned off before the hasPower challenge.
+// The attendance kiosk asks for the ID before the if-statement challenge.
+export const CLASSROOM_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['Scan your ID to record your attendance.'],
+  speaker: 'kiosk',
+  bubble: 'yellow',
+}
+
+// Chapter 1 Mission 2 — the situation shown after the ID scan prompt and
+// before the control-structure question.
+export const CLASSROOM_SITUATION_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['The attendance system should only record students who are present.'],
+  card: 'SITUATION',
+}
+
+// Chapter 1 Mission 2 — after the syntax explanation, remind the player why
+// the braces are required before continuing to the next mission.
+export const CLASSROOM_CORRECT_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['Remember to use braces { } to define the block of code.'],
+  card: 'Correct',
+}
+
+// Chapter 1 Mission 2 — the attendance kiosk confirms the recorded entry.
+export const CLASSROOM_ATTENDANCE_RECORDED_PAGE: StoryPage = {
+  bg: hallwayImg,
+  lines: ['Attendance Recorded'],
+  speaker: 'kiosk',
+  bubble: 'yellow',
+}
+
+// Chapter 1 Mission 3 — the player enters the Programming Laboratory.
+export const PROGRAMMING_LAB_ENTRY_PAGE: StoryPage = {
+  bg: classroomImg,
+  pos: '50% 100%',
+  lines: ['The player enters the Programming Laboratory.'],
+}
+
+// The assigned computer is turned off before the hasPower challenge. The
+// classroom artwork already shows the computer, so no extra character sprite
+// is drawn on this second scene.
 export const PROGRAMMING_LAB_PAGE: StoryPage = {
   bg: powerImg,
-  lines: [
-    'You enter the Programming Laboratory.',
-    'The assigned computer is turned off.',
-  ],
+  lines: ['The assigned computer is turned off.'],
+  noSprite: true,
+}
+
+// Chapter 1 Mission 3 — the situation shown before the power question.
+export const PROGRAMMING_LAB_SITUATION_PAGE: StoryPage = {
+  bg: powerImg,
+  lines: ['The computer should only turn on if power is available.'],
+  noSprite: true,
+  card: 'Situation',
+}
+
+// Chapter 1 Mission 3 — reinforce the semicolon rule after the core
+// explanation before continuing to the next mission.
+export const PROGRAMMING_LAB_CORRECT_PAGE: StoryPage = {
+  bg: powerImg,
+  lines: ["Don't forget the semicolon (;) at the end of every statement."],
+  noSprite: true,
+  card: 'Correct',
 }
 
 // Chapter 1 Scene 3.2 — mission 4 opens in the professor's classroom as a
@@ -194,10 +303,7 @@ export const CH2_WIFI_SETUP_PAGE: StoryPage = {
 export const CH2_WIFI_ON_PAGE: StoryPage = {
   bg: connectedImg,
   noSprite: true,
-  lines: [
-    'The Wi-Fi icon turns green.',
-    'The computer connects successfully.',
-  ],
+  lines: ['The Wi-Fi icon turns green.', 'The computer connects successfully.'],
 }
 
 // Chapter 2, Scene 2.2 — the player heads to the learning portal.

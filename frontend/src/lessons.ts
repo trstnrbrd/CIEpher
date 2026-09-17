@@ -217,8 +217,7 @@ const LESSONS: Record<string, Lesson> = {
     sceneBg: schoolImg,
     questions: [
       {
-        prompt:
-          'Which C# control structure should be used?\nIf the student has a valid school ID, the student can enter the university.',
+        prompt: 'Which C# control structure is most appropriate?',
         choices: ['if', 'while'],
         code: 'if',
       },

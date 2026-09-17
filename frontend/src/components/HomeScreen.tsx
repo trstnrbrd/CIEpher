@@ -1,6 +1,5 @@
 import type { Profile } from '../api/client'
-import boyImg from '../assets/boy.webp'
-import girlImg from '../assets/girl.webp'
+import { CHARACTER_ART, fitVariables } from '../characters'
 import GameTopBar from './GameTopBar'
 import './HomeScreen.css'
 
@@ -19,6 +18,8 @@ function HomeScreen({
   onJournal,
   onSettings,
 }: HomeScreenProps) {
+  const art = profile.character ? CHARACTER_ART[profile.character] : null
+
   return (
     <div className="home-screen">
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
@@ -26,13 +27,14 @@ function HomeScreen({
         <p className="home-kicker">PLAYER HUB</p>
         <h1 className="home-title">CIEPHER</h1>
         <p className="home-welcome">Welcome, {profile.username}!</p>
-        {profile.character && (
+        {art && (
           <div className="home-character">
             <span className="home-avatar-label">{profile.character}</span>
             <img
               className="home-avatar"
-              src={profile.character === 'boy' ? boyImg : girlImg}
-              alt={profile.character}
+              src={art.img}
+              alt={art.alt}
+              style={fitVariables(art.fit)}
             />
           </div>
         )}

@@ -23,13 +23,6 @@
   z-index: 0;
 }
 
-.welcome-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.08);
-  z-index: 1;
-}
-
 /* ── CLOUDS ── */
 .cloud-layer {
   position: absolute;

@@ -53,7 +53,6 @@ function WelcomeScreen({ onLoggedIn, loginNotice = '' }: WelcomeScreenProps) {
     <>
       <div className={`welcome-screen ${authView ? 'blurred' : ''}`}>
         <div className="welcome-bg" />
-        <div className="welcome-overlay" />
 
         <div className="cloud-layer">
           <div className="cloud cloud-1" />

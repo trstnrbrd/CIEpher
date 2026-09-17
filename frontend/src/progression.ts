@@ -9,9 +9,9 @@
 //   ch0 m1  core -> door scene
 //   ch0 m2  core only
 //   ch0 m3  core -> sakay animation
-//   ch1 m1  q1 next question, q2 core -> welcome-gate scene
-//   ch1 m2  core only
-//   ch1 m3  core only
+//   ch1 m1  q1 Correct card -> next question, q2 core -> syntax Correct card -> welcome-gate scene
+//   ch1 m2  core -> Correct card -> attendance-recorded scene
+//   ch1 m3  core -> Correct card
 //   ch1 m4  core -> submission scene
 //   ch1 m5  core only (shows as Program Flow)
 //   ch2 m1  q1 core -> purchase scene -> next question; q2 core -> scene 1.2
@@ -27,7 +27,12 @@
 export type SceneId =
   | 'door'
   | 'animation'
+  | 'gateCorrect'
+  | 'gateSyntaxCorrect'
   | 'welcomeGate'
+  | 'classroomCorrect'
+  | 'classroomAttendance'
+  | 'programmingLabCorrect'
   | 'submission'
   | 'scene11'
   | 'scene12'
@@ -48,10 +53,21 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
     '0:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'animation' }],
     '1:1': (question) =>
       question === 1
-        ? [{ kind: 'advance-question' }]
-        : [{ kind: 'core' }, { kind: 'scene', id: 'welcomeGate' }],
-    '1:2': () => [{ kind: 'core' }],
-    '1:3': () => [{ kind: 'core' }],
+        ? [{ kind: 'scene', id: 'gateCorrect' }, { kind: 'advance-question' }]
+        : [
+            { kind: 'core' },
+            { kind: 'scene', id: 'gateSyntaxCorrect' },
+            { kind: 'scene', id: 'welcomeGate' },
+          ],
+    '1:2': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'classroomCorrect' },
+      { kind: 'scene', id: 'classroomAttendance' },
+    ],
+    '1:3': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'programmingLabCorrect' },
+    ],
     '1:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'submission' }],
     '1:5': () => [{ kind: 'core' }],
     '2:1': (question) =>

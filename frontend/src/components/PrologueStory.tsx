@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Character } from '../api/client'
-import boyImg from '../assets/boy.webp'
-import girlImg from '../assets/girl.webp'
+import { CHARACTER_ART, fitVariables, type CharacterFit } from '../characters'
 import guardImg from '../chapter1/guard.webp'
 import professorImg from '../chapter 2/professor.webp'
 import bedroomImg from '../assets/prologue/player bedroom.webp'
@@ -35,6 +34,9 @@ const PAGES: StoryPage[] = [
   },
 ]
 
+// Where the guard stands inside his picture, like CHARACTER_ART's fits.
+const GUARD_FIT: CharacterFit = { top: 0.162, bottom: 0.858, middle: 0.4965 }
+
 // One character every 26 ms (~38 chars / sec), like the welcome screens.
 const CHAR_MS = 26
 
@@ -63,13 +65,24 @@ function PrologueStory({
   const [count, setCount] = useState(0)
 
   const list = pages ?? PAGES
-  const { bg, lines, pos, align, guard, professor, speaker, noSprite } =
-    list[page]
+  const {
+    bg,
+    lines,
+    pos,
+    align,
+    guard,
+    professor,
+    speaker,
+    bubble,
+    noSprite,
+    card,
+  } = list[page]
   const guardSpeaking = speaker === 'guard' && guard
   const kioskSpeaking = speaker === 'kiosk'
   const professorSpeaking = speaker === 'professor'
   const { starts, total } = lineStarts(lines)
-  const done = count >= total
+  // A card shows its text in full straight away.
+  const done = card !== undefined || count >= total
   const last = page === list.length - 1
 
   // Typewriter: re-runs for each new page and counts up to its total.
@@ -104,10 +117,11 @@ function PrologueStory({
     }
   }
 
-  // Advance or finish on Enter.
+  // Advance or finish on Enter. On a focused button (the bubble, Next) the
+  // button's own click already does it, so it isn't done twice.
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key !== 'Enter') return
+      if (e.key !== 'Enter' || e.target instanceof HTMLButtonElement) return
       if (!done) {
         setCount(total)
       } else if (page === list.length - 1) {
@@ -121,13 +135,17 @@ function PrologueStory({
     return () => window.removeEventListener('keydown', onKey)
   }, [done, page, total, onFinish, list.length])
 
-  const sprite = character === 'boy' ? boyImg : girlImg
+  const art = CHARACTER_ART[character]
   const personClass = ['story-person']
   if (align === 'left') personClass.push('story-person-left')
   if (align === 'right') personClass.push('story-person-right')
 
+  // The school gate pages (the ones with the guard) have their own layout,
+  // from Tristan's mockup: see .story-scene-guard.
   return (
-    <div className="prologue-story">
+    <div
+      className={guard ? 'prologue-story story-scene-guard' : 'prologue-story'}
+    >
       <img
         className="story-bg"
         src={bg}
@@ -135,40 +153,67 @@ function PrologueStory({
         style={{ objectPosition: pos ?? '55% 100%' }}
       />
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
-      <button
-        type="button"
-        className={[
-          'story-bubble',
-          `story-bubble-${character}`,
-          guardSpeaking ? 'story-bubble-guard' : '',
-          kioskSpeaking ? 'story-bubble-kiosk' : '',
-          professorSpeaking ? 'story-bubble-professor' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        onClick={tapBubble}
-      >
-        <span className="story-text">
-          {lines.map((line, i) => {
-            const shown = Math.max(0, Math.min(line.length, count - starts[i]))
-            return (
-              <span key={i} className="story-line">
-                {line.slice(0, shown)}
-                {i === activeLine && (
-                  <span className="story-caret" aria-hidden="true" />
-                )}
-                <span className="story-rest">{line.slice(shown)}</span>
-              </span>
-            )
-          })}
-        </span>
-        <span className={done ? 'story-tap' : 'story-tap story-tap-hidden'}>
-          Tap to next
-        </span>
-      </button>
+      {card !== undefined ? (
+        <section className="story-card" aria-labelledby="story-card-title">
+          <div className="story-card-box">
+            <h2 id="story-card-title" className="story-card-title">
+              {card}
+            </h2>
+            {lines.map((line) => (
+              <p key={line} className="story-card-text">
+                {line}
+              </p>
+            ))}
+          </div>
+          <button type="button" className="story-card-next" onClick={advance}>
+            Next
+          </button>
+        </section>
+      ) : (
+        <button
+          type="button"
+          className={[
+            'story-bubble',
+            `story-bubble-${character}`,
+            guardSpeaking ? 'story-bubble-guard' : '',
+            kioskSpeaking ? 'story-bubble-kiosk' : '',
+            professorSpeaking ? 'story-bubble-professor' : '',
+            bubble === 'yellow' ? 'story-bubble-yellow' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          onClick={tapBubble}
+        >
+          <span className="story-text">
+            {lines.map((line, i) => {
+              const shown = Math.max(
+                0,
+                Math.min(line.length, count - starts[i]),
+              )
+              return (
+                <span key={i} className="story-line">
+                  {line.slice(0, shown)}
+                  {i === activeLine && (
+                    <span className="story-caret" aria-hidden="true" />
+                  )}
+                  <span className="story-rest">{line.slice(shown)}</span>
+                </span>
+              )
+            })}
+          </span>
+          <span className={done ? 'story-tap' : 'story-tap story-tap-hidden'}>
+            Tap to next
+          </span>
+        </button>
+      )}
 
       {guard && (
-        <img className="story-guard" src={guardImg} alt="Security guard" />
+        <img
+          className="story-guard"
+          src={guardImg}
+          alt="Security guard"
+          style={fitVariables(GUARD_FIT)}
+        />
       )}
       {professor && (
         <img
@@ -178,7 +223,12 @@ function PrologueStory({
         />
       )}
       {!noSprite && (
-        <img className={personClass.join(' ')} src={sprite} alt={character} />
+        <img
+          className={personClass.join(' ')}
+          src={art.img}
+          alt={character}
+          style={fitVariables(art.fit)}
+        />
       )}
     </div>
   )
