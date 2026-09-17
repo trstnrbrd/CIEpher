@@ -7,7 +7,7 @@
   inset: 0;
   z-index: 90;
   overflow: hidden;
-  background: #5ccdfb url('/src/assets/welcome background.jpg') center / cover
+  background: #5ccdfb url('/src/assets/welcome background.webp') center / cover
     no-repeat;
   font-family: 'Press Start 2P', monospace;
 }

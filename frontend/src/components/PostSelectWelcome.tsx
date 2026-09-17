@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { Character } from '../api/client'
-import boyImg from '../assets/boy.png'
-import girlImg from '../assets/girl.png'
-import welcomerImg from '../assets/welcomeperson.png'
+import boyImg from '../assets/boy.webp'
+import girlImg from '../assets/girl.webp'
+import welcomerImg from '../assets/welcomeperson.webp'
 import './PostSelectWelcome.css'
 
 interface PostSelectWelcomeProps {

@@ -13,12 +13,14 @@ interface JournalShelfProps {
   onExit: () => void
 }
 
-// The client's book pictures, by lesson number: src/icons/lesson1-book.png,
-// lesson2-book.png and so on. Dropping a new file in that folder is enough;
-// a lesson without a picture keeps the drawn book below.
+// The client's book pictures, by lesson number: src/icons/lesson1-book.webp,
+// lesson2-book.webp and so on (.png works too). Dropping a new file in that
+// folder is enough; a lesson without a picture keeps the drawn book below.
+// Each picture uses lesson 1's canvas (567 x 440, the book in the same spot),
+// which JournalShelf.css is measured on.
 const BOOK_PICTURES: Record<number, string> = Object.fromEntries(
   Object.entries(
-    import.meta.glob<{ default: string }>('../icons/lesson*-book.png', {
+    import.meta.glob<{ default: string }>('../icons/lesson*-book.{webp,png}', {
       eager: true,
     }),
   ).flatMap(([path, module]) => {

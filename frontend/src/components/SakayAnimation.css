@@ -31,8 +31,14 @@
   background: #000000;
 }
 
+/* Same look as the mission screen's blue NEXT MISSION button. */
 .sakay-skip {
   background: #2b6dd4;
+  border-radius: 0 !important;
+  padding: 14px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
 }
 
 .sakay-skip:hover {

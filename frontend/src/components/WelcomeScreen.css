@@ -19,7 +19,7 @@
 .welcome-bg {
   position: absolute;
   inset: 0;
-  background: url('/src/assets/background opening.jpg') center/cover no-repeat;
+  background: url('/src/assets/background opening.webp') center/cover no-repeat;
   z-index: 0;
 }
 
