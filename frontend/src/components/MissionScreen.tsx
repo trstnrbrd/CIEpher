@@ -158,6 +158,11 @@ function MissionScreen({
   const [showingCh2Scene2, setShowingCh2Scene2] = useState<boolean>(
     chapter === 2 && mission === 2,
   )
+  // Chapter 2, Scene 2.2 opening: mission 3 opens as the player heads to the
+  // learning portal before the login syntax challenge appears.
+  const [showingCh2Scene22, setShowingCh2Scene22] = useState<boolean>(
+    chapter === 2 && mission === 3,
+  )
   // Chapter 2, Scene 3: the portal opens, then the player needs to upload.
   const [showingCh2Scene31, setShowingCh2Scene31] = useState<boolean>(false)
   // Chapter 2, Scene 4: the submission is accepted, then the professor
@@ -624,18 +629,39 @@ function MissionScreen({
     )
   }
 
-  // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects,
-  // then the player heads to the learning portal for mission 3.
+  // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects.
   if (showingCh2Scene21) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[CH2_WIFI_ON_PAGE, CH2_PORTAL_LINE_PAGE]}
+          pages={[CH2_WIFI_ON_PAGE]}
           onFinish={() => {
             setShowingCh2Scene21(false)
             advanceAfterSuccess()
           }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 2.2: mission 3 opens as the player heads to the learning
+  // portal before the login syntax challenge appears.
+  if (showingCh2Scene22) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_PORTAL_LINE_PAGE]}
+          onFinish={() => setShowingCh2Scene22(false)}
           onJournal={onJournal}
           onSettings={onSettings}
         />
