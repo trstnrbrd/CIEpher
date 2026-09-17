@@ -12,6 +12,7 @@ import {
   readQuestionHint,
   saveQuestionHint,
   type CorrectStep,
+  type SceneId,
 } from '../progression'
 import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
@@ -213,9 +214,9 @@ function MissionScreen({
   // next level unlocking before the player returns to the chapter list.
   // Holds the chapter id being unlocked (the one after the current one).
   const [unlockChapter, setUnlockChapter] = useState<number | null>(null)
-  // After a correct answer, the remaining steps of this mission's post-correct
-  // flow (explanation, next scene, on to the next question) are consumed one
-  // by one. When empty plus solved/completed, the next-mission buttons show.
+  // After a correct answer, the steps of this mission's post-correct flow
+  // (explanation, next scene, on to the next question) still to come after
+  // the one on screen. Each plays as soon as the one before it closes.
   const [steps, setSteps] = useState<CorrectStep[]>([])
   // True once a correct answer starts the post-correct flow this session, so
   // the terminal buttons and the background swap don't depend on the popup.
@@ -228,7 +229,7 @@ function MissionScreen({
     try {
       const p = await getProgress()
       setProgress(p)
-      clearCompletedHint(p)
+      clearCompletedHint(p, false)
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         onUnauthorized()
@@ -236,18 +237,20 @@ function MissionScreen({
     }
   }
 
-  // A finished mission never resumes mid-way: drop its stored question hint
-  // and start any replay from question 1 again. Runs when progress arrives,
-  // never synchronously during a render.
+  // A finished mission never resumes mid-way: drop its stored question hint.
+  // `restart` (only when the screen opens) also starts a replay from question
+  // 1; right after the last answer the question stays put, so the screen
+  // behind its explanation and scenes doesn't jump back to question 1. Runs
+  // when progress arrives, never synchronously during a render.
   const clearCompletedHint = useCallback(
-    (p: Progress): void => {
+    (p: Progress, restart: boolean): void => {
       const chapterState = p.chapters.find((c) => c.id === chapter)
       const missionState = chapterState?.missions.find(
         (m) => m.number === mission,
       )
       if (missionState?.completed) {
         clearQuestionHint(chapter, mission)
-        setQuestionNumber(1)
+        if (restart) setQuestionNumber(1)
       }
     },
     [chapter, mission],
@@ -280,7 +283,7 @@ function MissionScreen({
       .then((p) => {
         if (!active) return
         setProgress(p)
-        clearCompletedHint(p)
+        clearCompletedHint(p, true)
       })
       .catch((err) => {
         if (!active) return
@@ -298,6 +301,133 @@ function MissionScreen({
       active = false
     }
   }, [onUnauthorized, clearCompletedHint])
+
+  // The handlers below are declared before the early returns on purpose:
+  // the story scenes further down return early and call them when they
+  // finish, and a const declared after an early return doesn't exist yet in
+  // that render (calling it throws).
+
+  const showScene = (id: SceneId): void => {
+    switch (id) {
+      case 'door':
+        setDoorOpen(true)
+        break
+      case 'animation':
+        setShowingAnimation(true)
+        break
+      case 'welcomeGate':
+        setShowingWelcomeGate(true)
+        break
+      case 'submission':
+        setShowingSubmission(true)
+        break
+      case 'scene11':
+        setShowingCh2Scene11(true)
+        break
+      case 'scene12':
+        setShowingCh2Scene12(true)
+        break
+      case 'scene21':
+        setShowingCh2Scene21(true)
+        break
+      case 'scene31':
+        setShowingCh2Scene31(true)
+        break
+      case 'scene32':
+        setShowingCh2Scene32(true)
+        break
+      case 'scene41':
+        setShowingCh2Scene41(true)
+        break
+    }
+  }
+
+  // Plays the first step of `queue` right away and keeps the rest in `steps`:
+  // the explanation, a scene, or the next question. An empty queue moves
+  // straight on to the next mission (or the end of the chapter).
+  const playNextStep = (queue: CorrectStep[]): void => {
+    const [head, ...rest] = queue
+    if (!head) {
+      setSteps([])
+      advanceAfterSuccess()
+    } else if (head.kind === 'advance-question') {
+      applyAdvanceQuestion()
+    } else {
+      setSteps(rest)
+      if (head.kind === 'core') setShowCore(true)
+      else showScene(head.id)
+    }
+  }
+
+  // A post-correct scene finished: play whatever comes after it.
+  const continueFromScene = (): void => playNextStep(steps)
+
+  // The next step is the mission's second (or later) question: move on and
+  // remember which one, so a refresh in the same session resumes there.
+  const applyAdvanceQuestion = (): void => {
+    const total = lesson?.questions?.length ?? 1
+    const next = Math.min(questionNumber + 1, total)
+    saveQuestionHint(chapter, mission, next)
+    setQuestionNumber(next)
+    setSolved(false)
+    setSteps([])
+  }
+
+  // A correct answer starts the post-correct flow defined for this level by
+  // progression.ts: the explanation opens at once, and closing it (or a
+  // scene ending) plays the next step. Only a level with nothing to show
+  // confirms the answer on the challenge and waits for the continue button.
+  const beginPostCorrect = (): void => {
+    const total = lesson?.questions?.length ?? 1
+    const nextSteps = postCorrectSteps(
+      chapter,
+      mission,
+      questionNumber,
+      total,
+      !!(lesson?.core || lesson?.programFlow),
+    )
+    setSolved(true)
+    if (nextSteps.length === 0) {
+      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+      return
+    }
+    playNextStep(nextSteps)
+  }
+
+  // The sakay animation finished (or was skipped): continue to the next scene.
+  const closeAnimation = (): void => {
+    setShowingAnimation(false)
+    advanceAfterSuccess()
+  }
+
+  const nextMission = (() => {
+    if (!progress) return null
+    const missions = progress.chapters.find((c) => c.id === chapter)?.missions
+    if (!missions) return null
+    const index = missions.findIndex((m) => m.number === mission)
+    const next = missions[index + 1]
+    return next && next.unlocked ? next.number : null
+  })()
+
+  // This run finished the whole chapter: if the server just unlocked the next
+  // one (progress was refreshed before reaching here), play the celebration;
+  // otherwise head straight to the chapter list.
+  const finishChapter = (): void => {
+    const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
+    if (nextChapter?.unlocked) {
+      setUnlockChapter(nextChapter.id)
+    } else {
+      onChapter()
+    }
+  }
+
+  const advanceAfterSuccess = (): void => {
+    if (nextMission !== null) {
+      onOpenMission(chapter, nextMission)
+    } else {
+      finishChapter()
+    }
+  }
 
   // Wait for the player's progress before showing any story or challenge, so
   // nothing flashes (like the "coming soon" empty state) while it loads. A
@@ -842,7 +972,6 @@ function MissionScreen({
       return
     }
     submittingRef.current = true
-    const wasCompleted = missionStatus.completed
     setChecking(true)
     setFeedback(null)
     setServerError(null)
@@ -859,16 +988,9 @@ function MissionScreen({
         setWrongChoiceIndex(null)
         setAnswer('')
         await refreshProgress()
-        if (wasCompleted) {
-          // Replaying an already-cleared mission only confirms the answer;
-          // the explanation, the scenes and the advance never run again.
-          setFeedback({
-            ok: true,
-            text: 'CORRECT! PROGRESS SAVED.',
-          })
-        } else {
-          beginPostCorrect()
-        }
+        // A replay of a cleared mission plays the same explanation, scenes
+        // and questions as the first time.
+        beginPostCorrect()
       } else if (currentQuestion?.choices) {
         // A wrong syntax: mark the offending characters red and tell the
         // player none of it ran. The player typed it, so the red overlay
@@ -916,141 +1038,11 @@ function MissionScreen({
     setWrongChoiceIndex(null)
   }
 
-  // The player closes the learning screen after a correct answer: pop the
-  // explanation step, then show whatever comes next (a scene's CONTINUE, the
-  // next question, or the mission's continue buttons).
+  // The player closes the explanation after a correct answer: whatever comes
+  // next plays right away (a scene, the next question, or the next mission).
   const closeCore = (): void => {
     setShowCore(false)
-    const [head, ...rest] = steps
-    if (head?.kind !== 'core') return
-    setSteps(rest)
-    if (rest[0]?.kind === 'advance-question') {
-      applyAdvanceQuestion()
-      return
-    }
-    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
-  }
-
-  // The next post-correct step is a scene: its CONTINUE button starts it and
-  // consumes the step. The scene's own onFinish then advances the mission.
-  const consumeSceneStep = (): void => {
-    const [head, ...rest] = steps
-    if (head?.kind !== 'scene') return
-    setSteps(rest)
-    switch (head.id) {
-      case 'door':
-        setDoorOpen(true)
-        break
-      case 'animation':
-        setShowingAnimation(true)
-        break
-      case 'welcomeGate':
-        setShowingWelcomeGate(true)
-        break
-      case 'submission':
-        setShowingSubmission(true)
-        break
-      case 'scene11':
-        setShowingCh2Scene11(true)
-        break
-      case 'scene12':
-        setShowingCh2Scene12(true)
-        break
-      case 'scene21':
-        setShowingCh2Scene21(true)
-        break
-      case 'scene31':
-        setShowingCh2Scene31(true)
-        break
-      case 'scene32':
-        setShowingCh2Scene32(true)
-        break
-      case 'scene41':
-        setShowingCh2Scene41(true)
-        break
-    }
-  }
-
-  // A post-correct scene finished. If another scene waits in the queue, its
-  // CONTINUE starts it; otherwise the mission advances as usual.
-  const continueFromScene = (): void => {
-    if (steps[0]?.kind === 'scene') {
-      consumeSceneStep()
-    } else {
-      advanceAfterSuccess()
-    }
-  }
-
-  // The next step is the mission's second (or later) question: move on and
-  // remember which one, so a refresh in the same session resumes there.
-  const applyAdvanceQuestion = (): void => {
-    const total = lesson?.questions?.length ?? 1
-    const next = Math.min(questionNumber + 1, total)
-    saveQuestionHint(chapter, mission, next)
-    setQuestionNumber(next)
-    setSolved(false)
-    setSteps([])
-  }
-
-  // A correct answer kicks off the post-correct flow defined for this level by
-  // progression.ts. Each step is consumed by its matching trigger: closing the
-  // explanation, tapping CONTINUE on a scene, or right away when the next step
-  // is simply "go to the next question".
-  const beginPostCorrect = (): void => {
-    const total = lesson?.questions?.length ?? 1
-    const nextSteps = postCorrectSteps(
-      chapter,
-      mission,
-      questionNumber,
-      total,
-      !!(lesson?.core || lesson?.programFlow),
-    )
-    if (nextSteps[0]?.kind === 'advance-question') {
-      applyAdvanceQuestion()
-      return
-    }
-    setSolved(true)
-    setSteps(nextSteps)
-    if (nextSteps[0]?.kind === 'core') {
-      setShowCore(true)
-    } else {
-      setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
-    }
-  }
-
-  // The sakay animation finished (or was skipped): continue to the next scene.
-  const closeAnimation = (): void => {
-    setShowingAnimation(false)
-    advanceAfterSuccess()
-  }
-
-  const nextMission = (() => {
-    if (!progress) return null
-    const missions = progress.chapters.find((c) => c.id === chapter)?.missions
-    if (!missions) return null
-    const index = missions.findIndex((m) => m.number === mission)
-    const next = missions[index + 1]
-    return next && next.unlocked ? next.number : null
-  })()
-
-  // This run finished the whole chapter: if the server just unlocked the next
-  // one (progress was refreshed before reaching here), play the celebration;
-  // otherwise head straight to the chapter list.
-  const finishChapter = (): void => {
-    const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
-    if (nextChapter?.unlocked) {
-      setUnlockChapter(nextChapter.id)
-    } else {
-      onChapter()
-    }
-  }
-
-  const advanceAfterSuccess = (): void => {
-    if (nextMission !== null) {
-      onOpenMission(chapter, nextMission)
-    } else {
-      finishChapter()
-    }
+    playNextStep(steps)
   }
 
   if (serverError) {
@@ -1114,6 +1106,11 @@ function MissionScreen({
   }
 
   const cleared = missionStatus.completed || solved
+  // The continue buttons only show on a replay before it's answered, or
+  // after a correct answer on a level with no explanation to show. Otherwise
+  // the explanation's OK button moves the player on by itself.
+  const showContinue =
+    cleared && steps.length === 0 && !showCore && unlockChapter === null
 
   // Mission 3 (scene 2.2): the login PC is shown while the challenge is open,
   // and switches to the logged-in screen once the correct answer is done.
@@ -1228,17 +1225,7 @@ function MissionScreen({
           </p>
         )}
 
-        {steps[0]?.kind === 'scene' && (
-          <button
-            type="button"
-            className="pixel-button mission-next"
-            onClick={consumeSceneStep}
-          >
-            CONTINUE →
-          </button>
-        )}
-
-        {cleared && steps.length === 0 && nextMission !== null && (
+        {showContinue && nextMission !== null && (
           <button
             type="button"
             className="pixel-button mission-next"
@@ -1248,7 +1235,7 @@ function MissionScreen({
           </button>
         )}
 
-        {cleared && steps.length === 0 && nextMission === null && (
+        {showContinue && nextMission === null && (
           <button
             type="button"
             className="pixel-button mission-next"
