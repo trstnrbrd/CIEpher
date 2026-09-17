@@ -62,6 +62,18 @@ export function createApp({
     await next();
   });
 
+  // Refuses a request unless Cloudflare says a person sent it, when the robot
+  // check is switched on (register and forgot password).
+  const requireHuman = async (
+    c: Context,
+    token: string | undefined,
+  ): Promise<void> => {
+    if (!humanCheck) return;
+    // The first address in X-Forwarded-For is the player's.
+    const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
+    await confirmHuman(humanCheck, token, ip);
+  };
+
   app.use(
     "*",
     cors({
@@ -83,11 +95,7 @@ export function createApp({
       registerSchema,
       await readJson(c),
     );
-    if (humanCheck) {
-      // The first address in X-Forwarded-For is the player's.
-      const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
-      await confirmHuman(humanCheck, turnstileToken, ip);
-    }
+    await requireHuman(c, turnstileToken);
     const result = await accounts.register(input);
     return c.json(result, 201);
   });
@@ -99,7 +107,12 @@ export function createApp({
   });
 
   app.post("/auth/forgot-password", async (c) => {
-    const input = parse(forgotPasswordSchema, await readJson(c));
+    const { turnstileToken, ...input } = parse(
+      forgotPasswordSchema,
+      await readJson(c),
+    );
+    // Before the username is looked up, so the check can't reveal who exists.
+    await requireHuman(c, turnstileToken);
     await accounts.requestPasswordReset(input);
     // The same answer whether or not the username exists.
     return c.json({ ok: true });

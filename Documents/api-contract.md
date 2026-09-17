@@ -156,17 +156,19 @@ After 5 wrong passwords within 15 minutes, that username is locked for 15 minute
 
 ### ✅ `POST /auth/forgot-password`
 
-"Forgot password?" on the login card. In the frontend: `await requestPasswordReset(username)` (the `ForgotPasswordCard` screen already does it).
+"Forgot password?" on the login card. In the frontend: `await requestPasswordReset(username, turnstileToken)` (the `ForgotPasswordCard` screen already does it, with the same "I'm not a robot" widget as Register).
 
 Request (the same username the player logs in with):
 
 ```json
-{ "username": "player_one" }
+{ "username": "player_one", "turnstileToken": "0.AbCd..." }
 ```
+
+`turnstileToken` works as on register: required wherever the check is on, used once, so reset the widget after a failed attempt. The check runs before the username is looked up, so it never tells who has an account. It keeps scripts from flooding inboxes or using up the hourly email limit.
 
 Success, **200**: `{ "ok": true }`. It's **always the same answer**, whether or not the username exists, so this can't be used to find out who has an account. If it does exist, Supabase emails a reset link to the account's address.
 
-Errors: `400 VALIDATION_ERROR` (`field` is `username`).
+Errors: `400 VALIDATION_ERROR` (`field` is `username` or `turnstileToken`), `400 HUMAN_CHECK_REQUIRED`, `400 HUMAN_CHECK_FAILED`, `503 HUMAN_CHECK_UNAVAILABLE` (the same meanings as on register).
 
 - At most one email a minute per player, so nobody can flood an inbox.
 - **The link** opens the game with a one-time session. `src/api/supabase.ts` reads it (`resetLink`), and `App.tsx` shows the **New Password** screen instead of logging in.

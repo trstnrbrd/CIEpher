@@ -540,6 +540,108 @@ Deno.test("forgot password: a missing username is a 400", async () => {
   });
 });
 
+Deno.test(
+  "forgot password: with the robot check on, a token is required",
+  async () => {
+    let asked = false;
+    const app = testApp({
+      humanCheck: fakeHumanCheck(),
+      accounts: fakeAccounts({
+        requestPasswordReset: () => {
+          asked = true;
+          return Promise.resolve();
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/forgot-password", {
+      username: "player_one",
+    });
+    assertEquals(res.status, 400);
+    const body = await res.json();
+    assertEquals(body.error.code, "HUMAN_CHECK_REQUIRED");
+    assertEquals(body.error.field, "turnstileToken");
+    assertFalse(asked);
+  },
+);
+
+Deno.test(
+  "forgot password: a token Cloudflare refuses sends no email",
+  async () => {
+    let asked = false;
+    const app = testApp({
+      humanCheck: fakeHumanCheck(),
+      accounts: fakeAccounts({
+        requestPasswordReset: () => {
+          asked = true;
+          return Promise.resolve();
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/forgot-password", {
+      username: "player_one",
+      turnstileToken: "bot-token",
+    });
+    assertEquals(res.status, 400);
+    assertEquals((await res.json()).error.code, "HUMAN_CHECK_FAILED");
+    assertFalse(asked);
+  },
+);
+
+Deno.test(
+  "forgot password: a person's token sends the link; the token isn't passed on",
+  async () => {
+    const calls: [string, string | undefined][] = [];
+    let received: unknown;
+    const app = testApp({
+      humanCheck: fakeHumanCheck(calls),
+      accounts: fakeAccounts({
+        requestPasswordReset: (input) => {
+          received = input;
+          return Promise.resolve();
+        },
+      }),
+    });
+    const res = await app.request("/api/auth/forgot-password", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-forwarded-for": "203.0.113.9",
+      },
+      body: JSON.stringify({
+        username: "player_one",
+        turnstileToken: "human-token",
+      }),
+    });
+    assertEquals(res.status, 200);
+    assertEquals(await res.json(), { ok: true });
+    assertEquals(calls, [["human-token", "203.0.113.9"]]);
+    assertEquals(received, { username: "player_one" });
+  },
+);
+
+Deno.test(
+  "forgot password: if Cloudflare can't be reached, no email is sent",
+  async () => {
+    let asked = false;
+    const app = testApp({
+      humanCheck: () => Promise.reject(new Error("network down")),
+      accounts: fakeAccounts({
+        requestPasswordReset: () => {
+          asked = true;
+          return Promise.resolve();
+        },
+      }),
+    });
+    const res = await postJson(app, "/api/auth/forgot-password", {
+      username: "player_one",
+      turnstileToken: "human-token",
+    });
+    assertEquals(res.status, 503);
+    assertEquals((await res.json()).error.code, "HUMAN_CHECK_UNAVAILABLE");
+    assertFalse(asked);
+  },
+);
+
 // ---------- logged-in routes: GET /api/me, PUT /api/me/character ----------
 
 const UNAUTHORIZED = {

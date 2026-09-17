@@ -164,8 +164,15 @@ export async function logout(): Promise<void> {
 
 // "Forgot password?": asks the server to email a reset link. The answer is
 // the same whether or not the username exists, so there's nothing to return.
-export async function requestPasswordReset(username: string): Promise<void> {
-  await request<{ ok: true }>('POST', '/auth/forgot-password', { username })
+export async function requestPasswordReset(
+  username: string,
+  // From the "I'm not a robot" widget; required where the check is on.
+  turnstileToken?: string,
+): Promise<void> {
+  await request<{ ok: true }>('POST', '/auth/forgot-password', {
+    username,
+    turnstileToken,
+  })
 }
 
 // Saves a new password after the player opened a reset link, then logs them
