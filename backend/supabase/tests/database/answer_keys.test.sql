@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(15);
+select plan(17);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1, 2, 3, 4, 5)$$,
+    where chapter_id not in (0, 1, 2, 3, 4, 5, 6)$$,
   'every chapter with missions has a content file'
 );
 
@@ -172,6 +172,29 @@ select results_eq(
     (4, 1, E'while(uploadedFiles < totalFiles)\n{\n    UploadFile();\n    uploadedFiles++;\n}'),
     (5, 1, E'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission();\n    reviewed++;\n}')$keys$,
   'chapter 5: its answer keys'
+);
+
+-- Chapter 6: The do...while loop. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 6 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 6: its missions and questions'
+);
+
+-- Chapter 6's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 6 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'do...while'),
+    (1, 2, E'do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain);'),
+    (2, 1, E'do\n{\n    Login();\n}\nwhile(retry);'),
+    (3, 1, E'do\n{\n    ScanID();\n}\nwhile(scanAgain);'),
+    (4, 1, E'do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion);'),
+    (5, 1, E'do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson);')$keys$,
+  'chapter 6: its answer keys'
 );
 
 select * from finish();
