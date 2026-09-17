@@ -10,6 +10,7 @@ import MissionScreen from './components/MissionScreen'
 import NewPasswordScreen from './components/NewPasswordScreen'
 import SettingsScreen from './components/SettingsScreen'
 import WelcomeScreen from './components/WelcomeScreen'
+import { clearAllQuestionHints } from './progression'
 import './App.css'
 
 // Where the logged-in game screen is. The mission screen is the only one
@@ -148,6 +149,7 @@ function App() {
     navigate({ screen: 'home' })
     try {
       sessionStorage.removeItem(SAVED_VIEW_KEY)
+      clearAllQuestionHints()
     } catch {
       // Ignore unavailable browser storage.
     }
