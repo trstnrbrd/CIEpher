@@ -10,10 +10,14 @@
   background: rgba(8, 10, 28, 0.88);
   padding: 18px;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .ce-card {
   width: min(980px, 96vw);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .ce-kicker {
@@ -22,6 +26,8 @@
   color: #7dff94;
   margin: 0;
   text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* The decision step of the flow (where the program branches). */
@@ -35,10 +41,14 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .ce-journal-btn {
   background: #2b6dd4;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .ce-journal-btn:hover {

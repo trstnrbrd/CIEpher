@@ -11,6 +11,7 @@ import profClassroomImg from './chapter1/prof_classroom.jpg'
 import guardImg from './chapter1/guard.png'
 import bookstoreImg from './chapter 2/bookstore.jpg'
 import connectedImg from './chapter 2/connected.jpg'
+import loginPcImg from './chapter 2/LOGIN_PC.jpg'
 import noWifiImg from './chapter 2/no wifi.jpg'
 import pcImg from './chapter 2/pc.png'
 
@@ -201,7 +202,8 @@ export const CH2_WIFI_ON_PAGE: StoryPage = {
 
 // Chapter 2, Scene 2.2 — the player heads to the learning portal.
 export const CH2_PORTAL_LINE_PAGE: StoryPage = {
-  bg: connectedImg,
+  bg: loginPcImg,
+  noSprite: true,
   align: 'left',
   lines: ["I need to access the school's learning portal."],
 }

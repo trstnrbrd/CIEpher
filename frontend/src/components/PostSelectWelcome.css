@@ -258,11 +258,14 @@
 /* 56 letters per line and the wireframe's size (1.32% of its width). */
 .mech-text {
   width: 56.5ch;
+  max-width: 100%;
   font-family: 'Press Start 2P', monospace;
   font-size: min(1.32vw, calc(2.35 * var(--h)));
   line-height: 1.39;
   color: #000000;
   text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* The title's SVG top is 85.8% of its height above the card. */

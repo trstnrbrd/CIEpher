@@ -34,6 +34,8 @@ import {
   WELCOME_GATE_PAGE,
 } from '../storyPages'
 import guardImg from '../chapter1/guard.png'
+import loginPcImg from '../chapter 2/LOGIN_PC.jpg'
+import loggedInImg from '../chapter 2/LOGGED_IN.jpg'
 import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.png'
@@ -156,6 +158,11 @@ function MissionScreen({
   const [showingCh2Scene2, setShowingCh2Scene2] = useState<boolean>(
     chapter === 2 && mission === 2,
   )
+  // Chapter 2, Scene 2.2 opening: mission 3 opens as the player heads to the
+  // learning portal before the login syntax challenge appears.
+  const [showingCh2Scene22, setShowingCh2Scene22] = useState<boolean>(
+    chapter === 2 && mission === 3,
+  )
   // Chapter 2, Scene 3: the portal opens, then the player needs to upload.
   const [showingCh2Scene31, setShowingCh2Scene31] = useState<boolean>(false)
   // Chapter 2, Scene 4: the submission is accepted, then the professor
@@ -192,6 +199,10 @@ function MissionScreen({
   // next level unlocking before the player returns to the chapter list.
   // Holds the chapter id being unlocked (the one after the current one).
   const [unlockChapter, setUnlockChapter] = useState<number | null>(null)
+  // Gate: after a correct answer, the next scene waits here until the player
+  // clicks CONTINUE. The string maps to the scene flag set in
+  // proceedFromPendingScene().
+  const [pendingScene, setPendingScene] = useState<string | null>(null)
 
   const refreshProgress = async (): Promise<void> => {
     try {
@@ -555,6 +566,7 @@ function MissionScreen({
           pages={CH2_PURCHASE_PAGES}
           onFinish={() => {
             setShowingCh2Scene11(false)
+            setFeedback(null)
             setQuestionNumber(2)
           }}
           onJournal={onJournal}
@@ -617,18 +629,39 @@ function MissionScreen({
     )
   }
 
-  // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects,
-  // then the player heads to the learning portal for mission 3.
+  // Chapter 2, Scene 2: after mission 2's explanation, the Wi-Fi connects.
   if (showingCh2Scene21) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[CH2_WIFI_ON_PAGE, CH2_PORTAL_LINE_PAGE]}
+          pages={[CH2_WIFI_ON_PAGE]}
           onFinish={() => {
             setShowingCh2Scene21(false)
             advanceAfterSuccess()
           }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 2, Scene 2.2: mission 3 opens as the player heads to the learning
+  // portal before the login syntax challenge appears.
+  if (showingCh2Scene22) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH2_PORTAL_LINE_PAGE]}
+          onFinish={() => setShowingCh2Scene22(false)}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -824,17 +857,48 @@ function MissionScreen({
     setWrongChoiceIndex(null)
   }
 
-  // The player finished the learning screen. Multi-question missions step
-  // through each question; the last question's OK advances straight to the
-  // next level. All scenes between missions are skipped.
+  // The player finished the learning screen. Instead of auto-routing to the
+  // next scene, store it in pendingScene so the CONTINUE button gates the
+  // transition. This prevents the question from re-showing and gives the
+  // player control over progression.
   const closeCore = (): void => {
     setShowCore(false)
-    const totalQuestions = lesson?.questions?.length ?? 1
-    if (questionNumber < totalQuestions) {
-      setQuestionNumber((n) => n + 1)
-    } else {
-      advanceAfterSuccess()
+    setFeedback({ ok: true, text: 'CORRECT! PROGRESS SAVED.' })
+    if (chapter === 0 && mission === 1) {
+      setPendingScene('door')
+    } else if (chapter === 0 && mission === 3) {
+      setPendingScene('animation')
+    } else if (chapter === 1 && mission === 1) {
+      setPendingScene('welcomeGate')
+    } else if (chapter === 1 && mission === 4) {
+      setPendingScene('submission')
+    } else if (chapter === 2 && mission === 1) {
+      setPendingScene(questionNumber === 1 ? 'scene11' : 'scene12')
+    } else if (chapter === 2 && mission === 2) {
+      setPendingScene('scene21')
+    } else if (chapter === 2 && mission === 3) {
+      setPendingScene('scene31')
+    } else if (chapter === 2 && mission === 4) {
+      setPendingScene('scene41')
     }
+    // ch1-m5, ch2-m5, and fallback: feedback only, no scene.
+  }
+
+  // Map the pendingScene string to the actual scene setter.
+  const proceedFromPendingScene = (): void => {
+    if (!pendingScene) return
+    switch (pendingScene) {
+      case 'door': setDoorOpen(true); break
+      case 'animation': setShowingAnimation(true); break
+      case 'welcomeGate': setShowingWelcomeGate(true); break
+      case 'submission': setShowingSubmission(true); break
+      case 'scene11': setShowingCh2Scene11(true); break
+      case 'scene12': setShowingCh2Scene12(true); break
+      case 'scene21': setShowingCh2Scene21(true); break
+      case 'scene31': setShowingCh2Scene31(true); break
+      case 'scene41': setShowingCh2Scene41(true); break
+    }
+    setPendingScene(null)
   }
 
   // The sakay animation finished (or was skipped): continue to the next scene.
@@ -936,13 +1000,24 @@ function MissionScreen({
 
   const done = missionStatus.completed || feedback?.ok === true
 
+  // Mission 3 (scene 2.2): the login PC is shown while the challenge is open,
+  // and switches to the logged-in screen once the correct answer is done.
+  const effectiveSceneBg =
+    chapter === 2 && mission === 3
+      ? done
+        ? loggedInImg
+        : loginPcImg
+      : sceneBg
+
   return (
     <div
-      className={['mission-screen', sceneBg ? 'mission-scene-bg' : '']
+      className={['mission-screen', effectiveSceneBg ? 'mission-scene-bg' : '']
         .filter(Boolean)
         .join(' ')}
     >
-      {sceneBg && <img className="mission-scene" src={sceneBg} alt="" />}
+      {effectiveSceneBg && (
+        <img className="mission-scene" src={effectiveSceneBg} alt="" />
+      )}
       {chapter === 1 && sceneBg && mission === 1 && (
         <>
           <img className="mission-guard" src={guardImg} alt="" />
@@ -1038,7 +1113,17 @@ function MissionScreen({
           </p>
         )}
 
-        {done && nextMission !== null && (
+        {done && pendingScene && (
+          <button
+            type="button"
+            className="pixel-button mission-next"
+            onClick={proceedFromPendingScene}
+          >
+            CONTINUE →
+          </button>
+        )}
+
+        {done && !pendingScene && nextMission !== null && (
           <button
             type="button"
             className="pixel-button mission-next"
@@ -1048,7 +1133,7 @@ function MissionScreen({
           </button>
         )}
 
-        {done && nextMission === null && (
+        {done && !pendingScene && nextMission === null && (
           <button
             type="button"
             className="pixel-button mission-next"

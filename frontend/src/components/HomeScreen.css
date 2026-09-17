@@ -29,7 +29,9 @@
   position: relative;
   z-index: 2;
   width: min(500px, 86vw);
+  max-width: 100%;
   min-height: min(620px, 82vh);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -82,6 +84,8 @@
   font-size: clamp(0.5rem, 1.2vw, 0.7rem);
   letter-spacing: 3px;
   text-shadow: 2px 2px 0 #000;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .home-title {
@@ -93,6 +97,10 @@
   text-shadow:
     0.25rem 0.25rem 0 #000,
     0 0 18px rgba(255, 224, 102, 0.28);
+  overflow-wrap: break-word;
+  max-width: 100%;
+  width: 100%;
+  text-align: center;
 }
 
 .home-welcome,
@@ -106,6 +114,10 @@
 .home-welcome {
   margin: 0;
   color: #fffff3;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  width: 100%;
+  text-align: center;
 }
 
 .home-character {
