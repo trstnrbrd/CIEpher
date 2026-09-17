@@ -1,12 +1,11 @@
-import { useState, type CSSProperties } from 'react'
+import { useState } from 'react'
 import {
   ApiError,
   setCharacter,
   type Character,
   type Profile,
 } from '../api/client'
-import boyImg from '../assets/boy.webp'
-import girlImg from '../assets/girl.webp'
+import { CHARACTER_ART, fitVariables } from '../characters'
 import './CharacterSelect.css'
 
 interface CharacterSelectProps {
@@ -14,33 +13,7 @@ interface CharacterSelectProps {
   onUnauthorized: () => void
 }
 
-// Where each character sits inside its picture (fractions of the file, from
-// the non-transparent pixels), so both fill the card the same way.
-interface Fit {
-  top: number
-  bottom: number
-  middle: number
-}
-
-const CHARACTERS: {
-  value: Character
-  img: string
-  alt: string
-  fit: Fit
-}[] = [
-  {
-    value: 'boy',
-    img: boyImg,
-    alt: 'Boy',
-    fit: { top: 0.0615, bottom: 0.9007, middle: 0.4973 },
-  },
-  {
-    value: 'girl',
-    img: girlImg,
-    alt: 'Girl',
-    fit: { top: 0.117, bottom: 0.8652, middle: 0.475 },
-  },
-]
+const CHARACTERS: Character[] = ['boy', 'girl']
 
 // The mockup's green pixel arrow, pointing left (CSS mirrors it for the
 // right one): an arrowhead with a notched tail. Each row is [from, to].
@@ -115,6 +88,7 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
   const [error, setError] = useState<string | null>(null)
 
   const current = CHARACTERS[index]
+  const art = CHARACTER_ART[current]
 
   // Left and right both circle through the two characters: from boy, one
   // click right goes to girl, one click left also goes to girl.
@@ -131,7 +105,7 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
     setSaving(true)
     setError(null)
     try {
-      const profile = await setCharacter(current.value)
+      const profile = await setCharacter(current)
       onSaved(profile)
     } catch (err) {
       // The session ended (e.g. logged out elsewhere): back to login.
@@ -148,12 +122,6 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
       setSaving(false)
     }
   }
-
-  const fitStyle = {
-    '--fit-top': current.fit.top,
-    '--fit-span': current.fit.bottom - current.fit.top,
-    '--fit-middle': current.fit.middle,
-  } as CSSProperties
 
   return (
     <div className="character-select">
@@ -179,9 +147,9 @@ function CharacterSelect({ onSaved, onUnauthorized }: CharacterSelectProps) {
         <div className="character-card">
           <img
             className="character-image"
-            src={current.img}
-            alt={current.alt}
-            style={fitStyle}
+            src={art.img}
+            alt={art.alt}
+            style={fitVariables(art.fit)}
           />
         </div>
 

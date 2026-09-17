@@ -70,7 +70,6 @@ function NewPasswordScreen({ linkExpired, onDone }: NewPasswordScreenProps) {
       {/* The welcome screen behind the card, blurred, as behind LOGIN. */}
       <div className="welcome-screen blurred" aria-hidden="true">
         <div className="welcome-bg" />
-        <div className="welcome-overlay" />
         <div className="cloud-layer">
           <div className="cloud cloud-1" />
           <div className="cloud cloud-2" />

@@ -22,16 +22,6 @@
   pointer-events: none;
 }
 
-/* Darken the scene just enough to read the bubble comfortably. */
-.prologue-story::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 0;
-  pointer-events: none;
-}
-
 /* The player's character, big, centered and grounded: sunk a touch below
    the bottom edge so the feet rest on the floor instead of floating. It's
    decorative, so it never steals taps from the bubble or the icons. */
@@ -119,12 +109,45 @@
   color: #ffffff;
 }
 
-/* When the attendance kiosk speaks, the bubble uses a digital teal palette
-   so it reads as a machine's screen, not the player. The player avatar stays
-   centered (no extra sprite is shown for the kiosk). */
+/* The attendance kiosk uses the same dialog theme as the story cards. The
+   player avatar stays centered (no extra sprite is shown for the kiosk). */
 .story-bubble-kiosk {
-  background: #0f4c5c;
-  color: #b8f2e6;
+  background: #fffdf2;
+  border: max(2px, calc(0.42 * var(--h))) solid #8c1c1c;
+  color: #111111;
+}
+
+/* The scan prompt uses the yellow machine dialog from the hallway mockup. */
+.story-bubble-yellow {
+  top: clamp(150px, 42vh, 360px);
+  right: clamp(12px, 2vw, 32px);
+  left: auto;
+  width: min(280px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(14px, 1.8vw, 24px);
+  transform: none;
+  background: #f7b500;
+  border-radius: 8px;
+  color: #111111;
+}
+
+.story-bubble-yellow::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: clamp(-90px, -6vw, -24px);
+  border-style: solid;
+  border-width: clamp(14px, 1.5vw, 22px) 0 0 clamp(14px, 1.5vw, 22px);
+  border-color: #f7b500 transparent transparent transparent;
+}
+
+.story-bubble-yellow .story-text {
+  font-size: clamp(11px, 1.35vw, 16px);
+  line-height: 1.35;
+}
+
+.story-bubble-yellow .story-tap {
+  font-size: clamp(9px, 1.05vw, 13px);
 }
 
 /* When Professor Reyes speaks, the bubble uses a deep maroon palette so it
@@ -254,5 +277,253 @@
 
   .story-tap {
     font-size: clamp(13px, 3.6vw, 18px);
+  }
+}
+
+/* ---------- Cards: SITUATION, Correct ---------- */
+
+/* A story page with a `card` title (the chapter docs' "Situation" and
+   "Correct"): a cream card with a framed box and a Next button over the
+   scene, drawn from Tristan's mockups (840x476). --u is 1% of the screen
+   height, or less on narrower screens, so it keeps the mockup's
+   proportions. It covers the chapter bar (z 55) but not the corner icons
+   (z 60). */
+.story-card {
+  --u: min(var(--h), 0.67vw);
+  --line: max(2px, calc(0.42 * var(--u)));
+  position: absolute;
+  top: calc(6.9 * var(--u));
+  left: 50%;
+  z-index: 56;
+  width: min(calc(140.3 * var(--u)), 94vw);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(6.9 * var(--u)) calc(9.9 * var(--u)) calc(4.6 * var(--u));
+  transform: translateX(-50%);
+  font-family: 'Press Start 2P', monospace;
+  color: #111111;
+  background: #fffdf2;
+  border: var(--line) solid #8c1c1c;
+  border-radius: calc(3.4 * var(--u));
+}
+
+.story-card-box {
+  width: 100%;
+  min-height: calc(52 * var(--u));
+  box-sizing: border-box;
+  padding: calc(5 * var(--u)) calc(3 * var(--u));
+  text-align: center;
+  background: #ece5cf;
+  border: var(--line) solid #8c1c1c;
+}
+
+.story-card-title {
+  margin: 0 0 calc(8.6 * var(--u));
+  font-size: max(14px, calc(4.2 * var(--u)));
+  font-weight: normal;
+  line-height: 1;
+}
+
+.story-card-text {
+  margin: 0;
+  font-size: max(9px, calc(2.6 * var(--u)));
+  line-height: 1.45;
+}
+
+/* A blank line between paragraphs. */
+.story-card-text + .story-card-text {
+  margin-top: 1.2em;
+}
+
+.story-card-next {
+  width: max(120px, calc(42.6 * var(--u)));
+  height: max(32px, calc(5.9 * var(--u)));
+  margin-top: calc(4.2 * var(--u));
+  padding: 0;
+  font-family: inherit;
+  font-size: max(11px, calc(3 * var(--u)));
+  line-height: 1;
+  color: #111111;
+  background: #ece5cf;
+  border: var(--line) solid #8c1c1c;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease;
+}
+
+.story-card-next:hover {
+  background: #f6f0dc;
+  transform: translateY(-2px);
+}
+
+.story-card-next:active {
+  transform: translateY(1px);
+}
+
+.story-card-next:focus-visible {
+  outline: 3px solid #8c1c1c;
+  outline-offset: 3px;
+}
+
+/* Upright screens: a near-full-width card in the middle of the screen. */
+@media (max-aspect-ratio: 1/1) {
+  .story-card {
+    top: 50%;
+    width: 92vw;
+    padding: 6vw 5vw 5vw;
+    border-radius: 16px;
+    transform: translate(-50%, -50%);
+  }
+
+  .story-card-box {
+    min-height: 0;
+    padding: 6vw 4vw 7vw;
+  }
+
+  .story-card-title {
+    margin-bottom: 6vw;
+    font-size: clamp(16px, 5.5vw, 24px);
+  }
+
+  .story-card-text {
+    font-size: clamp(11px, 3.6vw, 16px);
+  }
+
+  .story-card-next {
+    width: 50vw;
+    height: 44px;
+    margin-top: 5vw;
+    font-size: clamp(13px, 4vw, 18px);
+  }
+}
+
+/* ---------- Chapter 1's school gate (the pages with the guard) ---------- */
+
+/* Drawn from Tristan's mockup: the whole school, the player and the guard
+   standing small on its grass, and the guard's line in a yellow bubble that
+   points at him. The picture is drawn at --pic tall (it covers the screen:
+   the screen's height, or 16:9 of its width on wider screens) and --s is 1%
+   of that, so the people stay on the grass at any size. On wide screens the
+   picture drops below the bottom edge by up to 7% of its height, so less of
+   the clock at the top is cut off. */
+.story-scene-guard {
+  --pic: max(calc(100 * var(--h)), 56.25vw);
+  --s: calc(var(--pic) / 100);
+  --drop: min(calc(var(--pic) - 100 * var(--h)), calc(7 * var(--s)));
+  --floor: calc(9.2 * var(--s) - var(--drop));
+  --guard-h: calc(35 * var(--s));
+}
+
+.story-scene-guard .story-bg {
+  top: auto;
+  right: auto;
+  bottom: calc(-1 * var(--drop));
+  left: 50%;
+  width: calc(var(--pic) * 16 / 9);
+  height: var(--pic);
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  transform: translateX(-50%);
+}
+
+/* Both people, feet on the grass, placed with the --fit-* values (where the
+   person sits inside the picture file) so the empty space around them in
+   their pictures doesn't matter. */
+.story-scene-guard .story-person,
+.story-scene-guard .story-guard {
+  right: auto;
+  bottom: calc(
+    var(--floor) - (1 - var(--fit-top) - var(--fit-span)) * var(--visible) /
+      var(--fit-span)
+  );
+  height: calc(var(--visible) / var(--fit-span));
+  transform: translateX(calc(var(--fit-middle) * -100%));
+  filter: drop-shadow(
+    calc(0.4 * var(--s)) calc(0.4 * var(--s)) 0 rgba(0, 0, 0, 0.45)
+  );
+}
+
+.story-scene-guard .story-person,
+.story-scene-guard .story-person.story-person-left {
+  --visible: calc(32 * var(--s));
+  left: 35%;
+}
+
+.story-scene-guard .story-guard {
+  --visible: var(--guard-h);
+  left: 67%;
+}
+
+/* The guard's yellow bubble, just above and to the left of his head, with
+   its tail pointing down at him. */
+.story-scene-guard .story-bubble-guard {
+  top: auto;
+  right: 32%;
+  bottom: calc(var(--floor) + var(--guard-h) + 2.1 * var(--s));
+  left: auto;
+  z-index: 4;
+  width: calc(44.5 * var(--s));
+  gap: calc(1.2 * var(--s));
+  padding: calc(1.6 * var(--s)) calc(2 * var(--s));
+  transform: none;
+  background: #f7b500;
+  color: #111111;
+  border-radius: calc(0.6 * var(--s));
+}
+
+/* The tail's tip sits just left of the guard's head (his middle is 1% of
+   the width left of the bubble's right edge). */
+.story-scene-guard .story-bubble-guard::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: calc(1vw + 3 * var(--s));
+  border-style: solid;
+  border-width: calc(5.3 * var(--s)) 0 0 calc(5.3 * var(--s));
+  border-color: #f7b500 transparent transparent transparent;
+}
+
+.story-scene-guard .story-bubble-guard .story-text {
+  font-size: max(8px, calc(2.7 * var(--s)));
+}
+
+.story-scene-guard .story-bubble-guard .story-tap {
+  font-size: max(7px, calc(2.1 * var(--s)));
+}
+
+/* Upright screens only show the middle of the school: the two people move
+   closer to the middle, and the bubble takes most of the width, its tail
+   still over the guard. */
+@media (max-aspect-ratio: 1/1) {
+  .story-scene-guard .story-person,
+  .story-scene-guard .story-person.story-person-left {
+    left: 28%;
+  }
+
+  .story-scene-guard .story-guard {
+    left: 72%;
+  }
+
+  .story-scene-guard .story-bubble-guard {
+    right: 6vw;
+    width: 64vw;
+    padding: 3vw 3.5vw;
+  }
+
+  .story-scene-guard .story-bubble-guard::after {
+    right: calc(22vw + 3 * var(--s));
+  }
+
+  .story-scene-guard .story-bubble-guard .story-text {
+    font-size: clamp(11px, 3.6vw, 16px);
+  }
+
+  .story-scene-guard .story-bubble-guard .story-tap {
+    font-size: clamp(10px, 3vw, 13px);
   }
 }

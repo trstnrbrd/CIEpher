@@ -1,178 +1,168 @@
+/* The main menu (player hub): a card over the street picture. Everything in
+   it is measured in --u (1% of the screen height, less on narrow screens),
+   so the title, the character and the buttons keep their proportions on any
+   screen instead of wrapping or overflowing. The card is 52u wide. */
 .home-screen {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+  --u: min(var(--h), 1.7vw);
+  position: fixed;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #1b1f3d;
 }
 
 .home-screen::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/src/assets/background opening.webp') center/cover no-repeat;
+  background: url('/src/assets/background opening.webp') center / cover
+    no-repeat;
   z-index: 0;
-}
-
-.home-screen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.08);
-  z-index: 1;
 }
 
 .home-menu {
   position: relative;
   z-index: 2;
-  width: min(500px, 86vw);
-  max-width: 100%;
-  min-height: min(620px, 82vh);
+  width: calc(52 * var(--u));
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 3vh;
-  padding: 5vh 5vw;
+  padding: calc(5 * var(--u)) calc(3 * var(--u));
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
   background: rgba(18, 22, 47, 0.76);
-  border: 4px solid #fffff3;
-  border-radius: 18px;
+  border: max(2px, calc(0.45 * var(--u))) solid #fffff3;
+  border-radius: calc(1.8 * var(--u));
   box-shadow:
-    0 8px 0 rgba(8, 10, 28, 0.85),
-    0 14px 24px rgba(0, 0, 0, 0.35);
+    0 calc(0.8 * var(--u)) 0 rgba(8, 10, 28, 0.85),
+    0 calc(1.4 * var(--u)) calc(2.4 * var(--u)) rgba(0, 0, 0, 0.35);
 }
 
+/* Yellow corner brackets, top left and bottom right. */
 .home-menu::before,
 .home-menu::after {
+  --b: max(2px, calc(0.45 * var(--u)));
   content: '';
   position: absolute;
-  width: 34px;
-  height: 34px;
+  width: calc(3.6 * var(--u));
+  height: calc(3.6 * var(--u));
   border-color: #ffe066;
   border-style: solid;
 }
 
 .home-menu::before {
-  top: -4px;
-  left: -4px;
-  border-width: 4px 0 0 4px;
+  top: calc(-1 * var(--b));
+  left: calc(-1 * var(--b));
+  border-width: var(--b) 0 0 var(--b);
 }
 
 .home-menu::after {
-  right: -4px;
-  bottom: -4px;
-  border-width: 0 4px 4px 0;
-}
-
-.home-kicker,
-.home-title,
-.home-welcome,
-.home-character,
-.home-actions {
-  position: relative;
-  z-index: 2;
+  right: calc(-1 * var(--b));
+  bottom: calc(-1 * var(--b));
+  border-width: 0 var(--b) var(--b) 0;
 }
 
 .home-kicker {
   margin: 0;
+  font-size: max(8px, calc(1.4 * var(--u)));
+  letter-spacing: calc(0.35 * var(--u));
   color: #ffe066;
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.5rem, 1.2vw, 0.7rem);
-  letter-spacing: 3px;
-  text-shadow: 2px 2px 0 #000;
-  overflow-wrap: break-word;
-  max-width: 100%;
+  text-shadow: calc(0.2 * var(--u)) calc(0.2 * var(--u)) 0 #000;
 }
 
 .home-title {
-  margin: 0;
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(2rem, 6vw, 3.6rem);
-  color: #fff;
-  -webkit-text-stroke: calc(0.2 * var(--h)) #000;
+  margin: calc(2.2 * var(--u)) 0 0;
+  white-space: nowrap;
+  font-size: calc(6.2 * var(--u));
+  font-weight: normal;
+  line-height: 1;
+  color: #ffffff;
+  -webkit-text-stroke: calc(0.25 * var(--u)) #000;
   text-shadow:
-    0.25rem 0.25rem 0 #000,
-    0 0 18px rgba(255, 224, 102, 0.28);
-  overflow-wrap: break-word;
-  max-width: 100%;
-  width: 100%;
-  text-align: center;
+    calc(0.45 * var(--u)) calc(0.45 * var(--u)) 0 #000,
+    0 0 calc(1.8 * var(--u)) rgba(255, 224, 102, 0.28);
 }
 
-.home-welcome,
-.home-character {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.6rem, 1.6vw, 1rem);
-  color: #fff;
-  text-shadow: 2px 2px 0 #000;
-}
-
+/* Long usernames wrap onto a second line instead of leaving the card. */
 .home-welcome {
-  margin: 0;
-  color: #fffff3;
-  overflow-wrap: break-word;
+  margin: calc(3 * var(--u)) 0 0;
   max-width: 100%;
-  width: 100%;
-  text-align: center;
+  font-size: max(9px, calc(1.9 * var(--u)));
+  line-height: 1.5;
+  color: #fffff3;
+  text-shadow: calc(0.2 * var(--u)) calc(0.2 * var(--u)) 0 #000;
+  overflow-wrap: anywhere;
 }
 
 .home-character {
-  width: min(210px, 38vw);
-  min-height: 200px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  border: 3px solid rgba(255, 224, 102, 0.75);
-  border-radius: 12px;
+  position: relative;
+  width: calc(27 * var(--u));
+  height: calc(25 * var(--u));
+  margin-top: calc(3 * var(--u));
+  box-sizing: border-box;
+  overflow: hidden;
+  border: max(2px, calc(0.35 * var(--u))) solid rgba(255, 224, 102, 0.75);
+  border-radius: calc(1.2 * var(--u));
   background: rgba(7, 10, 27, 0.5);
-  box-shadow: inset 0 -10px 0 rgba(0, 0, 0, 0.18);
-}
-
-.home-avatar {
-  height: 20vh;
-  max-height: 185px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+  box-shadow: inset 0 calc(-1 * var(--u)) 0 rgba(0, 0, 0, 0.18);
 }
 
 .home-avatar-label {
   position: absolute;
-  top: 10px;
-  color: #ffe066;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.55rem;
+  z-index: 1;
+  top: calc(1.2 * var(--u));
+  left: 0;
+  right: 0;
+  font-size: max(7px, calc(1.1 * var(--u)));
   text-transform: uppercase;
-  text-shadow: 2px 2px 0 #000;
+  color: #ffe066;
+  text-shadow: calc(0.2 * var(--u)) calc(0.2 * var(--u)) 0 #000;
+}
+
+/* The character stands under the label and fills the rest of the box,
+   placed with the --fit-* values from characters.ts. */
+.home-avatar {
+  position: absolute;
+  top: calc(17% - var(--fit-top) * 78% / var(--fit-span));
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: calc(78% / var(--fit-span));
+  transform: translateX(calc(var(--fit-middle) * -100%));
+  filter: drop-shadow(calc(0.4 * var(--u)) calc(0.4 * var(--u)) 0 #0009);
+  image-rendering: pixelated;
 }
 
 .home-actions {
-  width: min(320px, 100%);
+  width: calc(36 * var(--u));
+  margin-top: calc(3.5 * var(--u));
   display: flex;
   flex-direction: column;
-  gap: 2vh;
+  gap: calc(2 * var(--u));
+}
+
+/* Never smaller than an easy tap on a phone. */
+.home-play,
+.home-logout {
+  width: 100%;
+  padding: 0;
+  font-family: inherit;
+  line-height: 1;
+  color: #fff;
+  text-shadow: calc(0.2 * var(--u)) calc(0.2 * var(--u)) 0 #000;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .home-play {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.7rem, 1.8vw, 1.1rem);
-  color: #fff;
+  height: max(40px, calc(7 * var(--u)));
+  font-size: max(11px, calc(2.2 * var(--u)));
+  letter-spacing: calc(0.2 * var(--u));
   background: #2b6dd4;
   border: 4px solid #1c4ba3;
-  border-radius: 12px;
-  padding: 2vh 4vw;
-  cursor: pointer;
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 0 #000;
-  box-shadow:
-    0 4px 0 #1c4ba3,
-    0 6px 12px rgba(0, 0, 0, 0.4);
-  transition: all 0.15s ease;
-  width: 100%;
 }
 
 .home-play:hover {
@@ -181,46 +171,27 @@
   transform: translateY(-2px);
 }
 
-/* Phone / short screens: tighter spacing and touch-friendly buttons. */
-@media (max-height: 560px) {
-  .home-menu {
-    min-height: 86vh;
-    gap: 1.2vh;
-    padding-top: 2vh;
-    padding-bottom: 2vh;
-  }
-
-  .home-play,
-  .home-logout {
-    padding-top: 1.6vh;
-    padding-bottom: 1.6vh;
-  }
-
-  .home-avatar {
-    height: 15vh;
-  }
-}
-
 .home-logout {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.6rem, 1.5vw, 0.9rem);
-  color: #fff;
+  height: max(36px, calc(5.8 * var(--u)));
+  font-size: max(10px, calc(1.8 * var(--u)));
+  letter-spacing: calc(0.2 * var(--u));
   background: #b0392e;
   border: 4px solid #7a241c;
-  border-radius: 12px;
-  padding: 1.5vh 3vw;
-  cursor: pointer;
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 0 #000;
-  box-shadow:
-    0 4px 0 #7a241c,
-    0 6px 12px rgba(0, 0, 0, 0.4);
-  transition: all 0.15s ease;
-  width: 100%;
 }
 
 .home-logout:hover {
   background: #d04437;
   border-color: #933027;
   transform: translateY(-2px);
+}
+
+/* Upright tablets and square windows still show the big corner icons
+   (phones under 621px get the menu button instead): keep the top of the
+   screen free for them and centre the card in the rest. */
+@media (min-width: 621px) and (max-aspect-ratio: 1/1) {
+  .home-screen {
+    --u: min(calc(0.8 * var(--h)), 1.7vw);
+    padding-top: calc(18 * var(--h));
+    box-sizing: border-box;
+  }
 }
