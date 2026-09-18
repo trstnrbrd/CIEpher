@@ -13,7 +13,7 @@
 //   ch1 m2  core -> Correct card -> attendance-recorded scene
 //   ch1 m3  core -> Correct card
 //   ch1 m4  core -> submission scene
-//   ch1 m5  core only (shows as Program Flow)
+//   ch1 m5  core (Program Flow) -> chapter-complete card
 //   ch2 m1  q1 core -> purchase scene -> next question; q2 core -> scene 1.2
 //   ch2 m2  core -> Wi-Fi-on scene
 //   ch2 m3  core -> portal-opens scene
@@ -33,6 +33,8 @@ export type SceneId =
   | 'classroomCorrect'
   | 'classroomAttendance'
   | 'programmingLabCorrect'
+  | 'homeworkCorrect'
+  | 'chapterComplete'
   | 'submission'
   | 'scene11'
   | 'scene12'
@@ -68,8 +70,12 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
       { kind: 'core' },
       { kind: 'scene', id: 'programmingLabCorrect' },
     ],
-    '1:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'submission' }],
-    '1:5': () => [{ kind: 'core' }],
+    '1:4': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'homeworkCorrect' },
+      { kind: 'scene', id: 'submission' },
+    ],
+    '1:5': () => [{ kind: 'core' }, { kind: 'scene', id: 'chapterComplete' }],
     '2:1': (question) =>
       question === 1
         ? [

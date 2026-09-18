@@ -51,6 +51,70 @@
   left: 78%;
 }
 
+/* A scene-specific portrait: keep the character on the right and crop away
+   the lower body without changing the full-body treatment elsewhere. */
+.story-person.story-person-half {
+  left: auto;
+  right: clamp(6%, 13vw, 18%);
+  bottom: clamp(-70vh, -58vh, -42vh);
+  height: clamp(125vh, 145vh, 165vh);
+  transform: none;
+  clip-path: inset(0 0 43% 0);
+}
+
+/* Small pixel-style file marker on the PC.webp monitor. Percent positioning
+   keeps it on the screen as the background scales responsively. */
+.story-screen-file {
+  position: absolute;
+  top: 42%;
+  left: 18%;
+  width: clamp(22px, 5vw, 58px);
+  aspect-ratio: 1;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.story-screen-file-page {
+  position: absolute;
+  inset: 8% 18% 12% 12%;
+  background: #fff6d6;
+  border: max(2px, 0.25vw) solid #273149;
+  box-shadow: inset 0 -0.3em 0 #e7d9ad;
+}
+
+.story-screen-file-page::after {
+  content: '';
+  position: absolute;
+  top: 22%;
+  left: 18%;
+  width: 58%;
+  height: max(2px, 0.22vw);
+  background: #273149;
+  box-shadow:
+    0 0.45em 0 #273149,
+    0 0.9em 0 #273149;
+}
+
+.story-screen-file-cursor {
+  position: absolute;
+  right: 2%;
+  bottom: 2%;
+  width: 0;
+  height: 0;
+  border-top: clamp(7px, 1.4vw, 16px) solid transparent;
+  border-bottom: clamp(2px, 0.45vw, 5px) solid transparent;
+  border-left: clamp(5px, 1vw, 12px) solid #ffd23f;
+  transform: rotate(35deg);
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .story-person.story-person-half {
+    right: 2%;
+    height: 135vh;
+    bottom: -52vh;
+  }
+}
+
 /* The guard sprite shown in chapter 1 school gate scene. */
 .story-guard {
   --size: calc(74 * var(--h));
@@ -115,6 +179,30 @@
   background: #fffdf2;
   border: max(2px, calc(0.42 * var(--h))) solid #8c1c1c;
   color: #111111;
+}
+
+/* The white panel Professor Reyes speaks from, in the top right corner with
+   a tail pointing down at him (the quiz announcement mockup). */
+.story-bubble.story-bubble-white {
+  top: calc(9 * var(--h) + env(safe-area-inset-top, 0px));
+  right: 13%;
+  left: auto;
+  width: min(34vw, calc(62 * var(--h)));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(14px, 1.8vw, 24px);
+  transform: none;
+  background: #fffdf2;
+  border-radius: 4px;
+  color: #111111;
+}
+
+.story-bubble-white .story-text {
+  font-size: clamp(11px, 1.35vw, 16px);
+  line-height: 1.35;
+}
+
+.story-bubble-white .story-tap {
+  font-size: clamp(9px, 1.05vw, 13px);
 }
 
 /* The scan prompt uses the yellow machine dialog from the hallway mockup. */
@@ -292,16 +380,18 @@
   --u: min(var(--h), 0.67vw);
   --line: max(2px, calc(0.42 * var(--u)));
   position: absolute;
-  top: calc(6.9 * var(--u));
+  top: 50%;
   left: 50%;
-  z-index: 56;
+  z-index: 50;
   width: min(calc(140.3 * var(--u)), 94vw);
+  max-height: 96vh;
+  overflow-y: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(6.9 * var(--u)) calc(9.9 * var(--u)) calc(4.6 * var(--u));
-  transform: translateX(-50%);
+  padding: calc(5.5 * var(--u)) calc(9.9 * var(--u)) calc(4.6 * var(--u));
+  transform: translate(-50%, -50%);
   font-family: 'Press Start 2P', monospace;
   color: #111111;
   background: #fffdf2;
@@ -526,4 +616,149 @@
   .story-scene-guard .story-bubble-guard .story-tap {
     font-size: clamp(10px, 3vw, 13px);
   }
+}
+
+/* ---------- The PC scenes' monitor ---------- */
+
+/* A layer laid exactly over the background picture (16:9, anchored like
+   .story-bg's object-position), so whatever it holds keeps its place on the
+   art at any window shape. --pic is the picture's drawn height. */
+.story-screen-layer {
+  --pic: max(calc(100 * var(--h)), 56.25vw);
+  position: absolute;
+  left: 55%;
+  bottom: 0;
+  width: calc(var(--pic) * 16 / 9);
+  height: var(--pic);
+  transform: translateX(-55%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The monitor's screen on PC.webp (x 15-42%, y 35-75% of the picture). */
+.story-screen-text {
+  position: absolute;
+  left: 15.4%;
+  top: 36.2%;
+  width: 26.2%;
+  height: 37.5%;
+  box-sizing: border-box;
+  padding: 1.2% 1%;
+  background: #f2f2f2;
+  box-shadow: inset 0 0 0 max(1px, 0.2vh) #c9c9c9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  font-family: 'Press Start 2P', monospace;
+  font-size: calc(2.4 * var(--pic) / 100);
+  line-height: 1.2;
+  text-align: center;
+  color: #1b2333;
+}
+
+.story-screen-text .story-screen-file-cursor {
+  right: 6%;
+  bottom: 10%;
+}
+
+/* A scene with no line to say: the whole picture is the tap target, with a
+   small hint at the bottom. */
+.story-tap-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: calc(4 * var(--h) + env(safe-area-inset-bottom, 0px));
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* The hint sits over the scene, so it gets its own dark chip to stay
+   readable whatever is behind it. */
+.story-tap-layer .story-tap {
+  padding: calc(1.2 * var(--h)) calc(2.2 * var(--h));
+  color: #fffff3;
+  background: rgba(10, 12, 28, 0.72);
+  border-radius: 999px;
+}
+
+.story-tap-layer:focus-visible {
+  outline: 3px solid #fffff3;
+  outline-offset: -6px;
+}
+
+/* Upright phones: the professor's panel spans the screen like the other
+   bubbles, with its tail still on the left. */
+@media (max-aspect-ratio: 1/1) {
+  .story-bubble.story-bubble-white {
+    top: calc(14 * var(--h) + env(safe-area-inset-top, 0px));
+    right: 4vw;
+    width: 82vw;
+  }
+}
+
+/* The chapter-complete card: the same frame, with a coloured title, a tight
+   list of the journal's sections, and a row that opens the journal. */
+/* It carries more than the other cards, so it sits in the middle and only
+   takes the height it needs. */
+.story-card-complete {
+  padding-top: calc(4.5 * var(--u));
+  padding-bottom: calc(3.5 * var(--u));
+}
+
+.story-card-complete .story-card-box {
+  min-height: 0;
+  padding: calc(4 * var(--u)) calc(3 * var(--u));
+}
+
+.story-card-complete .story-card-title {
+  font-size: max(16px, calc(5 * var(--u)));
+  color: #ff3d7f;
+  text-shadow:
+    calc(-0.6 * var(--u)) calc(-0.6 * var(--u)) 0 #46dfe8,
+    calc(0.6 * var(--u)) calc(0.6 * var(--u)) 0 #c2185b;
+}
+
+.story-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin: 1.2em 0 0;
+  font-size: max(9px, calc(2.6 * var(--u)));
+  line-height: 1.45;
+}
+
+.story-card-journal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8em;
+  margin: 1.2em auto 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: max(9px, calc(2.4 * var(--u)));
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.story-card-journal img {
+  width: max(24px, calc(7 * var(--u)));
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.story-card-journal:hover img {
+  transform: translateY(-2px);
+}
+
+.story-card-complete .story-card-next {
+  text-transform: uppercase;
 }

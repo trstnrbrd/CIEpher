@@ -8,6 +8,7 @@ import schoolImg from './chapter1/Schoool.webp'
 import classroomImg from './chapter1/classroom.webp'
 import hallwayImg from './chapter1/Hallway.webp'
 import powerImg from './chapter1/power.webp'
+import pcChapter1Img from './chapter1/PC.webp'
 import profClassroomImg from './chapter1/prof_classroom.webp'
 import guardImg from './chapter1/guard.webp'
 import bookstoreImg from './chapter 2/bookstore.webp'
@@ -31,16 +32,27 @@ export type StoryPage = {
   professor?: boolean
   // Which character says the lines. Defaults to the player.
   speaker?: 'player' | 'guard' | 'kiosk' | 'professor'
-  // Use the yellow kiosk dialog treatment for scene-specific machine prompts.
-  bubble?: 'yellow'
+  // A panel dialog in the top corner with a tail: the yellow machine prompt,
+  // or the white one Professor Reyes speaks from.
+  bubble?: 'yellow' | 'white'
   // Hide the player sprite: some scenes already draw the people into the
   // background art, so a separate sprite would double them up.
   noSprite?: boolean
+  // Show the player as a cropped half-body portrait on the right side.
+  halfBody?: boolean
+  // Lines shown on the PC monitor in the chapter 1 computer scenes.
+  screenText?: string[]
+  // Add a small computer-screen icon for PC scenes.
+  screenIcon?: 'file'
   // A card with this title instead of a speech bubble, like the chapter
   // docs' "Situation" before a question or "Correct" after an answer:
   // `lines` are its paragraphs, shown in full over the same scene, with a
   // Next button.
   card?: string
+  // Tight lines under the card's paragraphs (the chapter's journal list).
+  cardList?: string[]
+  // The chapter-complete look: coloured title and the journal row.
+  cardStyle?: 'complete'
 }
 
 // The story beat right after mission 1's explanation closes: the door swings
@@ -157,6 +169,7 @@ export const CLASSROOM_PAGE: StoryPage = {
 export const CLASSROOM_SITUATION_PAGE: StoryPage = {
   bg: hallwayImg,
   lines: ['The attendance system should only record students who are present.'],
+  noSprite: true,
   card: 'SITUATION',
 }
 
@@ -165,6 +178,7 @@ export const CLASSROOM_SITUATION_PAGE: StoryPage = {
 export const CLASSROOM_CORRECT_PAGE: StoryPage = {
   bg: hallwayImg,
   lines: ['Remember to use braces { } to define the block of code.'],
+  noSprite: true,
   card: 'Correct',
 }
 
@@ -197,7 +211,7 @@ export const PROGRAMMING_LAB_SITUATION_PAGE: StoryPage = {
   bg: powerImg,
   lines: ['The computer should only turn on if power is available.'],
   noSprite: true,
-  card: 'Situation',
+  card: 'SITUATION',
 }
 
 // Chapter 1 Mission 3 — reinforce the semicolon rule after the core
@@ -209,24 +223,49 @@ export const PROGRAMMING_LAB_CORRECT_PAGE: StoryPage = {
   card: 'Correct',
 }
 
-// Chapter 1 Scene 3.2 — mission 4 opens in the professor's classroom as a
-// short programming exercise and notification appear. The professor and
-// students are part of the artwork, so no player sprite is drawn.
-export const HOMEWORK_PAGE: StoryPage = {
-  bg: profClassroomImg,
-  noSprite: true,
-  lines: [
-    'The professor gives the class a short programming exercise.',
-    'Complete the activity before submitting it.',
-  ],
+// Chapter 1 Scene 3.2 — a notification appears on the laboratory computer.
+export const PROGRAMMING_LAB_NOTIFICATION_PAGE: StoryPage = {
+  bg: pcChapter1Img,
+  lines: ['A notification appears.'],
+  align: 'right',
+  halfBody: true,
 }
 
-// Chapter 1 Scene 4.1 — after mission 4's explanation, the screen confirms
-// the activity was submitted. The characters stay inside the artwork.
-export const SUBMISSION_PAGE: StoryPage = {
-  bg: profClassroomImg,
+// Chapter 1 Mission 4, scene 2 — the activity appears on the computer after
+// the notification scene.
+export const HOMEWORK_PAGE: StoryPage = {
+  bg: pcChapter1Img,
+  lines: ['Complete the activity before submitting it.'],
+  align: 'right',
+  halfBody: true,
+  screenIcon: 'file',
+}
+
+// Chapter 1 Mission 4, scene 3 — the situation shown before the exercise.
+export const HOMEWORK_SITUATION_PAGE: StoryPage = {
+  bg: pcChapter1Img,
+  lines: ['The system should only accept activities that are completed.'],
   noSprite: true,
-  lines: ['Activity submitted successfully.'],
+  card: 'SITUATION',
+}
+
+// Chapter 1 Mission 4 — reinforce the lowercase `if` rule after the core
+// explanation before the submission scene.
+export const HOMEWORK_CORRECT_PAGE: StoryPage = {
+  bg: pcChapter1Img,
+  lines: ['C# keywords are case-sensitive. Always use lowercase if.'],
+  noSprite: true,
+  card: 'Correct',
+}
+
+// Chapter 1, mission 4's last scene: the computer confirms the activity was
+// submitted. No speech bubble, so a tap anywhere moves on.
+export const SUBMISSION_PAGE: StoryPage = {
+  bg: pcChapter1Img,
+  lines: [],
+  align: 'right',
+  halfBody: true,
+  screenText: ['ACTIVITY', 'SUBMITTED', 'SUCCESSFULLY', '!!!'],
 }
 
 // Chapter 1 Scene 4.2 — mission 5 opens as the professor announces a short
@@ -234,9 +273,37 @@ export const SUBMISSION_PAGE: StoryPage = {
 export const QUIZ_ANNOUNCEMENT_PAGE: StoryPage = {
   bg: profClassroomImg,
   noSprite: true,
+  bubble: 'white',
   lines: [
-    'The professor announces a short readiness quiz before the lesson begins.',
-    'Only students with recorded attendance may take it.',
+    "We will have a practical quiz and if you can't finish it, you're not allowed to be dismiss.",
+  ],
+}
+
+// Chapter 1, mission 5's situation, before its question.
+export const QUIZ_SITUATION_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  card: 'SITUATION',
+  lines: [
+    'You need to finish the practical quiz that was given by your professor for you to go to your next class.',
+  ],
+}
+
+// Chapter 1's end: the journal entry the player just earned.
+export const CHAPTER_COMPLETE_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 1: The if Statement',
+  ],
+  cardList: [
+    'Definition of if',
+    'Basic syntax',
+    'Common syntax errors',
+    'Real-world applications',
   ],
 }
 
@@ -244,6 +311,7 @@ export const QUIZ_ANNOUNCEMENT_PAGE: StoryPage = {
 export const REYES_CLOSING_PAGE: StoryPage = {
   bg: profClassroomImg,
   noSprite: true,
+  bubble: 'white',
   lines: [
     "Excellent work. Today you've learned how the if statement helps a program make decisions based on a single condition.",
   ],

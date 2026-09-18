@@ -36,14 +36,19 @@ import {
   CLASSROOM_PAGE,
   CLASSROOM_SITUATION_PAGE,
   HOMEWORK_PAGE,
+  HOMEWORK_CORRECT_PAGE,
+  HOMEWORK_SITUATION_PAGE,
   JEEP_START_PAGE,
   OPEN_DOOR_PAGE,
   OUTSIDE_PAGES,
   PROGRAMMING_LAB_ENTRY_PAGE,
   PROGRAMMING_LAB_CORRECT_PAGE,
   PROGRAMMING_LAB_PAGE,
+  PROGRAMMING_LAB_NOTIFICATION_PAGE,
   PROGRAMMING_LAB_SITUATION_PAGE,
+  CHAPTER_COMPLETE_PAGE,
   QUIZ_ANNOUNCEMENT_PAGE,
+  QUIZ_SITUATION_PAGE,
   REYES_CLOSING_PAGE,
   SCHOOL_GATE_PAGE,
   SCHOOL_GATE_CHOICE_CORRECT_PAGE,
@@ -59,6 +64,7 @@ import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.webp'
 import girlImg from '../assets/girl.webp'
+import CodeWorkflow from './CodeWorkflow'
 import CoreBreakdown from './CoreBreakdown'
 import ProgramFlow from './ProgramFlow'
 import CodeExplained from './CodeExplained'
@@ -160,6 +166,8 @@ function MissionScreen({
   const [showingHomework, setShowingHomework] = useState<boolean>(
     chapter === 1 && mission === 4,
   )
+  const [showingHomeworkCorrect, setShowingHomeworkCorrect] =
+    useState<boolean>(false)
   // Chapter 1, scene 4.1: after mission 4's explanation, the screen confirms
   // the activity was submitted before moving on.
   const [showingSubmission, setShowingSubmission] = useState<boolean>(false)
@@ -168,6 +176,9 @@ function MissionScreen({
   const [showingQuiz, setShowingQuiz] = useState<boolean>(
     chapter === 1 && mission === 5,
   )
+  // Chapter 1, mission 5: the chapter-complete card after the program flow.
+  const [showingChapterComplete, setShowingChapterComplete] =
+    useState<boolean>(false)
   // Chapter 1, scene 5.1: after the chapter unlocks, Professor Reyes closes
   // the chapter before the player returns to the chapter list.
   const [showingScene51, setShowingScene51] = useState<boolean>(false)
@@ -355,6 +366,12 @@ function MissionScreen({
       case 'programmingLabCorrect':
         setShowingProgrammingLabCorrect(true)
         break
+      case 'chapterComplete':
+        setShowingChapterComplete(true)
+        break
+      case 'homeworkCorrect':
+        setShowingHomeworkCorrect(true)
+        break
       case 'submission':
         setShowingSubmission(true)
         break
@@ -450,6 +467,12 @@ function MissionScreen({
   // one (progress was refreshed before reaching here), play the celebration;
   // otherwise head straight to the chapter list.
   const finishChapter = (): void => {
+    // Chapter 1 already showed its chapter-complete card, so it goes
+    // straight to Professor Reyes' closing scene.
+    if (chapter === 1) {
+      setShowingScene51(true)
+      return
+    }
     const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
     if (nextChapter?.unlocked) {
       setUnlockChapter(nextChapter.id)
@@ -733,14 +756,18 @@ function MissionScreen({
     )
   }
 
-  // Scene 3.2: mission 4 opens in the professor's classroom as the exercise
-  // and notification appear, then the challenge appears.
+  // Scene 3.2: mission 4 opens with the computer notification, then the
+  // programming exercise appears before the challenge.
   if (showingHomework) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[HOMEWORK_PAGE]}
+          pages={[
+            PROGRAMMING_LAB_NOTIFICATION_PAGE,
+            HOMEWORK_PAGE,
+            HOMEWORK_SITUATION_PAGE,
+          ]}
           onFinish={() => setShowingHomework(false)}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -762,8 +789,32 @@ function MissionScreen({
       <>
         <PrologueStory
           character={character}
-          pages={[QUIZ_ANNOUNCEMENT_PAGE]}
+          pages={[QUIZ_ANNOUNCEMENT_PAGE, QUIZ_SITUATION_PAGE]}
           onFinish={() => setShowingQuiz(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 1's end: the journal entry, after mission 5's program flow.
+  if (showingChapterComplete) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CHAPTER_COMPLETE_PAGE]}
+          onFinish={() => {
+            setShowingChapterComplete(false)
+            continueFromScene()
+          }}
           onJournal={onJournal}
           onSettings={onSettings}
         />
@@ -813,6 +864,31 @@ function MissionScreen({
           onFinish={() => {
             setShowingWelcomeGate(false)
             setShowingAnimation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Mission 4's Correct card appears after Understand the Core and before
+  // the activity submission scene.
+  if (showingHomeworkCorrect) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[HOMEWORK_CORRECT_PAGE]}
+          onFinish={() => {
+            setShowingHomeworkCorrect(false)
+            continueFromScene()
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -1168,8 +1244,11 @@ function MissionScreen({
         const { wrong, missing } = highlightDiff(answer, targetCode)
         setWrongChars(wrong)
         setMissingTail(missing)
+        // Spacing and line breaks don't matter to the checker, so the
+        // choice turns red whatever way the player typed it out.
+        const same = (text: string): string => text.replace(/\s+/g, '')
         const typedChoice = currentQuestion.choices.findIndex(
-          (choice) => choice.trim() === answer.trim(),
+          (choice) => same(choice) === same(answer),
         )
         setWrongChoiceIndex(typedChoice === -1 ? null : typedChoice)
         setFeedback({
@@ -1415,7 +1494,15 @@ function MissionScreen({
         )}
       </div>
 
-      {showCore && lesson?.programFlow && (
+      {showCore && lesson?.workflow && (
+        <CodeWorkflow
+          code={lesson.code}
+          workflow={lesson.workflow}
+          onClose={closeCore}
+        />
+      )}
+
+      {showCore && !lesson?.workflow && lesson?.programFlow && (
         <ProgramFlow
           code={lesson.code}
           flow={lesson.programFlow}
@@ -1423,7 +1510,10 @@ function MissionScreen({
         />
       )}
 
-      {showCore && lesson?.programFlow === undefined && lesson?.core && (
+      {showCore &&
+        !lesson?.workflow &&
+        lesson?.programFlow === undefined &&
+        lesson?.core && (
         <CoreBreakdown
           code={lesson.code}
           core={lesson.core}
@@ -1441,20 +1531,16 @@ function MissionScreen({
       )}
 
       {unlockChapter !== null &&
-        (chapter === 1 || chapter === 2 ? (
-          // Finishing Chapter 1 opens Chapter 2 with the "THE CODE EXPLAINED"
-          // recap of the if statement; finishing Chapter 2 opens Chapter 3 with
-          // the if/else recap. Both replace the generic celebration.
+        (chapter === 2 ? (
+          // Finishing Chapter 2 opens Chapter 3 with the "THE CODE EXPLAINED"
+          // recap of the if/else statement, in place of the celebration.
+          // (Chapter 1 shows its own chapter-complete card instead.)
           <CodeExplained
             chapter={chapter}
             onJournal={onJournal}
             onContinue={() => {
               setUnlockChapter(null)
-              if (chapter === 1) {
-                setShowingScene51(true)
-              } else {
-                setShowingCh2Scene51(true)
-              }
+              setShowingCh2Scene51(true)
             }}
           />
         ) : (

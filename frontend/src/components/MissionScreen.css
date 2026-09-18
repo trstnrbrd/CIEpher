@@ -186,18 +186,23 @@
   min-width: 0;
 }
 
+/* The code choices keep the line breaks they are written with (a brace
+   starts its own line) and get room to breathe. */
 .mission-choice {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(11px, 1.35vw, 20px);
+  /* Small enough that a line of code fits without wrapping mid-statement. */
+  font-size: clamp(9px, 1.12vw, 16px);
+  white-space: pre-wrap;
+  line-height: 1.45;
+  text-align: left;
   color: #080808;
   background: #f2ecd6;
   border: 3px solid #ad201d;
-  border-radius: 999px;
+  border-radius: 14px;
   box-shadow: none;
-  padding: 14px 30px;
+  padding: 18px 24px;
   min-width: 28%;
   max-width: 100%;
-  text-align: center;
   box-sizing: border-box;
   overflow-wrap: break-word;
   word-break: break-word;

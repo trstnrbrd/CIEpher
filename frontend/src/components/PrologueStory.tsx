@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Character } from '../api/client'
 import { CHARACTER_ART, fitVariables, type CharacterFit } from '../characters'
 import guardImg from '../chapter1/guard.webp'
+import journalImg from '../icons/journal.webp'
 import professorImg from '../chapter 2/professor.webp'
 import bedroomImg from '../assets/prologue/player bedroom.webp'
 import closeDoorImg from '../assets/prologue/CloseDoor.webp'
@@ -75,7 +76,12 @@ function PrologueStory({
     speaker,
     bubble,
     noSprite,
+    halfBody,
+    screenText,
+    screenIcon,
     card,
+    cardList,
+    cardStyle,
   } = list[page]
   const guardSpeaking = speaker === 'guard' && guard
   const kioskSpeaking = speaker === 'kiosk'
@@ -139,6 +145,7 @@ function PrologueStory({
   const personClass = ['story-person']
   if (align === 'left') personClass.push('story-person-left')
   if (align === 'right') personClass.push('story-person-right')
+  if (halfBody) personClass.push('story-person-half')
 
   // The school gate pages (the ones with the guard) have their own layout,
   // from Tristan's mockup: see .story-scene-guard.
@@ -152,9 +159,34 @@ function PrologueStory({
         alt=""
         style={{ objectPosition: pos ?? '55% 100%' }}
       />
+      {screenText && (
+        <span className="story-screen-layer" aria-hidden="true">
+          <span className="story-screen-text">
+            {screenText.map((line) => (
+              <span key={line} className="story-screen-line">
+                {line}
+              </span>
+            ))}
+            <span className="story-screen-file-cursor" />
+          </span>
+        </span>
+      )}
+      {screenIcon === 'file' && (
+        <span className="story-screen-file" aria-hidden="true">
+          <span className="story-screen-file-page" />
+          <span className="story-screen-file-cursor" />
+        </span>
+      )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       {card !== undefined ? (
-        <section className="story-card" aria-labelledby="story-card-title">
+        <section
+          className={
+            cardStyle === 'complete'
+              ? 'story-card story-card-complete'
+              : 'story-card'
+          }
+          aria-labelledby="story-card-title"
+        >
           <div className="story-card-box">
             <h2 id="story-card-title" className="story-card-title">
               {card}
@@ -164,11 +196,33 @@ function PrologueStory({
                 {line}
               </p>
             ))}
+            {cardList && (
+              <p className="story-card-list">
+                {cardList.map((item) => (
+                  <span key={item}>{item}</span>
+                ))}
+              </p>
+            )}
+            {cardStyle === 'complete' && (
+              <button
+                type="button"
+                className="story-card-journal"
+                onClick={onJournal}
+              >
+                <img src={journalImg} alt="" />
+                Click to Learn!
+              </button>
+            )}
           </div>
           <button type="button" className="story-card-next" onClick={advance}>
             Next
           </button>
         </section>
+      ) : lines.length === 0 ? (
+        // A picture-only scene (no line to say): tapping anywhere moves on.
+        <button type="button" className="story-tap-layer" onClick={advance}>
+          <span className="story-tap">Tap to next</span>
+        </button>
       ) : (
         <button
           type="button"
@@ -179,6 +233,7 @@ function PrologueStory({
             kioskSpeaking ? 'story-bubble-kiosk' : '',
             professorSpeaking ? 'story-bubble-professor' : '',
             bubble === 'yellow' ? 'story-bubble-yellow' : '',
+            bubble === 'white' ? 'story-bubble-white' : '',
           ]
             .filter(Boolean)
             .join(' ')}

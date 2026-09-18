@@ -29,6 +29,8 @@
 .core-title {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(1rem, 3.4vw, 1.6rem);
+  /* Two lines on narrow screens must not sit on top of each other. */
+  line-height: 1.5;
   color: #ffe066;
   -webkit-text-stroke: 1px #000000;
   text-shadow: 3px 3px 0 #000000;
