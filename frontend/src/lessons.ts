@@ -11,6 +11,7 @@ import jeepneyTerminalImg from './assets/prologue/JeepneyTerminal.webp'
 import schoolImg from './chapter1/Schoool.webp'
 import classroomImg from './chapter1/classroom.webp'
 import powerImg from './chapter1/power.webp'
+import pcChapter1Img from './chapter1/PC.webp'
 import profClassroomImg from './chapter1/prof_classroom.webp'
 import bookstoreImg from './chapter 2/bookstore.webp'
 import noWifiImg from './chapter 2/no wifi.webp'
@@ -53,6 +54,8 @@ export type Question = {
   sceneBg?: string
 }
 
+import type { Workflow } from './components/CodeWorkflow'
+
 export type Lesson = {
   chapter: number
   mission: number
@@ -72,6 +75,9 @@ export type Lesson = {
   prompt?: string
   choices?: string[]
   core?: CoreBreakdown
+  // The "UNDERSTAND THE CODE" poster (CodeWorkflow): same layout for every
+  // mission, its own content.
+  workflow?: Workflow
   // A readiness quiz / chapter-end mission: after a correct answer the game
   // shows program flow of the entered code first (no anatomy breakdown),
   // then the result. Takes priority over `core`.
@@ -79,6 +85,36 @@ export type Lesson = {
   // Multi-question missions: each question has its own prompt, choices, and
   // code. When present, this overrides the single prompt/choices/code above.
   questions?: Question[]
+}
+
+// The explanation rows of the poster: only the names change per mission.
+function codeParts(condition: string, call: string): Workflow['parts'] {
+  return [
+    {
+      chip: 'if',
+      tone: 'blue',
+      text: 'Tells the program: Make a decision.',
+      icon: 'bulb',
+    },
+    {
+      chip: `(${condition})`,
+      tone: 'green',
+      text: 'The condition to check.',
+      icon: 'check',
+    },
+    {
+      chip: '{ }',
+      tone: 'yellow',
+      text: 'The code inside will run only if the condition is TRUE.',
+      icon: 'doc',
+    },
+    {
+      chip: call,
+      tone: 'pink',
+      text: 'The action the program performs.',
+      icon: 'clip',
+    },
+  ]
 }
 
 const LESSONS: Record<string, Lesson> = {
@@ -91,7 +127,7 @@ const LESSONS: Record<string, Lesson> = {
       'Lesson content coming soon. The mission is teaching how a method call opens the way forward.',
     code: 'OpenDoor();',
     sceneBg: closeDoorImg,
-    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
     choices: ['OpenDoor();', 'OpenDoor:'],
     core: {
       incorrectExample: 'OpenDoor ;',
@@ -119,8 +155,7 @@ const LESSONS: Record<string, Lesson> = {
         'Door Opens',
         'End',
       ],
-      takeaway:
-        'Use () to call a method and always end the statement with ;',
+      takeaway: 'Use () to call a method and always end the statement with ;',
     },
   },
   '0:2': {
@@ -133,7 +168,7 @@ const LESSONS: Record<string, Lesson> = {
     code: 'GoToTerminal();',
     // Asked at the outside-door scene, right after leaving the house.
     sceneBg: outsideDoorImg,
-    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
     choices: ['GoToTerminal();', 'GoToTerminal;'],
     core: {
       incorrectExample: 'GoToTerminal ;',
@@ -174,7 +209,7 @@ const LESSONS: Record<string, Lesson> = {
       'Calling the RideJeep(); method starts the journey along the route. A method needs () to be called and ; to end the statement.',
     code: 'RideJeep();',
     sceneBg: jeepneyTerminalImg,
-    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+    prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
     choices: ['RideJeep();', 'RideJeep:'],
     core: {
       incorrectExample: 'RideJeep ;',
@@ -207,6 +242,15 @@ const LESSONS: Record<string, Lesson> = {
     },
   },
   '1:1': {
+    workflow: {
+      subtitle: 'ENTER THE UNIVERSITY',
+      parts: codeParts('hasSchoolID', 'EnterSchool();'),
+      check: 'Check hasSchoolID',
+      condition: 'hasSchoolID == true?',
+      yes: ['EnterSchool();', 'Gate opens'],
+      no: 'Gate stays closed',
+      label: 'CHAPTER 1 MISSION 1',
+    },
     chapter: 1,
     mission: 1,
     title: 'The if Statement',
@@ -222,7 +266,7 @@ const LESSONS: Record<string, Lesson> = {
         code: 'if',
       },
       {
-        prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX',
+        prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
         choices: [
           'if(hasSchoolID)\n{\n    EnterSchool();\n}',
           'if hasSchoolID\n{\n    EnterSchool();\n}',
@@ -265,6 +309,15 @@ const LESSONS: Record<string, Lesson> = {
     },
   },
   '1:2': {
+    workflow: {
+      subtitle: 'RECORD YOUR ATTENDANCE',
+      parts: codeParts('isPresent', 'RecordAttendance();'),
+      check: 'Check isPresent',
+      condition: 'isPresent == true?',
+      yes: ['RecordAttendance();', 'Attendance recorded'],
+      no: 'Attendance not recorded',
+      label: 'CHAPTER 1 MISSION 2',
+    },
     chapter: 1,
     mission: 2,
     title: 'Record Attendance',
@@ -274,15 +327,14 @@ const LESSONS: Record<string, Lesson> = {
     code: 'if(isPresent)\n{\n    RecordAttendance();\n}',
     sceneBg: classroomImg,
     prompt:
-      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isPresent)\n{\n    RecordAttendance();\n}',
       'if(isPresent)\n    RecordAttendance();',
     ],
     core: {
       incorrectExample: 'if(isPresent)\n    RecordAttendance();',
-      incorrectNote:
-        'It is missing the curly braces { } around the action.',
+      incorrectNote: 'It is missing the curly braces { } around the action.',
       correctNote: 'This is the correct syntax.',
       anatomy: [
         {
@@ -316,6 +368,15 @@ const LESSONS: Record<string, Lesson> = {
     },
   },
   '1:3': {
+    workflow: {
+      subtitle: 'START YOUR WORKSTATION',
+      parts: codeParts('hasPower', 'StartComputer();'),
+      check: 'Check hasPower',
+      condition: 'hasPower == true?',
+      yes: ['StartComputer();', 'Computer starts'],
+      no: 'Computer remains off',
+      label: 'CHAPTER 1 MISSION 3',
+    },
     chapter: 1,
     mission: 3,
     title: 'Start the Workstation',
@@ -325,7 +386,7 @@ const LESSONS: Record<string, Lesson> = {
     code: 'if(hasPower)\n{\n    StartComputer();\n}',
     sceneBg: powerImg,
     prompt:
-      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasPower)\n{\n    StartComputer();\n}',
       'if(hasPower)\n{\n    StartComputer()\n}',
@@ -368,6 +429,15 @@ const LESSONS: Record<string, Lesson> = {
     },
   },
   '1:4': {
+    workflow: {
+      subtitle: 'SUBMIT YOUR FIRST ACTIVITY',
+      parts: codeParts('isCompleted', 'SubmitActivity();'),
+      check: 'Check isCompleted',
+      condition: 'isCompleted == true?',
+      yes: ['SubmitActivity();', 'Activity submitted'],
+      no: 'Activity not submitted',
+      label: 'CHAPTER 1 MISSION 4',
+    },
     chapter: 1,
     mission: 4,
     title: 'Submit the Activity',
@@ -375,17 +445,16 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
     code: 'if(isCompleted)\n{\n    SubmitActivity();\n}',
-    sceneBg: profClassroomImg,
+    sceneBg: pcChapter1Img,
     prompt:
-      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isCompleted)\n{\n    SubmitActivity();\n}',
       'IF(isCompleted)\n{\n    SubmitActivity();\n}',
     ],
     core: {
       incorrectExample: 'IF(isCompleted)\n{\n    SubmitActivity();\n}',
-      incorrectNote:
-        'C# keywords are case-sensitive. Always use lowercase if.',
+      incorrectNote: 'C# keywords are case-sensitive. Always use lowercase if.',
       correctNote:
         'Correct! C# keywords are case-sensitive. Always use lowercase if.',
       anatomy: [
@@ -420,6 +489,15 @@ const LESSONS: Record<string, Lesson> = {
     },
   },
   '1:5': {
+    workflow: {
+      subtitle: 'TAKE THE READINESS QUIZ',
+      parts: codeParts('hasAttendance', 'OpenQuiz();'),
+      check: 'Check hasAttendance',
+      condition: 'hasAttendance == true?',
+      yes: ['OpenQuiz();', 'Quiz opens'],
+      no: 'Quiz stays locked',
+      label: 'CHAPTER 1 MISSION 5',
+    },
     chapter: 1,
     mission: 5,
     title: 'The Readiness Quiz',
@@ -429,7 +507,7 @@ const LESSONS: Record<string, Lesson> = {
     code: 'if(hasAttendance)\n{\n    OpenQuiz();\n}',
     sceneBg: profClassroomImg,
     prompt:
-      'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasAttendance)\n{\n    OpenQuiz();\n}',
       'if(hasAttendance)\nOpenQuiz();',
@@ -462,7 +540,7 @@ const LESSONS: Record<string, Lesson> = {
       },
       {
         prompt:
-          'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+          'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
         choices: [
           'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
           'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}',
@@ -517,7 +595,8 @@ const LESSONS: Record<string, Lesson> = {
       'An if...else statement runs one block of code when the condition is true, and a different block when it is false.',
     code: 'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
     sceneBg: noWifiImg,
-    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt:
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
       'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();',
@@ -528,7 +607,7 @@ const LESSONS: Record<string, Lesson> = {
       incorrectNote:
         'It is missing the curly braces { } around the else block.',
       correctNote:
-        "Correct! The else block contains the statements that execute when the condition is false. Use braces { } to clearly define the block.",
+        'Correct! The else block contains the statements that execute when the condition is false. Use braces { } to clearly define the block.',
       anatomy: [
         { text: 'if', label: 'Checks if the condition is true.' },
         { text: 'correctPassword', label: 'The condition to check.' },
@@ -563,7 +642,8 @@ const LESSONS: Record<string, Lesson> = {
       'An if...else statement controls access: the block under if runs on true, the one under else runs on false.',
     code: 'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
     sceneBg: pcImg,
-    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt:
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nElse\n{\n    DisplayLoginError();\n}',
       'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
@@ -606,7 +686,8 @@ const LESSONS: Record<string, Lesson> = {
       'An if...else statement verifies a prerequisite: the block under if runs on true, the one under else runs on false.',
     code: 'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
     sceneBg: pcImg,
-    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt:
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
       'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}',
@@ -614,8 +695,10 @@ const LESSONS: Record<string, Lesson> = {
     core: {
       incorrectExample:
         'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}',
-      incorrectNote: 'It is missing the semicolon ; at the end of the statement.',
-      correctNote: 'Correct! Every statement in C# must end with a semicolon (;).',
+      incorrectNote:
+        'It is missing the semicolon ; at the end of the statement.',
+      correctNote:
+        'Correct! Every statement in C# must end with a semicolon (;).',
       anatomy: [
         { text: 'if', label: 'Checks if the condition is true.' },
         { text: 'uploadComplete', label: 'The condition to check.' },
@@ -647,7 +730,8 @@ const LESSONS: Record<string, Lesson> = {
       'An if...else statement handles both outcomes of a condition: one path when it is true, another when it is false.',
     code: 'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
     sceneBg: pcImg,
-    prompt: 'SYNTAX CHALLENGE\nCHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt:
+      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
       'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();',
@@ -658,7 +742,7 @@ const LESSONS: Record<string, Lesson> = {
       incorrectNote:
         'It is missing the curly braces { } around the else block.',
       correctNote:
-        "Correct! Use if/else to handle both the true and the false case.",
+        'Correct! Use if/else to handle both the true and the false case.',
       anatomy: [
         { text: 'if', label: 'Checks if the condition is true.' },
         { text: 'hasCompletedOrientation', label: 'The condition to check.' },
@@ -685,6 +769,9 @@ const LESSONS: Record<string, Lesson> = {
   },
 }
 
-export function getLesson(chapter: number, mission: number): Lesson | undefined {
+export function getLesson(
+  chapter: number,
+  mission: number,
+): Lesson | undefined {
   return LESSONS[`${chapter}:${mission}`]
 }

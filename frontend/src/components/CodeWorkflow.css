@@ -1,0 +1,411 @@
+/* "UNDERSTAND THE CODE": the poster the client designed, in one layout every
+   mission fills with its own content (see Workflow in CodeWorkflow.tsx).
+   The card keeps the poster's shape (410 x 512) and everything inside is
+   measured in --u, 1% of the card's height, so it scales as one piece. */
+.workflow-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 2vw;
+  background: rgba(8, 10, 28, 0.82);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.workflow-card {
+  /* The design size; the component scales the whole card to fit. */
+  --u: 10.24px;
+  position: relative;
+  width: 820px;
+  height: 1024px;
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(1.2 * var(--u));
+  padding: calc(2.4 * var(--u)) calc(2.6 * var(--u)) calc(2 * var(--u));
+  background: #1f8bf5;
+  border: calc(0.9 * var(--u)) solid #0b1020;
+  border-radius: calc(3 * var(--u));
+  box-shadow: inset 0 0 0 calc(0.7 * var(--u)) #5fc0ff;
+}
+
+/* The yellow banner and the white strip under it. */
+.workflow-title {
+  margin: 0;
+  padding: calc(1.2 * var(--u)) calc(3 * var(--u));
+  font-size: calc(2.6 * var(--u));
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  color: #ffffff;
+  background: #ffc21c;
+  border: calc(0.6 * var(--u)) solid #0b1020;
+  border-radius: calc(1.6 * var(--u));
+  text-shadow:
+    calc(0.35 * var(--u)) 0 #0b1020,
+    calc(-0.35 * var(--u)) 0 #0b1020,
+    0 calc(0.35 * var(--u)) #0b1020,
+    0 calc(-0.35 * var(--u)) #0b1020;
+}
+
+.workflow-subtitle {
+  margin: 0;
+  padding: calc(0.8 * var(--u)) calc(2.2 * var(--u));
+  font-size: calc(1.45 * var(--u));
+  line-height: 1;
+  text-align: center;
+  color: #0b1020;
+  background: #fffdf2;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: calc(1.2 * var(--u));
+}
+
+.workflow-panels {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(1.6 * var(--u));
+}
+
+.workflow-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(1.2 * var(--u));
+  padding: calc(1.4 * var(--u));
+  background: #e9f6ff;
+  border: calc(0.6 * var(--u)) solid #0b1020;
+  border-radius: calc(1.6 * var(--u));
+  overflow: hidden;
+}
+
+.workflow-panel-head {
+  margin: 0;
+  padding: calc(0.9 * var(--u)) 0;
+  font-size: calc(1.8 * var(--u));
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  color: #ffffff;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+  text-shadow: calc(0.3 * var(--u)) calc(0.3 * var(--u)) 0 #0b1020;
+}
+
+.workflow-panel-code .workflow-panel-head {
+  background: #3aa7ff;
+}
+
+.workflow-panel-flow .workflow-panel-head {
+  background: #3fc463;
+}
+
+/* The code window, like a little editor. */
+.workflow-window {
+  background: #141c33;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+  overflow: hidden;
+}
+
+.workflow-window-bar {
+  display: flex;
+  gap: calc(0.7 * var(--u));
+  padding: calc(0.7 * var(--u)) calc(1 * var(--u));
+  background: #24304f;
+}
+
+.workflow-dot {
+  width: calc(1.1 * var(--u));
+  height: calc(1.1 * var(--u));
+  border-radius: 50%;
+}
+
+.workflow-dot-red {
+  background: #ff5f57;
+}
+
+.workflow-dot-yellow {
+  background: #ffbd2e;
+}
+
+.workflow-dot-green {
+  background: #28c840;
+}
+
+.workflow-code {
+  margin: 0;
+  padding: calc(1.2 * var(--u));
+  font-family: inherit;
+  font-size: calc(1.25 * var(--u));
+  line-height: 1.7;
+  color: #dfe7ff;
+  white-space: pre;
+}
+
+.workflow-code-line {
+  display: block;
+}
+
+.workflow-code-keyword {
+  color: #4fc3f7;
+}
+
+.workflow-code-condition {
+  color: #ffd166;
+}
+
+.workflow-code-call {
+  color: #7ee3ff;
+}
+
+/* The four explanation rows. */
+.workflow-parts {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.9 * var(--u));
+}
+
+.workflow-part {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 42%) 1fr auto;
+  align-items: center;
+  gap: calc(1 * var(--u));
+  padding: calc(0.8 * var(--u)) calc(1 * var(--u));
+  background: #ffffff;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+}
+
+.workflow-chip {
+  padding: calc(0.7 * var(--u)) calc(1 * var(--u));
+  font-size: calc(1.05 * var(--u));
+  line-height: 1.3;
+  color: #0b1020;
+  border: calc(0.4 * var(--u)) solid #0b1020;
+  border-radius: calc(0.8 * var(--u));
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.workflow-part-blue .workflow-chip {
+  background: #bfe3ff;
+}
+
+.workflow-part-green .workflow-chip {
+  background: #b9f3cd;
+}
+
+.workflow-part-yellow .workflow-chip {
+  background: #ffe6a3;
+}
+
+.workflow-part-pink .workflow-chip {
+  background: #ffc2d1;
+}
+
+.workflow-part-text {
+  font-size: calc(1.05 * var(--u));
+  line-height: 1.45;
+  color: #0b1020;
+}
+
+.workflow-part-icon {
+  display: block;
+  width: calc(2.6 * var(--u));
+  line-height: 0;
+}
+
+.workflow-part-icon svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The flow chart. */
+.workflow-flow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.6 * var(--u));
+  padding: calc(1 * var(--u)) calc(0.6 * var(--u));
+  background: #fffdf2;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+}
+
+.workflow-box {
+  max-width: 100%;
+  padding: calc(0.7 * var(--u)) calc(0.9 * var(--u));
+  font-size: calc(1.05 * var(--u));
+  line-height: 1.35;
+  text-align: center;
+  color: #0b1020;
+  background: #cfe7ff;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(0.8 * var(--u));
+  overflow-wrap: anywhere;
+}
+
+.workflow-box-start,
+.workflow-box-end {
+  padding-left: calc(2.4 * var(--u));
+  padding-right: calc(2.4 * var(--u));
+}
+
+.workflow-box-done {
+  background: #b9f3cd;
+}
+
+.workflow-box-stop {
+  background: #ffc4c4;
+}
+
+/* A downward arrow drawn with borders, so no picture is needed. */
+.workflow-arrow {
+  width: 0;
+  height: 0;
+  border-left: calc(0.9 * var(--u)) solid transparent;
+  border-right: calc(0.9 * var(--u)) solid transparent;
+  border-top: calc(1.2 * var(--u)) solid #0b1020;
+}
+
+.workflow-diamond {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(26 * var(--u));
+  height: calc(11 * var(--u));
+  padding: 0 calc(0.8 * var(--u));
+  box-sizing: border-box;
+  font-size: calc(1.15 * var(--u));
+  line-height: 1.3;
+  text-align: center;
+  color: #0b1020;
+  background: #cfe7ff;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(0.8 * var(--u));
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* The two paths under the diamond, with the lines that join them: one
+   across the top, a drop into each path, then both back down into END. */
+.workflow-branches {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(0.6 * var(--u));
+  align-items: stretch;
+  padding: calc(2.6 * var(--u)) 0 0;
+}
+
+.workflow-split,
+.workflow-join {
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  height: calc(0.45 * var(--u));
+  background: #0b1020;
+}
+
+.workflow-split {
+  top: 0;
+}
+
+.workflow-join {
+  bottom: 0;
+}
+
+.workflow-branch {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.5 * var(--u));
+}
+
+/* The drop from the top line into the path, and the line from the last box
+   all the way down to the join, in the path's own colour. */
+.workflow-branch::before {
+  content: '';
+  position: absolute;
+  top: calc(-2.6 * var(--u));
+  left: 50%;
+  width: calc(0.45 * var(--u));
+  height: calc(2.6 * var(--u));
+  margin-left: calc(-0.22 * var(--u));
+}
+
+.workflow-branch::after {
+  content: '';
+  flex: 1;
+  width: calc(0.45 * var(--u));
+  min-height: calc(1.6 * var(--u));
+}
+
+.workflow-branch-yes::before,
+.workflow-branch-yes::after {
+  background: #1c8b3a;
+}
+
+.workflow-branch-no::before,
+.workflow-branch-no::after {
+  background: #c62828;
+}
+
+.workflow-branch-label {
+  font-size: calc(1.2 * var(--u));
+  line-height: 1;
+}
+
+.workflow-branch-yes .workflow-branch-label {
+  color: #1c8b3a;
+}
+
+.workflow-branch-no .workflow-branch-label {
+  color: #c62828;
+}
+
+/* The ribbon under the panels. */
+.workflow-label {
+  margin: 0;
+  padding: calc(0.9 * var(--u)) calc(2.4 * var(--u));
+  font-size: calc(1.5 * var(--u));
+  line-height: 1;
+  color: #0b1020;
+  background: #ffc21c;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: calc(1.2 * var(--u));
+}
+
+.workflow-screen .core-ok {
+  padding: calc(1 * var(--u)) calc(3 * var(--u));
+  font-family: inherit;
+  font-size: calc(1.7 * var(--u));
+  line-height: 1;
+  color: #ffffff;
+  background: #3f8c2b;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: 0 !important;
+  cursor: pointer;
+}
+
+.workflow-screen .core-ok:hover {
+  background: #53b537;
+}
