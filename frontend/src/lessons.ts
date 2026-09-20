@@ -16,6 +16,7 @@ import profClassroomImg from './chapter1/prof_classroom.webp'
 import bookstoreImg from './chapter 2/bookstore.webp'
 import noWifiImg from './chapter 2/no wifi.webp'
 import pcImg from './chapter 2/pc.webp'
+import chapterThreeRoomImg from './chapter 3/room.png'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -48,7 +49,9 @@ export type CoreBreakdown = {
 export type Question = {
   prompt: string
   choices?: string[]
-  code: string
+  // A question can introduce a fresh situation after an interstitial story
+  // scene, without changing the lesson's original opening situation.
+  situation?: string
   // Where this question happens, when it differs from the lesson's sceneBg
   // (e.g. the purchase happens at the bookstore but the lesson is in the lab).
   sceneBg?: string
@@ -64,13 +67,13 @@ export type Lesson = {
   story: string
   // The lesson itself: the control structure taught.
   lesson: string
-  // The code the player wrote to pass the mission.
-  code: string
+  // The canonical syntax shown after the server accepts a mission answer.
+  code?: string
   // The game story scene where the question pops up; it becomes the mission
   // screen's background for that mission.
   sceneBg?: string
   // The coding challenge shown on the mission screen: the prompt, the hint
-  // choices that fill the TYPE HERE box, and the core breakdown shown after
+  // choices the player types in the TYPE HERE box, and the core breakdown shown after
   // a correct answer. Missions without these keep the plain TYPE HERE box.
   prompt?: string
   choices?: string[]
@@ -83,7 +86,7 @@ export type Lesson = {
   // then the result. Takes priority over `core`.
   programFlow?: string[]
   // Multi-question missions: each question has its own prompt, choices, and
-  // code. When present, this overrides the single prompt/choices/code above.
+  // scene. When present, this overrides the single prompt/choices above.
   questions?: Question[]
 }
 
@@ -125,7 +128,6 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The door is locked!',
     lesson:
       'Lesson content coming soon. The mission is teaching how a method call opens the way forward.',
-    code: 'OpenDoor();',
     sceneBg: closeDoorImg,
     prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
     choices: ['OpenDoor();', 'OpenDoor:'],
@@ -165,7 +167,6 @@ const LESSONS: Record<string, Lesson> = {
     story: 'Make your way to the jeep terminal.',
     lesson:
       'Calling the GoToTerminal(); method switches the program to the jeep terminal and opens the way forward. A method needs () to be called and ; to end the statement.',
-    code: 'GoToTerminal();',
     // Asked at the outside-door scene, right after leaving the house.
     sceneBg: outsideDoorImg,
     prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
@@ -207,7 +208,6 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The jeepney is ready.',
     lesson:
       'Calling the RideJeep(); method starts the journey along the route. A method needs () to be called and ; to end the statement.',
-    code: 'RideJeep();',
     sceneBg: jeepneyTerminalImg,
     prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
     choices: ['RideJeep();', 'RideJeep:'],
@@ -257,13 +257,11 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The university follows a No ID, No Entry policy.',
     lesson:
       'An if statement checks a condition. If the condition is true, the code inside the curly brackets runs. If false, it is skipped.',
-    code: 'if(hasSchoolID)\n{\n    EnterSchool();\n}',
     sceneBg: schoolImg,
     questions: [
       {
         prompt: 'Which C# control structure is most appropriate?',
         choices: ['if', 'while'],
-        code: 'if',
       },
       {
         prompt: 'CHALLENGE: TYPE THE CORRECT SYNTAX.',
@@ -271,7 +269,6 @@ const LESSONS: Record<string, Lesson> = {
           'if(hasSchoolID)\n{\n    EnterSchool();\n}',
           'if hasSchoolID\n{\n    EnterSchool();\n}',
         ],
-        code: 'if(hasSchoolID)\n{\n    EnterSchool();\n}',
       },
     ],
     core: {
@@ -324,10 +321,8 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The attendance kiosk only records students who are present.',
     lesson:
       'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
-    code: 'if(isPresent)\n{\n    RecordAttendance();\n}',
     sceneBg: classroomImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isPresent)\n{\n    RecordAttendance();\n}',
       'if(isPresent)\n    RecordAttendance();',
@@ -383,10 +378,8 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The computer should only turn on if power is available.',
     lesson:
       'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
-    code: 'if(hasPower)\n{\n    StartComputer();\n}',
     sceneBg: powerImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasPower)\n{\n    StartComputer();\n}',
       'if(hasPower)\n{\n    StartComputer()\n}',
@@ -444,10 +437,8 @@ const LESSONS: Record<string, Lesson> = {
     story: 'The system should only accept activities that are completed.',
     lesson:
       'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
-    code: 'if(isCompleted)\n{\n    SubmitActivity();\n}',
     sceneBg: pcChapter1Img,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isCompleted)\n{\n    SubmitActivity();\n}',
       'IF(isCompleted)\n{\n    SubmitActivity();\n}',
@@ -504,10 +495,8 @@ const LESSONS: Record<string, Lesson> = {
     story: 'Only students with recorded attendance may take the quiz.',
     lesson:
       'An if statement checks a condition. If it is true, the code inside the curly brackets runs. If false, it is skipped.',
-    code: 'if(hasAttendance)\n{\n    OpenQuiz();\n}',
     sceneBg: profClassroomImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasAttendance)\n{\n    OpenQuiz();\n}',
       'if(hasAttendance)\nOpenQuiz();',
@@ -536,16 +525,13 @@ const LESSONS: Record<string, Lesson> = {
         prompt:
           'Which C# control structure is most appropriate for this situation?',
         choices: ['if', 'if...else'],
-        code: 'if...else',
       },
       {
-        prompt:
-          'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+        prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
         choices: [
           'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
           'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nElse\n{\n    DisplayInsufficientCoins();\n}',
         ],
-        code: 'if(coins >= 50)\n{\n    BuyWorksheet();\n}\nelse\n{\n    DisplayInsufficientCoins();\n}',
         sceneBg: bookstoreImg,
       },
     ],
@@ -568,7 +554,7 @@ const LESSONS: Record<string, Lesson> = {
         },
         { text: 'else', label: 'Runs when the condition is false.' },
         {
-          text: 'DisplayInsufffientCoins();',
+          text: 'DisplayInsufficientCoins();',
           label: 'Shows that there are not enough coins.',
         },
       ],
@@ -590,13 +576,12 @@ const LESSONS: Record<string, Lesson> = {
     mission: 2,
     title: 'Connect to the Wi-Fi',
     story:
-      'The laboratory computers require an internet connection before students can access the online learning platform.',
+      'The laboratory computers require an internet connection before students can access the online learning platform. If the Wi-Fi password is correct, the computer connects. Otherwise, access is denied.',
     lesson:
       'An if...else statement runs one block of code when the condition is true, and a different block when it is false.',
     code: 'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
     sceneBg: noWifiImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\n{\n    DisplayConnectionError();\n}',
       'if(correctPassword)\n{\n    ConnectWiFi();\n}\nelse\nDisplayConnectionError();',
@@ -637,13 +622,13 @@ const LESSONS: Record<string, Lesson> = {
     chapter: 2,
     mission: 3,
     title: 'Access the Learning Portal',
-    story: 'The learning portal opens only if the student is logged in.',
+    story:
+      "Students must log in before accessing today's laboratory activity. If the username and password are correct, the learning portal opens. Otherwise, an error message appears.",
     lesson:
       'An if...else statement controls access: the block under if runs on true, the one under else runs on false.',
     code: 'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
     sceneBg: pcImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nElse\n{\n    DisplayLoginError();\n}',
       'if(isLoggedIn)\n{\n    OpenLearningPortal();\n}\nelse\n{\n    DisplayLoginError();\n}',
@@ -681,13 +666,13 @@ const LESSONS: Record<string, Lesson> = {
     chapter: 2,
     mission: 4,
     title: 'Submit the Laboratory Exercise',
-    story: 'The activity is submitted only if the upload completed.',
+    story:
+      'The laboratory system checks whether the file was uploaded successfully. If the upload is complete, the activity is submitted. Otherwise, the system displays an upload error.',
     lesson:
       'An if...else statement verifies a prerequisite: the block under if runs on true, the one under else runs on false.',
     code: 'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
     sceneBg: pcImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError();\n}',
       'if(uploadComplete)\n{\n    SubmitActivity();\n}\nelse\n{\n    ShowUploadError()\n}',
@@ -725,13 +710,13 @@ const LESSONS: Record<string, Lesson> = {
     chapter: 2,
     mission: 5,
     title: 'Unlock the Laboratory Door',
-    story: 'The lab door unlocks only if the safety orientation is completed.',
+    story:
+      'A laboratory door should unlock only if the student has completed the safety orientation. If completed, unlock the door. Otherwise, display an access denied message.',
     lesson:
       'An if...else statement handles both outcomes of a condition: one path when it is true, another when it is false.',
     code: 'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
     sceneBg: pcImg,
-    prompt:
-      'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\n{\n    DisplayAccessDenied();\n}',
       'if(hasCompletedOrientation)\n{\n    UnlockDoor();\n}\nelse\nDisplayAccessDenied();',
@@ -765,6 +750,63 @@ const LESSONS: Record<string, Lesson> = {
         'END',
       ],
       takeaway: 'Use else to handle what happens when the condition is FALSE.',
+    },
+  },
+  '3:1': {
+    chapter: 3,
+    mission: 1,
+    title: 'Evaluate Student Performance',
+    story:
+      "The laboratory system automatically evaluates a student's performance.\n\n• If the score is 90 or above, display Excellent.\n• If the score is 75 or above, display Passed.\n• Otherwise, display Needs Improvement.",
+    lesson:
+      'An else if statement checks another condition when the earlier if condition is false.',
+    code: 'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+    sceneBg: chapterThreeRoomImg,
+    questions: [
+      {
+        prompt: 'Which C# control structure is most appropriate?',
+        choices: ['if', 'else if', 'if...else'],
+      },
+      {
+        prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+        situation:
+          "The History tab shows that laboratory activities are graded from the student's score. Complete the program so it displays Excellent for scores of 90 or higher, Passed for scores of 75 or higher, and Needs Improvement for every other score.",
+        choices: [
+          'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+          'if(score >= 90)\n{\n    ShowExcellent();\n}\nelseif(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+          'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse(score >= 75)\n{\n    ShowPassed();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+        ],
+      },
+    ],
+    core: {
+      incorrectExample:
+        'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+      incorrectNote:
+        'This if...else statement skips the Passed outcome, so it cannot evaluate all three score ranges.',
+      correctNote:
+        'The else if statement is used when there are more than two possible outcomes.',
+      anatomy: [
+        { text: 'if', label: 'Checks the first condition.' },
+        { text: 'score >= 90', label: 'Tests for an Excellent score.' },
+        {
+          text: 'else if',
+          label: 'Checks another condition when the first one is false.',
+        },
+        { text: 'score >= 75', label: 'Tests for a Passed score.' },
+        { text: 'else', label: 'Handles every remaining score.' },
+      ],
+      flow: [
+        'START',
+        'Check score >= 90',
+        'YES → ShowExcellent()',
+        'NO → Check score >= 75',
+        'YES → ShowPassed()',
+        'NO → ShowNeedsImprovement()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'Use else if when the program needs to check more than two possible outcomes in sequence.',
     },
   },
 }

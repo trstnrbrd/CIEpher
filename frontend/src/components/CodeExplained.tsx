@@ -71,7 +71,7 @@ const CONTENT: Record<number, CodeExplainedContent> = {
       { text: 'if', label: 'Checks if the condition is true.' },
       { text: 'correctPassword', label: 'The condition to check.' },
       {
-        text: 'ConnectWifi();',
+        text: 'ConnectWiFi();',
         label: 'Runs when the password is correct.',
       },
       { text: 'else', label: 'Runs when the condition is false.' },
@@ -84,8 +84,11 @@ const CONTENT: Record<number, CodeExplainedContent> = {
       { text: 'START', cls: 'flow-point-start' },
       { text: 'Check correctPassword', cls: '' },
       { text: 'correctPassword == true?', cls: 'flow-decision' },
-      { text: 'YES → ConnectWifi(); · WiFi Connected', cls: 'flow-yes' },
-      { text: 'NO → DisplayConnectionError(); · Connection Error', cls: 'flow-no' },
+      { text: 'YES → ConnectWiFi(); · WiFi Connected', cls: 'flow-yes' },
+      {
+        text: 'NO → DisplayConnectionError(); · Connection Error',
+        cls: 'flow-no',
+      },
       { text: 'END', cls: 'flow-point-end' },
     ],
     takeaway:
