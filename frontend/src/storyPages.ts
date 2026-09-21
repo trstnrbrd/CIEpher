@@ -16,10 +16,15 @@ import connectedImg from './chapter 2/connected.webp'
 import loginPcImg from './chapter 2/LOGIN_PC.webp'
 import noWifiImg from './chapter 2/no wifi.webp'
 import pcImg from './chapter 2/pc.webp'
+import mouseImg from './chapter 2/mouse.png'
+import scene4Img from './chapter 2/scene4.png'
+import chapterThreeRoomImg from './chapter 3/room.png'
 
 export type StoryPage = {
   bg: string
   lines: string[]
+  // A story-specific placement variant for the characters over a background.
+  scene?: 'chapter3-room'
   // Where the background art is anchored (object-position). Defaults to the
   // bedroom look: centered, hugging the bottom. Per-page override so scenes
   // with a different focal point don't need to touch the shared styles.
@@ -31,10 +36,11 @@ export type StoryPage = {
   // Show Professor Reyes on the right of the scene instead of the player.
   professor?: boolean
   // Which character says the lines. Defaults to the player.
-  speaker?: 'player' | 'guard' | 'kiosk' | 'professor'
+  speaker?: 'player' | 'guard' | 'kiosk' | 'professor' | 'cashier' | 'narrator'
+  animation?: 'worksheet' | 'wifi'
   // A panel dialog in the top corner with a tail: the yellow machine prompt,
   // or the white one Professor Reyes speaks from.
-  bubble?: 'yellow' | 'white'
+  bubble?: 'yellow' | 'white' | 'left'
   // Hide the player sprite: some scenes already draw the people into the
   // background art, so a separate sprite would double them up.
   noSprite?: boolean
@@ -42,6 +48,14 @@ export type StoryPage = {
   halfBody?: boolean
   // Lines shown on the PC monitor in the chapter 1 computer scenes.
   screenText?: string[]
+  // An image shown inside the PC monitor for a story scene.
+  screenImage?: string
+  screenImageAlt?: string
+  // A cursor shown over the monitor image, such as a click on an action.
+  screenCursor?: string
+  screenCursorAlt?: string
+  // Which portal control the cursor clicks. Submit Work is the default.
+  screenCursorTarget?: 'submit' | 'history'
   // Add a small computer-screen icon for PC scenes.
   screenIcon?: 'file'
   // A card with this title instead of a speech bubble, like the chapter
@@ -342,6 +356,7 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
   },
   {
     bg: bookstoreImg,
+    speaker: 'cashier',
     lines: ['That will be 50 coins.'],
   },
 ]
@@ -351,6 +366,9 @@ export const CH2_PURCHASE_PAGES: StoryPage[] = [
 // right as a text-bubble animation plays out.
 export const CH2_PURCHASE_DONE_PAGE: StoryPage = {
   bg: bookstoreImg,
+  align: 'left',
+  speaker: 'narrator',
+  animation: 'worksheet',
   lines: [
     'The player purchases the worksheet.',
     'The cashier hands over the worksheet.',
@@ -371,6 +389,8 @@ export const CH2_WIFI_SETUP_PAGE: StoryPage = {
 export const CH2_WIFI_ON_PAGE: StoryPage = {
   bg: connectedImg,
   noSprite: true,
+  speaker: 'narrator',
+  animation: 'wifi',
   lines: ['The Wi-Fi icon turns green.', 'The computer connects successfully.'],
 }
 
@@ -389,11 +409,16 @@ export const CH2_PORTAL_OPENED_PAGE: StoryPage = {
   lines: ['The learning portal opens successfully.'],
 }
 
-// Chapter 2, Scene 3.2 — the player needs to upload today's activity.
+// Chapter 2, Scene 4 — the player sees the learning portal's upload screen
+// before Mission 4 presents its situation and coding question.
 export const CH2_UPLOAD_LINE_PAGE: StoryPage = {
   bg: pcImg,
-  align: 'left',
-  lines: ['I need to upload my learning activity in our portal.'],
+  align: 'right',
+  screenImage: scene4Img,
+  screenImageAlt: 'Learning portal progress screen',
+  screenCursor: mouseImg,
+  screenCursorAlt: 'Mouse cursor selecting Submit Work',
+  lines: ['I need to upload my learning activity in our laboratory'],
 }
 
 // Chapter 2, Scene 4.1 — after the upload mission, the submission is accepted.
@@ -409,6 +434,8 @@ export const CH2_REVIEW_PAGES: StoryPage[] = [
   {
     bg: pcImg,
     noSprite: true,
+    professor: true,
+    speaker: 'professor',
     lines: ["Let's see if you can apply what you've learned."],
   },
   {
@@ -422,8 +449,79 @@ export const CH2_REVIEW_PAGES: StoryPage[] = [
 export const CH2_CLOSING_PAGE: StoryPage = {
   bg: pcImg,
   noSprite: true,
+  professor: true,
+  speaker: 'professor',
   lines: [
     "Excellent work. You've learned that programs don't just make decisions—they also know what to do when a condition is false.",
+  ],
+}
+
+// Chapter 3, Scenes 1 and 2 — Professor Reyes introduces the next lesson
+// after Chapter 2, then the player replies before returning to Chapter Select.
+export const CH3_INTRO_PAGES: StoryPage[] = [
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    professor: true,
+    speaker: 'professor',
+    align: 'left',
+    bubble: 'white',
+    lines: [
+      'Good morning class! Today I will be checking each of your activity. Your score will be posted in your portal.',
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    professor: true,
+    align: 'left',
+    bubble: 'left',
+    lines: ['Thank you, Sir Reyes.'],
+  },
+]
+
+// Chapter 3, Part 1, Scene 3 — this plays when the unlocked chapter is
+// opened, before the performance-evaluation situation and its question.
+export const CH3_PART_ONE_SCENE_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  scene: 'chapter3-room',
+  professor: true,
+  speaker: 'professor',
+  align: 'left',
+  bubble: 'white',
+  lines: [
+    'Good morning class! Today I will be checking each of your activity. Your score will be posted in your portal.',
+  ],
+}
+
+// Chapter 3, Part 1, Scene 4 — after identifying else if, the player opens
+// the portal History tab to review their laboratory activity score.
+export const CH3_HISTORY_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  bubble: 'white',
+  screenImage: scene4Img,
+  screenImageAlt: 'Learning portal with a History tab',
+  screenCursor: mouseImg,
+  screenCursorAlt: 'Mouse cursor selecting History',
+  screenCursorTarget: 'history',
+  lines: ['I want to know what my grade is in the laboratory activity.'],
+}
+
+export const CH2_COMPLETE_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 2: The if...else Statement',
+  ],
+  cardList: [
+    'Definition of if...else',
+    'Basic syntax',
+    'Common syntax errors',
+    'Real-world applications',
   ],
 }
 

@@ -69,15 +69,22 @@ function PrologueStory({
   const {
     bg,
     lines,
+    scene,
     pos,
     align,
     guard,
     professor,
     speaker,
+    animation,
     bubble,
     noSprite,
     halfBody,
     screenText,
+    screenImage,
+    screenImageAlt,
+    screenCursor,
+    screenCursorAlt,
+    screenCursorTarget,
     screenIcon,
     card,
     cardList,
@@ -151,7 +158,13 @@ function PrologueStory({
   // from Tristan's mockup: see .story-scene-guard.
   return (
     <div
-      className={guard ? 'prologue-story story-scene-guard' : 'prologue-story'}
+      className={[
+        'prologue-story',
+        guard ? 'story-scene-guard' : '',
+        scene ? `story-scene-${scene}` : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <img
         className="story-bg"
@@ -171,6 +184,29 @@ function PrologueStory({
           </span>
         </span>
       )}
+      {screenImage && (
+        <span className="story-screen-layer">
+          <img
+            className="story-screen-image"
+            src={screenImage}
+            alt={screenImageAlt ?? ''}
+          />
+          {screenCursor && (
+            <img
+              className={[
+                'story-screen-mouse',
+                screenCursorTarget === 'history'
+                  ? 'story-screen-mouse-history'
+                  : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              src={screenCursor}
+              alt={screenCursorAlt ?? ''}
+            />
+          )}
+        </span>
+      )}
       {screenIcon === 'file' && (
         <span className="story-screen-file" aria-hidden="true">
           <span className="story-screen-file-page" />
@@ -178,6 +214,34 @@ function PrologueStory({
         </span>
       )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
+      {animation && (
+        <div
+          key={`${page}-${animation}`}
+          className={`story-action story-action-${animation}`}
+          role="img"
+          aria-label={
+            animation === 'worksheet'
+              ? 'The cashier hands the worksheet to the player'
+              : 'Wi-Fi changes from disconnected to connected'
+          }
+        >
+          {animation === 'worksheet' ? (
+            <div className="story-worksheet">
+              <span>WORKSHEET</span>
+              <i />
+              <i />
+              <i />
+            </div>
+          ) : (
+            <div className="story-wifi">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+          )}
+        </div>
+      )}
       {card !== undefined ? (
         <section
           className={
@@ -232,13 +296,26 @@ function PrologueStory({
             guardSpeaking ? 'story-bubble-guard' : '',
             kioskSpeaking ? 'story-bubble-kiosk' : '',
             professorSpeaking ? 'story-bubble-professor' : '',
+            speaker === 'cashier' ? 'story-bubble-cashier' : '',
             bubble === 'yellow' ? 'story-bubble-yellow' : '',
             bubble === 'white' ? 'story-bubble-white' : '',
+            bubble === 'left' ? 'story-bubble-left' : '',
           ]
             .filter(Boolean)
             .join(' ')}
           onClick={tapBubble}
         >
+          {(speaker === 'cashier' ||
+            speaker === 'professor' ||
+            speaker === 'narrator') && (
+            <span className="story-speaker">
+              {speaker === 'cashier'
+                ? 'Cashier'
+                : speaker === 'professor'
+                  ? 'Professor Reyes'
+                  : 'Scene'}
+            </span>
+          )}
           <span className="story-text">
             {lines.map((line, i) => {
               const shown = Math.max(

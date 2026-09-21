@@ -1,0 +1,311 @@
+.chapter-three-feedback {
+  position: fixed;
+  z-index: 95;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(10, 15, 38, 0.84);
+}
+
+.chapter-three-feedback-card {
+  width: min(1000px, 96vw);
+  max-height: 94vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: clamp(20px, 3vw, 34px);
+  border: 4px solid #fdf7dc;
+  border-radius: 16px;
+  background: #101831;
+  box-shadow: 0 10px 0 #03050d;
+  color: #fdf7dc;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.chapter-three-feedback-header {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.chapter-three-feedback-header p,
+.chapter-three-feedback-header h2,
+.chapter-three-feedback-valid,
+.chapter-three-meaning h3,
+.chapter-three-meaning p,
+.chapter-three-code-card p,
+.chapter-three-code-card span,
+.chapter-three-program-flow h3 {
+  margin: 0;
+}
+
+.chapter-three-feedback-header p {
+  color: #75e4ff;
+  font-size: clamp(8px, 1vw, 11px);
+}
+
+.chapter-three-feedback-header h2 {
+  color: #ffe16b;
+  font-size: clamp(17px, 3vw, 30px);
+  line-height: 1.45;
+  text-shadow: 3px 3px 0 #000000;
+}
+
+.chapter-three-feedback-valid {
+  margin: 0 auto 16px;
+  padding: 10px 16px;
+  border: 2px solid #61e585;
+  border-radius: 6px;
+  background: #176b38;
+  color: #d9ffe1;
+  font-size: clamp(8px, 1vw, 11px);
+}
+
+.chapter-three-meaning {
+  margin-bottom: 16px;
+  padding: clamp(16px, 2vw, 22px);
+  border: 2px solid #6382c6;
+  border-radius: 10px;
+  background: #18234a;
+  text-align: center;
+}
+
+.chapter-three-meaning h3,
+.chapter-three-program-flow h3 {
+  color: #ffe16b;
+  font-size: clamp(10px, 1.2vw, 13px);
+}
+
+.chapter-three-meaning p {
+  margin-top: 12px;
+  color: #fef8db;
+  font-size: clamp(10px, 1.25vw, 14px);
+  line-height: 1.7;
+}
+
+.chapter-three-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chapter-three-code-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 2px solid;
+  border-radius: 10px;
+}
+
+.chapter-three-code-card p,
+.chapter-three-code-card span {
+  font-size: clamp(8px, 0.95vw, 10px);
+  line-height: 1.55;
+  text-align: center;
+}
+
+.chapter-three-code-card pre {
+  min-width: 0;
+  max-height: 160px;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  border-radius: 5px;
+  background: #080d1d;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: clamp(11px, 1.25vw, 15px);
+  font-weight: 700;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.chapter-three-code-card.is-wrong {
+  border-color: #f06067;
+  background: #3d1927;
+  color: #ffd6d8;
+}
+
+.chapter-three-code-card.is-wrong p,
+.chapter-three-code-card.is-wrong pre {
+  color: #ff787d;
+}
+
+.chapter-three-code-card.is-correct {
+  border-color: #55d77c;
+  background: #153d31;
+  color: #d8ffe0;
+}
+
+.chapter-three-code-card.is-correct p,
+.chapter-three-code-card.is-correct pre {
+  color: #7cff9c;
+}
+
+.chapter-three-program-flow {
+  padding: clamp(16px, 2vw, 24px);
+  border: 2px solid #6382c6;
+  border-radius: 10px;
+  background: #0b1125;
+}
+
+.chapter-three-program-flow h3 {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.chapter-three-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-size: clamp(8px, 1vw, 11px);
+  line-height: 1.45;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.chapter-three-flow-start,
+.chapter-three-flow-end,
+.chapter-three-flow-decision,
+.chapter-three-flow-input,
+.chapter-three-flow-outcome {
+  box-sizing: border-box;
+  border: 2px solid #02040a;
+  border-radius: 5px;
+  box-shadow: 3px 3px 0 #02040a;
+}
+
+.chapter-three-flow-start {
+  padding: 7px 13px;
+  background: #2d79df;
+}
+
+.chapter-three-flow-end {
+  padding: 7px 13px;
+  background: #c44942;
+}
+
+.chapter-three-flow-decision {
+  min-width: 162px;
+  padding: 9px 14px;
+  background: #5b6599;
+}
+
+.chapter-three-flow-input {
+  padding: 8px 15px;
+  background: #4d568b;
+  color: #f1efff;
+}
+
+.chapter-three-flow-arrow {
+  color: #ffe16b;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.chapter-three-flow-primary-branches {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.72fr) minmax(310px, 1.7fr);
+  align-items: start;
+  gap: clamp(16px, 2vw, 28px);
+  width: min(100%, 720px);
+  margin-top: 4px;
+}
+
+.chapter-three-flow-lane,
+.chapter-three-flow-next-check {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.chapter-three-flow-next-check {
+  width: 100%;
+}
+
+.chapter-three-flow-route {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: clamp(8px, 0.9vw, 10px);
+  line-height: 1.1;
+}
+
+.chapter-three-flow-route.is-yes {
+  background: #207a3c;
+  color: #d6ffe0;
+}
+
+.chapter-three-flow-route.is-no {
+  background: #8a3a2f;
+  color: #ffe0d8;
+}
+
+.chapter-three-flow-secondary-branches {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(10px, 1.5vw, 18px);
+  width: 100%;
+  margin-top: 3px;
+}
+
+.chapter-three-flow-outcome {
+  display: grid;
+  align-items: center;
+  min-height: 52px;
+  width: 100%;
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+}
+
+.chapter-three-flow-outcome.is-excellent,
+.chapter-three-flow-outcome.is-passed {
+  background: #207a3c;
+  color: #d6ffe0;
+}
+
+.chapter-three-flow-outcome.is-needs-improvement {
+  background: #8a3a2f;
+  color: #ffe0d8;
+}
+
+.chapter-three-feedback-next {
+  display: block;
+  margin: 18px auto 0;
+  padding: 13px 30px;
+  border-radius: 0 !important;
+  background: #3f922e;
+  color: #ffffff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+}
+
+.chapter-three-feedback-next:hover {
+  background: #54b53d;
+}
+
+@media (max-width: 680px) {
+  .chapter-three-compare,
+  .chapter-three-flow-primary-branches,
+  .chapter-three-flow-secondary-branches {
+    grid-template-columns: 1fr;
+  }
+
+  .chapter-three-flow-primary-branches {
+    width: min(100%, 300px);
+  }
+
+  .chapter-three-code-card pre {
+    white-space: pre-wrap;
+  }
+}

@@ -4,19 +4,27 @@ interface ProgramFlowProps {
   // The code the player just typed and got accepted.
   code: string
   flow: string[]
+  showValidation?: boolean
   onClose: () => void
 }
 
 // The "PROGRAM FLOW" popup shown after a correct answer to a readiness quiz
 // mission: the accepted syntax and the vertical execution path, before the
 // result appears. No anatomy breakdown — a quiz only traces the flow.
-function ProgramFlow({ code, flow, onClose }: ProgramFlowProps) {
+function ProgramFlow({
+  code,
+  flow,
+  onClose,
+  showValidation = true,
+}: ProgramFlowProps) {
   return (
     <div className="core-screen">
       <div className="core-card">
         <h2 className="core-title">PROGRAM FLOW</h2>
 
-        <p className="core-valid">✓ CORRECT SYNTAX ACCEPTED</p>
+        {showValidation && (
+          <p className="core-valid">✓ CORRECT SYNTAX ACCEPTED</p>
+        )}
 
         <pre className="core-code core-code-ok">{code}</pre>
 
@@ -63,7 +71,11 @@ function ProgramFlow({ code, flow, onClose }: ProgramFlowProps) {
           </div>
         </div>
 
-        <button type="button" className="pixel-button core-ok" onClick={onClose}>
+        <button
+          type="button"
+          className="pixel-button core-ok"
+          onClick={onClose}
+        >
           OK
         </button>
       </div>

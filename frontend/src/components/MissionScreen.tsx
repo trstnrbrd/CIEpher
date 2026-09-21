@@ -5,6 +5,7 @@ import {
   submitAnswer,
   type Character,
   type Progress,
+  type Mistake,
 } from '../api/client'
 import {
   clearQuestionHint,
@@ -18,7 +19,7 @@ import GameTopBar from './GameTopBar'
 import PostSelectWelcome from './PostSelectWelcome'
 import PrologueStory from './PrologueStory'
 import {
-  CH2_CLOSING_PAGE,
+  CH2_COMPLETE_PAGE,
   CH2_PORTAL_LINE_PAGE,
   CH2_PORTAL_OPENED_PAGE,
   CH2_PURCHASE_DONE_PAGE,
@@ -29,6 +30,9 @@ import {
   CH2_UPLOAD_LINE_PAGE,
   CH2_WIFI_ON_PAGE,
   CH2_WIFI_SETUP_PAGE,
+  CH3_HISTORY_PAGE,
+  CH3_INTRO_PAGES,
+  CH3_PART_ONE_SCENE_PAGE,
   CLASSROOM_ARRIVAL_PAGE,
   CLASSROOM_ATTENDANCE_RECORDED_PAGE,
   CLASSROOM_CORRECT_PAGE,
@@ -60,6 +64,7 @@ import {
 import guardImg from '../chapter1/guard.webp'
 import loginPcImg from '../chapter 2/LOGIN_PC.webp'
 import loggedInImg from '../chapter 2/LOGGED_IN.webp'
+import chapterThreeComputerImg from '../chapter 3/computer.png'
 import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.webp'
@@ -67,7 +72,9 @@ import girlImg from '../assets/girl.webp'
 import CodeWorkflow from './CodeWorkflow'
 import CoreBreakdown from './CoreBreakdown'
 import ProgramFlow from './ProgramFlow'
-import CodeExplained from './CodeExplained'
+import ChapterTwoFeedback from './ChapterTwoFeedback'
+import ChapterThreeFeedback from './ChapterThreeFeedback'
+import MistakeHighlight from './MistakeHighlight'
 import SakayAnimation from './SakayAnimation'
 import LevelUnlock from './LevelUnlock'
 import TaskBar from './TaskBar'
@@ -90,23 +97,15 @@ function chapterLabel(id: number): string {
   return id === 0 ? 'PROLOGUE' : `CHAPTER ${id}`
 }
 
-// Character diff against the lesson's code: every position that reads
-// differently glows red, as does any extra text past the end. A too-short
-// answer also flags that the tail is missing.
-function highlightDiff(
-  typed: string,
-  code: string,
-): {
-  wrong: number[]
-  missing: boolean
-} {
-  const wrong: number[] = []
-  const common = Math.min(typed.length, code.length)
-  for (let i = 0; i < common; i++) {
-    if (typed[i] !== code[i]) wrong.push(i)
-  }
-  for (let i = code.length; i < typed.length; i++) wrong.push(i)
-  return { wrong, missing: typed.length < code.length }
+// Choice samples are formatted code. Keep a space between language keywords
+// while ignoring indentation, otherwise `else if` would be treated as the
+// invalid `elseif` sample when we mark the submitted sample red.
+function normalizeChoiceSyntax(value: string): string {
+  return value
+    .replace(/\r\n/g, '\n')
+    .trim()
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
 }
 
 function MissionScreen({
@@ -206,14 +205,17 @@ function MissionScreen({
   )
   // Chapter 2, Scene 3: the portal opens, then the player needs to upload.
   const [showingCh2Scene31, setShowingCh2Scene31] = useState<boolean>(false)
-  // Chapter 2, Scene 3.2: after the portal opens, the player needs to upload
-  // today's activity before mission 4.
-  const [showingCh2Scene32, setShowingCh2Scene32] = useState<boolean>(false)
+  // Chapter 2, Scene 4 opens Part 4: the player sees the learning portal
+  // before its Situation card and coding question.
+  const [showingCh2Scene4, setShowingCh2Scene4] = useState<boolean>(
+    chapter === 2 && mission === 4,
+  )
   // Chapter 2, Scene 4: the submission is accepted, then the professor
   // challenges the player before mission 5.
   const [showingCh2Scene41, setShowingCh2Scene41] = useState<boolean>(false)
   // Chapter 2, Scene 5.1: after the chapter unlocks, Professor Reyes closes
   // the chapter before the player returns to the chapter list.
+  const [showingCh2Complete, setShowingCh2Complete] = useState(false)
   const [showingCh2Scene51, setShowingCh2Scene51] = useState<boolean>(false)
   // After mission 1's explanation closes, the door swings open and the player
   // steps outside, then moves on to the GoToTerminal(); challenge.
@@ -229,9 +231,10 @@ function MissionScreen({
   // The coding challenge (from the lesson data): where the typed code is wrong
   // and whether the wrong answer was cut short.
   const lesson = getLesson(chapter, mission)
-  const [wrongChars, setWrongChars] = useState<number[]>([])
-  const [missingTail, setMissingTail] = useState<boolean>(false)
+  const [mistakes, setMistakes] = useState<Mistake[]>([])
   const [wrongChoiceIndex, setWrongChoiceIndex] = useState<number | null>(null)
+  const [acceptedAnswer, setAcceptedAnswer] = useState('')
+  const answerOverlay = useRef<HTMLSpanElement>(null)
   // The "UNDERSTAND THE CORE" screen shows after a correct answer, before
   // the green CORRECT! message.
   const [showCore, setShowCore] = useState<boolean>(false)
@@ -241,6 +244,16 @@ function MissionScreen({
   const [questionNumber, setQuestionNumber] = useState<number>(() =>
     readQuestionHint(chapter, mission, lesson?.questions?.length ?? 1),
   )
+  const [showingCh2Situation, setShowingCh2Situation] = useState(
+    chapter === 2 && questionNumber === 1,
+  )
+  const [showingCh3Scene3, setShowingCh3Scene3] = useState(
+    chapter === 3 && mission === 1 && questionNumber === 1,
+  )
+  const [showingCh3Situation, setShowingCh3Situation] = useState(
+    chapter === 3 && mission === 1 && questionNumber === 1,
+  )
+  const [showingCh3History, setShowingCh3History] = useState(false)
   // The "sakay" animation plays after the last prologue puzzle (mission 3).
   const [showingAnimation, setShowingAnimation] = useState<boolean>(false)
   // When the last mission of a chapter is cleared, a celebration shows the
@@ -299,7 +312,6 @@ function MissionScreen({
       return {
         prompt: lesson.prompt,
         choices: lesson.choices,
-        code: lesson.code,
       }
     }
     return null
@@ -387,11 +399,11 @@ function MissionScreen({
       case 'scene31':
         setShowingCh2Scene31(true)
         break
-      case 'scene32':
-        setShowingCh2Scene32(true)
-        break
       case 'scene41':
         setShowingCh2Scene41(true)
+        break
+      case 'ch3History':
+        setShowingCh3History(true)
         break
     }
   }
@@ -423,6 +435,8 @@ function MissionScreen({
     const next = Math.min(questionNumber + 1, total)
     saveQuestionHint(chapter, mission, next)
     setQuestionNumber(next)
+    setAcceptedAnswer('')
+    setWrongChoiceIndex(null)
     setSolved(false)
     setSteps([])
   }
@@ -471,6 +485,16 @@ function MissionScreen({
     // straight to Professor Reyes' closing scene.
     if (chapter === 1) {
       setShowingScene51(true)
+      return
+    }
+    if (chapter === 2) {
+      if (progress?.chapters.find((c) => c.id === 2)?.completed) {
+        setShowingCh2Complete(true)
+      } else {
+        setServerError(
+          'Could not confirm chapter completion. Reopen the chapter to refresh your progress.',
+        )
+      }
       return
     }
     const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
@@ -1118,17 +1142,17 @@ function MissionScreen({
     )
   }
 
-  // Chapter 2, Scene 3.2: the player heads to the portal's upload page before
-  // mission 4.
-  if (showingCh2Scene32) {
+  // Chapter 2, Scene 4: the portal scene precedes Part 4's Situation card and
+  // coding question. Because it belongs to the mission itself, it also plays
+  // when the player opens Part 4 directly from the progress menu.
+  if (showingCh2Scene4) {
     return (
       <>
         <PrologueStory
           character={character}
           pages={[CH2_UPLOAD_LINE_PAGE]}
           onFinish={() => {
-            setShowingCh2Scene32(false)
-            advanceAfterSuccess()
+            setShowingCh2Scene4(false)
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -1168,17 +1192,80 @@ function MissionScreen({
     )
   }
 
-  // Chapter 2, Scene 5.1: after Chapter 3 unlocks, Professor Reyes closes the
+  if (showingCh2Complete) {
+    return (
+      <PrologueStory
+        character={character}
+        pages={[CH2_COMPLETE_PAGE]}
+        onFinish={() => {
+          setShowingCh2Complete(false)
+          setShowingCh2Scene51(true)
+        }}
+        onJournal={onJournal}
+        onSettings={onSettings}
+      />
+    )
+  }
+
+  // Chapter 2, Scene 5.1: after the completion card, Professor Reyes closes the
   // chapter before the player returns to the chapter list.
   if (showingCh2Scene51) {
     return (
       <>
         <PrologueStory
           character={character}
-          pages={[CH2_CLOSING_PAGE]}
+          pages={CH3_INTRO_PAGES}
           onFinish={() => {
             setShowingCh2Scene51(false)
             onChapter()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Part 1, Scene 3: opening the chapter shows Professor Reyes'
+  // grading announcement before the situation card and first challenge.
+  if (showingCh3Scene3) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH3_PART_ONE_SCENE_PAGE]}
+          onFinish={() => setShowingCh3Scene3(false)}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Part 1, Scene 4: the player selects History in the learning
+  // portal before the score-evaluation syntax challenge.
+  if (showingCh3History) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH3_HISTORY_PAGE]}
+          onFinish={() => {
+            setShowingCh3History(false)
+            setShowingCh3Situation(true)
+            continueFromScene()
           }}
           onJournal={onJournal}
           onSettings={onSettings}
@@ -1221,44 +1308,37 @@ function MissionScreen({
     setFeedback(null)
     setServerError(null)
     try {
-      const { correct } = await submitAnswer(
+      const result = await submitAnswer(
         chapter,
         mission,
         answer,
         questionNumber,
       )
-      if (correct) {
-        setWrongChars([])
-        setMissingTail(false)
+      if (result.correct) {
+        setMistakes([])
         setWrongChoiceIndex(null)
+        setAcceptedAnswer(answer)
         setAnswer('')
         await refreshProgress()
         // A replay of a cleared mission plays the same explanation, scenes
         // and questions as the first time.
         beginPostCorrect()
-      } else if (currentQuestion?.choices) {
-        // A wrong syntax: mark the offending characters red and tell the
-        // player none of it ran. The player typed it, so the red overlay
-        // shows exactly which characters are wrong.
-        const targetCode = currentQuestion.code
-        const { wrong, missing } = highlightDiff(answer, targetCode)
-        setWrongChars(wrong)
-        setMissingTail(missing)
-        // Spacing and line breaks don't matter to the checker, so the
-        // choice turns red whatever way the player typed it out.
-        const same = (text: string): string => text.replace(/\s+/g, '')
-        const typedChoice = currentQuestion.choices.findIndex(
-          (choice) => same(choice) === same(answer),
+      } else {
+        setMistakes(result.mistakes)
+        const normalizedAnswer = normalizeChoiceSyntax(answer)
+        const selectedChoice = currentQuestion?.choices?.findIndex(
+          (choice) => normalizeChoiceSyntax(choice) === normalizedAnswer,
         )
-        setWrongChoiceIndex(typedChoice === -1 ? null : typedChoice)
+        setWrongChoiceIndex(
+          chapter === 3 && mission === 1
+            ? (selectedChoice ?? -1) >= 0
+              ? (selectedChoice ?? null)
+              : null
+            : null,
+        )
         setFeedback({
           ok: false,
           text: 'SYNTAX ERROR: CHECK THE HIGHLIGHTED PART OF YOUR CODE AND TRY AGAIN. THE PROGRAM WILL NOT EXECUTE UNTIL THE CORRECT SYNTAX IS ENTERED.',
-        })
-      } else {
-        setFeedback({
-          ok: false,
-          text: 'WRONG ANSWER. TRY AGAIN.',
         })
       }
     } catch (err) {
@@ -1281,9 +1361,9 @@ function MissionScreen({
   // Typing by hand resets the old highlight state.
   const changeAnswer = (value: string): void => {
     setAnswer(value)
-    setWrongChars([])
-    setMissingTail(false)
+    setMistakes([])
     setWrongChoiceIndex(null)
+    setFeedback(null)
   }
 
   // The player closes the explanation after a correct answer: whatever comes
@@ -1371,7 +1451,12 @@ function MissionScreen({
 
   return (
     <div
-      className={['mission-screen', effectiveSceneBg ? 'mission-scene-bg' : '']
+      className={[
+        'mission-screen',
+        effectiveSceneBg ? 'mission-scene-bg' : '',
+        chapter === 2 ? 'chapter-two-mission' : '',
+        chapter === 3 ? 'chapter-three-mission' : '',
+      ]
         .filter(Boolean)
         .join(' ')}
     >
@@ -1388,6 +1473,20 @@ function MissionScreen({
           />
         </>
       )}
+      {chapter === 3 && sceneBg && (
+        <>
+          <img
+            className="chapter-three-computer"
+            src={chapterThreeComputerImg}
+            alt=""
+          />
+          <img
+            className="chapter-three-avatar"
+            src={character === 'girl' ? girlImg : boyImg}
+            alt=""
+          />
+        </>
+      )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <TaskBar
         chapter={chapter}
@@ -1397,67 +1496,111 @@ function MissionScreen({
       />
       <div className="mission-content">
         {currentQuestion ? (
-          <div className="mission-challenge">
-            <p className="mission-challenge-prompt">{currentQuestion.prompt}</p>
-            {currentQuestion.choices && (
-              <div
-                className="mission-choices"
-                aria-label="Possible answers - type one below"
-              >
-                {currentQuestion.choices.map((choice, i) => (
-                  <span
-                    key={i}
-                    className={`mission-choice mission-choice-hint ${
-                      wrongChoiceIndex === i ? 'mission-choice-wrong' : ''
-                    }`}
-                  >
-                    {choice}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <form className="mission-form" onSubmit={handleSubmit}>
-              <div className="mission-code-zone">
-                <textarea
-                  className={[
-                    'mission-input',
-                    wrongChars.length > 0 || missingTail ? 'highlighted' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  value={answer}
-                  onChange={(e) => changeAnswer(e.target.value)}
-                  placeholder="TYPE HERE"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  disabled={checking}
-                  rows={2}
-                />
-                {(wrongChars.length > 0 || missingTail) && (
-                  <span className="mission-code-overlay" aria-hidden="true">
-                    {Array.from(answer).map((ch, i) => (
-                      <span
-                        key={i}
-                        className={wrongChars.includes(i) ? 'hl-red' : ''}
-                      >
-                        {ch}
-                      </span>
-                    ))}
-                    {missingTail && <span className="hl-red hl-caret">_</span>}
-                  </span>
-                )}
-              </div>
+          showingCh2Situation && lesson ? (
+            <section
+              className="chapter-two-situation"
+              aria-labelledby="chapter-two-situation-title"
+            >
+              <h2 id="chapter-two-situation-title">SITUATION</h2>
+              <p>{lesson.story}</p>
               <button
-                type="submit"
-                className="pixel-button mission-execute"
-                disabled={checking || !missionStatus.unlocked}
+                type="button"
+                className="pixel-button chapter-two-situation-next"
+                onClick={() => setShowingCh2Situation(false)}
               >
-                {checking ? 'CHECKING…' : 'EXECUTE'}
+                NEXT
               </button>
-            </form>
-          </div>
+            </section>
+          ) : showingCh3Situation && lesson ? (
+            <section
+              className="chapter-three-situation"
+              aria-labelledby="chapter-three-situation-title"
+            >
+              <h2 id="chapter-three-situation-title">SITUATION</h2>
+              <p>{currentQuestion?.situation ?? lesson.story}</p>
+              <button
+                type="button"
+                className="pixel-button chapter-three-situation-next"
+                onClick={() => setShowingCh3Situation(false)}
+              >
+                NEXT
+              </button>
+            </section>
+          ) : (
+            <div className="mission-challenge">
+              <p className="mission-challenge-prompt">
+                {currentQuestion.prompt}
+              </p>
+              {currentQuestion.choices && (
+                <div
+                  className="mission-choices"
+                  aria-label="Possible answers - type one below"
+                >
+                  {currentQuestion.choices.map((choice, i) => (
+                    <span
+                      key={i}
+                      className={`mission-choice mission-choice-hint ${
+                        wrongChoiceIndex === i ? 'mission-choice-wrong' : ''
+                      }`}
+                    >
+                      {choice}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <form className="mission-form" onSubmit={handleSubmit}>
+                <div className="mission-code-zone">
+                  <textarea
+                    className={[
+                      'mission-input',
+                      mistakes.length > 0 ? 'highlighted' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    value={answer}
+                    onChange={(e) => changeAnswer(e.target.value)}
+                    aria-label="Type your answer"
+                    onScroll={(event) => {
+                      if (answerOverlay.current) {
+                        answerOverlay.current.scrollTop =
+                          event.currentTarget.scrollTop
+                        answerOverlay.current.scrollLeft =
+                          event.currentTarget.scrollLeft
+                      }
+                    }}
+                    placeholder="TYPE HERE"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    disabled={checking}
+                    rows={
+                      (chapter === 2 &&
+                        !(mission === 1 && questionNumber === 1)) ||
+                      (chapter === 3 && mission === 1 && questionNumber === 2)
+                        ? 9
+                        : 2
+                    }
+                  />
+                  {mistakes.length > 0 && (
+                    <span
+                      ref={answerOverlay}
+                      className="mission-code-overlay"
+                      aria-hidden="true"
+                    >
+                      <MistakeHighlight answer={answer} mistakes={mistakes} />
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="pixel-button mission-execute"
+                  disabled={checking || !missionStatus.unlocked}
+                >
+                  {checking ? 'CHECKING…' : 'EXECUTE'}
+                </button>
+              </form>
+            </div>
+          )
         ) : (
           <div className="mission-hint">
             <p className="mission-hint-label">MISSION CONTENT</p>
@@ -1494,32 +1637,56 @@ function MissionScreen({
         )}
       </div>
 
-      {showCore && lesson?.workflow && (
+      {showCore && chapter === 2 && lesson && (
+        <ChapterTwoFeedback
+          key={questionNumber}
+          lesson={lesson}
+          answer={acceptedAnswer}
+          onContinue={closeCore}
+        />
+      )}
+
+      {showCore && chapter === 3 && lesson && (
+        <ChapterThreeFeedback
+          key={questionNumber}
+          lesson={lesson}
+          question={questionNumber}
+          onContinue={closeCore}
+        />
+      )}
+
+      {showCore && chapter !== 2 && chapter !== 3 && lesson?.workflow && (
         <CodeWorkflow
-          code={lesson.code}
+          code={acceptedAnswer}
           workflow={lesson.workflow}
           onClose={closeCore}
         />
       )}
 
-      {showCore && !lesson?.workflow && lesson?.programFlow && (
-        <ProgramFlow
-          code={lesson.code}
-          flow={lesson.programFlow}
-          onClose={closeCore}
-        />
-      )}
+      {showCore &&
+        chapter !== 2 &&
+        chapter !== 3 &&
+        !lesson?.workflow &&
+        lesson?.programFlow && (
+          <ProgramFlow
+            code={acceptedAnswer}
+            flow={lesson.programFlow}
+            onClose={closeCore}
+          />
+        )}
 
       {showCore &&
+        chapter !== 2 &&
+        chapter !== 3 &&
         !lesson?.workflow &&
         lesson?.programFlow === undefined &&
         lesson?.core && (
-        <CoreBreakdown
-          code={lesson.code}
-          core={lesson.core}
-          onClose={closeCore}
-        />
-      )}
+          <CoreBreakdown
+            code={acceptedAnswer}
+            core={lesson.core}
+            onClose={closeCore}
+          />
+        )}
 
       {showingAnimation && (
         <SakayAnimation
@@ -1530,28 +1697,15 @@ function MissionScreen({
         />
       )}
 
-      {unlockChapter !== null &&
-        (chapter === 2 ? (
-          // Finishing Chapter 2 opens Chapter 3 with the "THE CODE EXPLAINED"
-          // recap of the if/else statement, in place of the celebration.
-          // (Chapter 1 shows its own chapter-complete card instead.)
-          <CodeExplained
-            chapter={chapter}
-            onJournal={onJournal}
-            onContinue={() => {
-              setUnlockChapter(null)
-              setShowingCh2Scene51(true)
-            }}
-          />
-        ) : (
-          <LevelUnlock
-            chapter={chapter}
-            onContinue={() => {
-              setUnlockChapter(null)
-              onChapter()
-            }}
-          />
-        ))}
+      {unlockChapter !== null && (
+        <LevelUnlock
+          chapter={chapter}
+          onContinue={() => {
+            setUnlockChapter(null)
+            onChapter()
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -16,9 +16,12 @@
 //   ch1 m5  core (Program Flow) -> chapter-complete card
 //   ch2 m1  q1 core -> purchase scene -> next question; q2 core -> scene 1.2
 //   ch2 m2  core -> Wi-Fi-on scene
-//   ch2 m3  core -> portal-opens scene
+//   ch2 m3  core -> portal-opens scene -> Part 4
+//   ch2 m4  portal scene -> situation -> coding question -> core -> submission scene
 //   ch2 m4  core -> submission scene
 //   ch2 m5  core only
+//   ch3 m1  q1 feedback -> portal History scene -> score syntax question;
+//            q2 feedback -> Part 2
 //
 // New levels just add a row here (or use the fallback below). Unknown missions
 // follow the default: an earlier question goes straight to the next one; the
@@ -40,8 +43,8 @@ export type SceneId =
   | 'scene12'
   | 'scene21'
   | 'scene31'
-  | 'scene32'
   | 'scene41'
+  | 'ch3History'
 
 export type CorrectStep =
   | { kind: 'core' }
@@ -85,13 +88,17 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
           ]
         : [{ kind: 'core' }, { kind: 'scene', id: 'scene12' }],
     '2:2': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene21' }],
-    '2:3': () => [
-      { kind: 'core' },
-      { kind: 'scene', id: 'scene31' },
-      { kind: 'scene', id: 'scene32' },
-    ],
+    '2:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene31' }],
     '2:4': () => [{ kind: 'core' }, { kind: 'scene', id: 'scene41' }],
     '2:5': () => [{ kind: 'core' }],
+    '3:1': (question) =>
+      question === 1
+        ? [
+            { kind: 'core' },
+            { kind: 'scene', id: 'ch3History' },
+            { kind: 'advance-question' },
+          ]
+        : [{ kind: 'core' }],
   }
 
 export function postCorrectSteps(
