@@ -163,6 +163,17 @@
   box-shadow: 0 0 0 calc(0.12 * var(--h)) #2e8b43 inset;
 }
 
+.task-bar-step-pill {
+  font-size: calc(1.1 * var(--h));
+  color: #fffef5;
+  background: #ad201d;
+  padding: calc(0.24 * var(--h)) calc(0.6 * var(--h));
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
 .task-bar-count {
   font-size: calc(1.4 * var(--h));
   color: #9fb8e8;

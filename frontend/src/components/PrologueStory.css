@@ -160,6 +160,284 @@
   transform: translateX(-50%);
 }
 
+/* Scholarship office staff lady (src/chapter 3/girl.png) on the left side of room2.png */
+.story-staff {
+  --size: calc(78 * var(--h));
+  position: absolute;
+  left: 23%;
+  bottom: calc(-4 * var(--h));
+  height: var(--size);
+  width: auto;
+  object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* In scholarship office with staff, player stands on the right matching Canva screenshot */
+.story-scene-staff .story-person,
+.prologue-story:has(.story-staff) .story-person {
+  left: 65% !important;
+  right: auto !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(78 * var(--h)) !important;
+  z-index: 3;
+}
+
+.story-scene-staff .story-staff {
+  left: 20%;
+  bottom: calc(-4 * var(--h));
+  --size: calc(78 * var(--h));
+  z-index: 3;
+}
+
+/* Chapter 3 Scholarship Office (room2.png) speech bubbles */
+.story-scene-staff .story-bubble.story-bubble-white,
+.story-scene-staff .story-bubble.story-bubble-player {
+  top: calc(3.5 * var(--h) + env(safe-area-inset-top, 0px));
+  right: 5%;
+  left: auto;
+  width: min(44vw, calc(76 * var(--h)));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 26px);
+  transform: none;
+  background: #fffff2;
+  border-radius: 4px;
+  color: #111111;
+  z-index: 20;
+}
+
+.story-scene-staff .story-bubble.story-bubble-white::after,
+.story-scene-staff .story-bubble.story-bubble-player::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 22%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 14px 0 0;
+  border-color: #fffff2 transparent transparent transparent;
+}
+
+.story-scene-staff .story-bubble.story-bubble-left,
+.story-scene-staff .story-bubble.story-bubble-staff {
+  top: calc(3.5 * var(--h) + env(safe-area-inset-top, 0px));
+  left: 25%;
+  right: auto;
+  width: min(44vw, calc(76 * var(--h)));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 26px);
+  transform: none;
+  background: #fffff2;
+  border-radius: 4px;
+  color: #111111;
+  z-index: 20;
+}
+
+.story-scene-staff .story-bubble.story-bubble-left::after,
+.story-scene-staff .story-bubble.story-bubble-staff::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 14%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 14px 0 0;
+  border-color: #fffff2 transparent transparent transparent;
+}
+
+/* Professor Reyes announcement in Chapter 3 classroom (matching Screenshot 2) */
+.story-scene-chapter3-room .story-bubble.story-bubble-professor,
+.story-scene-chapter3-room .story-bubble.story-bubble-white {
+  top: calc(4 * var(--h) + env(safe-area-inset-top, 0px));
+  left: 54%;
+  right: auto;
+  transform: none;
+  width: min(45vw, calc(78 * var(--h)));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 26px);
+  background: #fffff2;
+  border-radius: 4px;
+  color: #111111;
+  z-index: 20;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-professor::after,
+.story-scene-chapter3-room .story-bubble.story-bubble-white::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 18%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 14px 0 0;
+  border-color: #fffff2 transparent transparent transparent;
+}
+
+/* Monitor scenes with player on the right (Scenes 1, 3, 6 matching Canva screenshots) */
+.prologue-story:has(.story-score-monitor) .story-bubble.story-bubble-white,
+.prologue-story:has(.story-score-monitor) .story-bubble.story-bubble-player {
+  top: calc(4 * var(--h) + env(safe-area-inset-top, 0px));
+  right: 5%;
+  left: auto;
+  transform: none;
+  width: min(44vw, calc(76 * var(--h)));
+  box-sizing: border-box;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 26px);
+  background: #fffff2;
+  border-radius: 4px;
+  color: #111111;
+  z-index: 20;
+}
+
+.prologue-story:has(.story-score-monitor) .story-bubble.story-bubble-white::after,
+.prologue-story:has(.story-score-monitor) .story-bubble.story-bubble-player::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 22%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 14px 0 0;
+  border-color: #fffff2 transparent transparent transparent;
+}
+
+.story-scene-staff .story-bubble .story-text {
+  font-size: clamp(11px, 1.3vw, 15px);
+  line-height: 1.5;
+  text-align: center;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* Retro computer score monitor in chapter 3 scene 1.2 */
+.story-score-monitor {
+  position: absolute;
+  left: 20%;
+  bottom: calc(-3 * var(--h));
+  width: min(42vw, calc(72 * var(--h)));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.story-score-monitor img {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(5px 5px 0 rgba(0, 0, 0, 0.65));
+}
+
+.story-score-display {
+  position: absolute;
+  top: 15%;
+  left: 17%;
+  width: 66%;
+  height: 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(32px, 4.8vw, 64px);
+  color: #ff6b9d;
+  -webkit-text-stroke: clamp(2px, 0.35vw, 4px) #ffffff;
+  text-shadow: 4px 4px 0 #942b58;
+  letter-spacing: 4px;
+}
+
+/* Chapter 3 Mission 3 Wi-Fi monitor screen display (matching Screenshot 1) */
+.story-monitor-wifi {
+  position: absolute;
+  top: 15%;
+  left: 17%;
+  width: 66%;
+  height: 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-screen-monitor-content {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.story-screen-monitor-content .story-monitor-wifi,
+.story-screen-monitor-content .story-monitor-submitted,
+.story-screen-monitor-content .story-monitor-medal {
+  position: static;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chapter 3 Mission 3 Submitted monitor screen display (matching Screenshot 3) */
+.story-monitor-submitted {
+  position: absolute;
+  top: 15%;
+  left: 17%;
+  width: 66%;
+  height: 48%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(7.5px, 1.05vw, 14px);
+  line-height: 1.45;
+  color: #111111;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.story-monitor-submitted .story-monitor-exclaim {
+  margin-top: 4px;
+  font-size: clamp(9px, 1.25vw, 17px);
+  letter-spacing: 3px;
+}
+
+/* Chapter 3 Mission 3 Medal monitor screen display (matching image copy 4.png) */
+.story-monitor-medal {
+  position: absolute;
+  top: 15%;
+  left: 17%;
+  width: 66%;
+  height: 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-monitor-medal img {
+  width: auto;
+  height: clamp(55px, 9vw, 120px);
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.35));
+}
+
+/* Purple notebook on student desk in Chapter 3 classroom (matching Screenshot 2) */
+.story-desk-book {
+  position: absolute;
+  left: 8%;
+  bottom: calc(-1 * var(--h));
+  width: min(17vw, calc(30 * var(--h)));
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+}
+
+.story-desk-book-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* The speech bubble used by every story page. */
 .story-bubble {
   position: absolute;
@@ -179,7 +457,7 @@
   color: #000000;
   font-family: 'Press Start 2P', monospace;
   cursor: pointer;
-  z-index: 2;
+  z-index: 20;
   box-shadow: none;
 }
 
@@ -460,6 +738,7 @@
   text-align: center;
   background: #ece5cf;
   border: var(--line) solid #8c1c1c;
+  border-radius: calc(2.4 * var(--u));
 }
 
 .story-card-title {
@@ -829,13 +1108,15 @@
 /* Upright phones: the professor's panel spans the screen like the other
    bubbles, with its tail still on the left. */
 @media (max-aspect-ratio: 1/1) {
-  .story-bubble.story-bubble-white {
+  .story-bubble.story-bubble-white,
+  .story-bubble.story-bubble-player {
     top: calc(14 * var(--h) + env(safe-area-inset-top, 0px));
     right: 4vw;
     width: 82vw;
   }
 
-  .story-bubble.story-bubble-left {
+  .story-bubble.story-bubble-left,
+  .story-bubble.story-bubble-staff {
     top: calc(14 * var(--h) + env(safe-area-inset-top, 0px));
     left: 4vw;
     width: 82vw;
@@ -1017,3 +1298,224 @@
     left: 29%;
   }
 }
+
+/* Chapter 4 Kiosk Overlay & Hallway Scene */
+.story-kiosk-wrap {
+  position: absolute;
+  bottom: calc(-5 * var(--h));
+  left: 50%;
+  transform: translateX(-50%);
+  height: calc(78 * var(--h));
+  max-height: 560px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.story-kiosk-img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+}
+
+.story-kiosk-mouse {
+  position: absolute;
+  width: clamp(26px, 3.8vw, 42px);
+  height: auto;
+  z-index: 10;
+  pointer-events: none;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  animation: kiosk-mouse-click 2s ease-in-out infinite;
+}
+
+@keyframes kiosk-mouse-click {
+  0% {
+    top: 62%;
+    left: 72%;
+    transform: scale(1);
+    opacity: 0;
+  }
+  20% {
+    top: 55%;
+    left: 65%;
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  65% {
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    filter: drop-shadow(0 0 14px #ff3b30);
+  }
+  78% {
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  100% {
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Chapter 4 Hallway Kiosk Scene specific placements */
+.story-scene-chapter4-kiosk .story-person {
+  left: 17% !important;
+  right: auto !important;
+  bottom: calc(-4 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  --size: calc(82 * var(--h)) !important;
+  z-index: 3;
+}
+
+.story-scene-chapter4-kiosk .story-professor {
+  right: 12% !important;
+  left: auto !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(76 * var(--h)) !important;
+  z-index: 3;
+}
+
+/* Clean, themed dialogue box at top center with zero character overlap */
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white {
+  top: calc(6.5 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(580px, calc(100vw - 32px)) !important;
+  box-sizing: border-box !important;
+  padding: clamp(12px, 1.4vw, 18px) clamp(16px, 2vw, 24px) !important;
+  background: #fffef5 !important;
+  border: 3px solid #ad201d !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  color: #171420 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-speaker {
+  display: block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 1.1vw, 13px);
+  color: #ad201d;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.05vw, 12px);
+  line-height: 1.6;
+  color: #171420;
+  text-align: center;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-tap {
+  font-size: clamp(8px, 0.85vw, 10px);
+  color: #8c1c1c;
+  margin-top: 6px;
+}
+
+@media (max-width: 680px) {
+  .story-scene-chapter4-kiosk .story-person {
+    left: 12% !important;
+    --size: calc(65 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-kiosk .story-professor {
+    right: 4% !important;
+    --size: calc(65 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-kiosk .story-kiosk-wrap {
+    height: min(58vh, 390px);
+    bottom: calc(-3 * var(--h));
+  }
+
+  .story-scene-chapter4-kiosk .story-bubble.story-bubble-white {
+    top: calc(2 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    width: calc(100vw - 20px) !important;
+    padding: 10px 14px !important;
+  }
+}
+
+/* Chapter 4 Monitor Overlays (Computer 2 Assigned & Control Structures) */
+.story-monitor-pc2-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.story-pc2-text {
+  font-size: clamp(8px, 1.1vw, 13px);
+  color: #39d353;
+  text-shadow: 0 0 6px rgba(57, 211, 83, 0.7);
+  line-height: 1.3;
+}
+
+.story-pc2-tag {
+  font-size: clamp(9px, 1.3vw, 15px);
+  font-weight: bold;
+  color: #ffe066;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #ffe066;
+  text-shadow: 0 0 8px rgba(255, 224, 102, 0.8);
+  animation: pc2-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pc2-pulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+/* Campus Destination Card Overlay */
+.story-destination-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(85vw, 680px);
+  max-height: 70vh;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.story-destination-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border: 3px solid #0b1020;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+

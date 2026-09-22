@@ -16,15 +16,25 @@ import connectedImg from './chapter 2/connected.webp'
 import loginPcImg from './chapter 2/LOGIN_PC.webp'
 import noWifiImg from './chapter 2/no wifi.webp'
 import pcImg from './chapter 2/pc.webp'
-import mouseImg from './chapter 2/mouse.png'
-import scene4Img from './chapter 2/scene4.png'
-import chapterThreeRoomImg from './chapter 3/room.png'
+import mouseImg from './chapter 2/mouse.webp'
+import scene4Img from './chapter 2/scene4.webp'
+import chapterThreeRoomImg from './chapter 3/room.webp'
+import chapterThreeRoom2Img from './chapter 3/room2.webp'
+import medalImg from './chapter 3/medal.webp'
+import ch4KioskBeginImg from './assets/chapter 4/kioskTaptobegin.webp'
+import ch4KioskMenuImg from './assets/chapter 4/kioskMenu.webp'
+import ch4SelectActivityPCImg from './assets/chapter 4/selectActivityPC.webp'
+import ch4ProgrammingActivityPCImg from './assets/chapter 4/programmingActivityPC.webp'
+import ch4PCActivityImg from './assets/chapter 4/programmingActivityPC.webp'
+import ch4SelectDestinationImg from './assets/chapter 4/SelectADestination.webp'
+import ch4DestinationImg from './assets/chapter 4/SelectADestination.webp'
+import ch4NightLibraryImg from './assets/chapter 4/nightLibraryRoom.webp'
 
 export type StoryPage = {
   bg: string
   lines: string[]
   // A story-specific placement variant for the characters over a background.
-  scene?: 'chapter3-room'
+  scene?: 'chapter3-room' | 'chapter4-kiosk'
   // Where the background art is anchored (object-position). Defaults to the
   // bedroom look: centered, hugging the bottom. Per-page override so scenes
   // with a different focal point don't need to touch the shared styles.
@@ -35,8 +45,23 @@ export type StoryPage = {
   guard?: boolean
   // Show Professor Reyes on the right of the scene instead of the player.
   professor?: boolean
+  // Show scholarship staff on the left of room2.
+  staff?: boolean
+  // Show retro computer with score 90 on the left.
+  scoreMonitor?: boolean
+  // Type of content to display inside the retro monitor:
+  monitorType?: 'score' | 'wifi' | 'submitted' | 'medal' | 'pc2Assigned' | 'controlStructures' | 'labMenu'
+  // Show kiosk machine in foreground
+  kiosk?: boolean
+  kioskImage?: string
+  // Show animated mouse cursor clicking TAP TO BEGIN on kiosk
+  kioskCursor?: boolean
+  // Show campus destination card
+  destinationCard?: boolean
+  // Show purple notebook on student desk
+  book?: boolean
   // Which character says the lines. Defaults to the player.
-  speaker?: 'player' | 'guard' | 'kiosk' | 'professor' | 'cashier' | 'narrator'
+  speaker?: 'player' | 'guard' | 'kiosk' | 'professor' | 'cashier' | 'staff' | 'narrator'
   animation?: 'worksheet' | 'wifi'
   // A panel dialog in the top corner with a tail: the yellow machine prompt,
   // or the white one Professor Reyes speaks from.
@@ -525,9 +550,460 @@ export const CH2_COMPLETE_PAGE: StoryPage = {
   ],
 }
 
+// Chapter 3, Scene 1.2 — after Mission 1 workflow, monitor displays score "90".
+export const CH3_SCORE_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  align: 'right',
+  scoreMonitor: true,
+  bubble: 'white',
+  lines: ['Okay that was my score for the activity'],
+}
+
+// Chapter 3, Scene 1.3 — Player arrives at the scholarship office (room2.png)
+export const CH3_SCHOLARSHIP_GREETING_PAGE: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'Good morning maam! I',
+    'just wanted to check it',
+    'i am qualify for',
+    'scholarship.',
+  ],
+}
+
+// Chapter 3, Scene 1.4 — Scholarship staff responds
+export const CH3_SCHOLARSHIP_STAFF_PAGE: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  bubble: 'left',
+  speaker: 'staff',
+  lines: [
+    "Welcome! Let's check",
+    'your GPA and see if you',
+    'are qualify for',
+    'scholarship.',
+  ],
+}
+
+// Chapter 3, Mission 2 — Situation Card modal
+export const CH3_SITUATION_PAGE: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  card: 'Situation',
+  lines: [
+    "The scholarship office determines a student's eligibility.",
+    '. GPA 1.25 or better ➡ Full Scholarship',
+    '. GPA 1.75 or better ➡ Partial Scholarship',
+    '. Otherwise ➡ Not Qualified',
+  ],
+}
+
+// Chapter 3, Mission 2 — Correct Card modal (image.png)
+export const CH3_M2_CORRECT_CARD: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  card: 'Correct',
+  lines: [
+    'Remember that else if is written as two separate words.',
+  ],
+}
+
+// Chapter 3, Scene 2.1 — Staff says qualified (image copy.png)
+export const CH3_M2_QUALIFIED_PAGE: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  bubble: 'left',
+  speaker: 'staff',
+  lines: ['You are qualify for a scholarship!'],
+}
+
+// Chapter 3, Scene 2.2 — Player thanks staff (image copy 2.png)
+export const CH3_M2_THANKS_PAGE: StoryPage = {
+  bg: chapterThreeRoom2Img,
+  staff: true,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ["Thank You Ma'am!"],
+}
+
+// Chapter 3, Mission 3, Scene 1 — Wi-Fi check on retro monitor
+export const CH3_M3_WIFI_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  monitorType: 'wifi',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['The Internet Connection is Fast!'],
+}
+
+// Chapter 3, Mission 3, Scene 2 — Professor Reyes announces activity
+export const CH3_M3_PROF_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  scene: 'chapter3-room',
+  professor: true,
+  book: true,
+  align: 'left',
+  bubble: 'white',
+  speaker: 'professor',
+  lines: [
+    'Good Morning Class! So today we will have a activity. Your score determines the award and you will receive.',
+  ],
+}
+
+// Chapter 3, Mission 3, Scene 3 — Activity submission confirmation
+export const CH3_M3_SUBMITTED_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  monitorType: 'submitted',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['Finally!'],
+}
+
+// Chapter 3, Mission 3, Scene 4 — Situation Card modal
+export const CH3_M3_SITUATION_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  card: 'Situation',
+  lines: [
+    "The competition system determines the player's award.",
+    '• Score >= 95 ➡ Gold',
+    '• Score >= 85 ➡ Silver',
+    '• Otherwise ➡ Bronze',
+  ],
+}
+
+// Chapter 3, Mission 3 Post-Flow Cutscene 1 — Correct Card modal (image copy 3.png)
+export const CH3_M3_CORRECT_CARD: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  card: 'Correct',
+  lines: ['Every block should be enclosed with braces {}.'],
+}
+
+// Chapter 3, Mission 3 Post-Flow Cutscene 2 — Gold Medal Screen (image copy 4.png)
+export const CH3_M3_MEDAL_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  monitorType: 'medal',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['Deserve!'],
+}
+
+// Chapter 3, Part 4 Scene 1 — Professor Reyes in classroom (media_1790089228774.png)
+export const CH3_M4_PROF_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  scene: 'chapter3-room',
+  professor: true,
+  book: true,
+  align: 'left',
+  bubble: 'white',
+  speaker: 'professor',
+  lines: [
+    'I also going to evaulate you score. Please check your portal.',
+  ],
+}
+
+// Chapter 3, Part 4 Scene 2 — PC monitor foreground, player background (media_1790089236381.png)
+export const CH3_M4_PC_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['Let me see....'],
+}
+
+// Chapter 3, Part 4 Scene 3 — Situation Card modal (media_1790089975668.png)
+export const CH3_M4_SITUATION_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  card: 'Situation',
+  lines: [
+    "The university evaluates the student's final laboratory performance.",
+    '• 90-100 ➡ Excellent',
+    '• 80-89 ➡ Very Good',
+    '• 75-79 ➡ Good',
+    '• Below 75 ➡ Needs Improvement',
+  ],
+}
+
+// Chapter 3 Complete screen (media_1790090007943.png)
+export const CH3_COMPLETE_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 3 – The else if Statement',
+  ],
+  cardList: [
+    'Multiple Conditions',
+    'Syntax Structure',
+    'Common Errors',
+    'Real-life Applications',
+  ],
+}
+
+// ========================================================
+// Chapter 4 Story Pages
+// ========================================================
+
+// Chapter 4 Scene 1 — Professor Reyes at Campus Self-Service Kiosk, Mouse Click, and Menu
+export const CH4_INTRO_PAGES: StoryPage[] = [
+  {
+    bg: hallwayImg,
+    scene: 'chapter4-kiosk',
+    kiosk: true,
+    kioskImage: ch4KioskBeginImg,
+    align: 'left',
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: [
+      'Sometimes a program needs to choose from several fixed options.',
+      'Instead of checking many conditions one by one, C# provides the switch statement.',
+      "Today, you'll learn how to use it.",
+    ],
+  },
+  {
+    bg: hallwayImg,
+    scene: 'chapter4-kiosk',
+    kiosk: true,
+    kioskImage: ch4KioskBeginImg,
+    kioskCursor: true,
+    align: 'left',
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'I want to check my class schedule.',
+      "Let's tap the kiosk screen to begin!",
+    ],
+  },
+  {
+    bg: hallwayImg,
+    scene: 'chapter4-kiosk',
+    kiosk: true,
+    kioskImage: ch4KioskMenuImg,
+    align: 'left',
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'The kiosk menu is ready!',
+      'Now I can choose what service to access.',
+    ],
+  },
+  {
+    bg: hallwayImg,
+    scene: 'chapter4-kiosk',
+    kiosk: true,
+    kioskImage: ch4KioskMenuImg,
+    card: 'Situation',
+    lines: [
+      'The university kiosk offers different services:',
+      '• Option 1 ➡ View Schedule',
+      '• Option 2 ➡ View Grades',
+      '• Option 3 ➡ Print Registration Form',
+      '• Default ➡ Invalid Option',
+      '',
+      'Select the correct control structure for the kiosk.',
+    ],
+  },
+]
+
+// Chapter 4 Scene 1.1 — Player at the kiosk wanting to check schedule
+export const CH4_SCENE_1_1_PAGE: StoryPage = {
+  bg: hallwayImg,
+  kiosk: true,
+  kioskImage: ch4KioskBeginImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['I want to check my class schedule.'],
+}
+
+// Chapter 4 Scene 1.2 — Kiosk displays schedule timetable
+export const CH4_SCENE_1_2_PAGE: StoryPage = {
+  bg: hallwayImg,
+  kiosk: true,
+  kioskImage: ch4KioskMenuImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['Great! I can see my schedule.'],
+}
+
+// Chapter 4 Scene 1.3 / Lab Entrance — Player enters Programming Lab
+export const CH4_SCENE_ENTER_LAB_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'The screen shows the available workstations.',
+    'I need to find my assigned computer.',
+  ],
+}
+
+// Chapter 4 Mission 2 Situation Card
+export const CH4_M2_SITUATION_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  card: 'Situation',
+  lines: [
+    'Students are assigned to different computers.',
+    '• Computer 1',
+    '• Computer 2',
+    '• Computer 3',
+    'Display the correct workstation based on the selected computer number.',
+  ],
+}
+
+// Chapter 4 Scene 2.1 — Workstation displays "COMPUTER 2 ASSIGNED"
+export const CH4_SCENE_2_1_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  scoreMonitor: true,
+  monitorType: 'pc2Assigned',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['This is my assigned computer.'],
+}
+
+// Chapter 4 Scene 2.2 — Computer displays lab activities list
+export const CH4_SCENE_2_2_PAGE: StoryPage = {
+  bg: ch4SelectActivityPCImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    "The computer opens today's Programming Laboratory activities.",
+    'A list of programming exercises appears.',
+  ],
+}
+
+// Chapter 4 Mission 3 Situation Card
+export const CH4_M3_SITUATION_PAGE: StoryPage = {
+  bg: ch4PCActivityImg,
+  card: 'Situation',
+  lines: [
+    "Today's laboratory lets students choose an exercise.",
+    '• 1 ➡ Variables',
+    '• 2 ➡ Operators',
+    '• 3 ➡ Control Structures',
+    'Display the selected activity.',
+  ],
+}
+
+// Chapter 4 Scene 3.1 — Workstation displays "CONTROL STRUCTURES EXERCISE"
+export const CH4_SCENE_3_1_PAGE: StoryPage = {
+  bg: pcImg,
+  align: 'right',
+  scoreMonitor: true,
+  monitorType: 'controlStructures',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ["I'll work on the Control Structures exercise."],
+}
+
+// Chapter 4 Scene 3.2 — Campus navigation system appears
+export const CH4_SCENE_3_2_PAGE: StoryPage = {
+  bg: ch4DestinationImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'After completing the exercise, I need to visit another area of the university.',
+  ],
+}
+
+// Chapter 4 Mission 4 Situation Card
+export const CH4_M4_SITUATION_PAGE: StoryPage = {
+  bg: ch4DestinationImg,
+  card: 'Situation',
+  lines: [
+    'The campus navigation system helps students find different locations.',
+    '• 1 ➡ Library',
+    '• 2 ➡ Cafeteria',
+    '• 3 ➡ Programming Laboratory',
+    'Display the correct destination.',
+  ],
+}
+
+// Chapter 4 Scene 4.1 — Player arrives at the library
+export const CH4_SCENE_4_1_PAGE: StoryPage = {
+  bg: ch4NightLibraryImg,
+  align: 'right',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['I need to go to the library.'],
+}
+
+// Chapter 4 Scene 4.2 — Return to lab, Professor Reyes gives final challenge
+export const CH4_SCENE_4_2_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  professor: true,
+  bubble: 'white',
+  speaker: 'professor',
+  lines: [
+    "Great work! Let's see if you can apply what you've learned.",
+  ],
+}
+
+// Chapter 4 Mission 5 Situation Card
+export const CH4_M5_SITUATION_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  card: 'Situation',
+  lines: [
+    'The Programming Laboratory menu lets students choose an action.',
+    '• 1 ➡ Start Coding',
+    '• 2 ➡ View Instructions',
+    '• 3 ➡ Exit Laboratory',
+    'Write the correct switch statement.',
+  ],
+}
+
+// Chapter 4 Complete card
+export const CH4_COMPLETE_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 4 – The switch Statement',
+  ],
+  cardList: [
+    'Definition of switch',
+    'Basic syntax',
+    'Common syntax errors',
+    'Real-world applications',
+  ],
+}
+
+// Chapter 4 Closing dialogue
+export const CH4_CLOSING_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  professor: true,
+  bubble: 'white',
+  speaker: 'professor',
+  lines: [
+    "Excellent work. You've learned how the switch statement allows a program to select one action from several fixed options.",
+  ],
+}
+
 export {
   schoolImg,
   classroomImg,
+  hallwayImg,
   powerImg,
   profClassroomImg,
   guardImg,
@@ -535,4 +1011,14 @@ export {
   noWifiImg,
   connectedImg,
   pcImg,
+  chapterThreeRoomImg,
+  chapterThreeRoom2Img,
+  medalImg,
+  ch4KioskBeginImg,
+  ch4KioskMenuImg,
+  ch4SelectActivityPCImg,
+  ch4ProgrammingActivityPCImg,
+  ch4SelectDestinationImg,
+  ch4NightLibraryImg,
 }
+

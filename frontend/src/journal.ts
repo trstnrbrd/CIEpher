@@ -76,43 +76,74 @@ export const JOURNAL: JournalLesson[] = [
     chapter: 3,
     title: 'Lesson 3: The else if Statement',
     definition: [
-      'The else if statement specifies a new condition if the first condition is false.',
+      'The else if statement specifies a new condition to evaluate if the previous condition is false.',
+      'Multiple Conditions: Chain multiple else if statements between if and else to handle multi-tiered decisions.',
     ],
     syntax:
-      'int time = 22;\n\nif (time < 10) {\n    Console.WriteLine("Good morning");\n} else if (time < 20) {\n    Console.WriteLine("Good day");\n} else {\n    Console.WriteLine("Good evening");\n}',
-    syntaxNotes: [],
+      'if (score >= 90)\n{\n    ShowExcellent();\n}\nelse if (score >= 80)\n{\n    ShowVeryGood();\n}\nelse if (score >= 75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+    syntaxNotes: [
+      'Checks conditions in order from top to bottom.',
+      'Executes the first matching block and skips the rest.',
+      'The else block is optional and acts as the fallback.',
+    ],
     mistakes: [
       {
+        wrong: 'elseif (condition)',
+        fix: 'In C#, else if must be written as two separate words with a space.',
+      },
+      {
         wrong: 'if (...) { } else { } else if (...) { }',
-        fix: 'The alternative else block should always come last in the sequence of conditions.',
+        fix: 'The fallback else block must always come last in the sequence.',
+      },
+      {
+        wrong: 'else if (condition)\n    action1();\n    action2();',
+        fix: 'Always enclose blocks with curly braces { } so all statements execute together.',
       },
     ],
     uses: [
-      'A grading system checks whether a student has a grade of 90, 80, or 70, or a failing grade.',
+      'University Laboratory Performance: Rating students as Excellent, Very Good, Good, or Needs Improvement.',
+      'Grading and Award Tiers: Assigning Gold, Silver, Bronze, or Certificate awards based on scores.',
     ],
     example:
-      'int grade = 85;\n\nif (grade >= 90)\n{\n    Console.WriteLine("Grade: A (Excellent)");\n}\nelse if (grade >= 80)\n{\n    Console.WriteLine("Grade: B (Good)");\n}\nelse if (grade >= 70)\n{\n    Console.WriteLine("Grade: C (Pass)");\n}\nelse\n{\n    Console.WriteLine("Failing grade.");\n}',
+      'int score = 88;\n\nif (score >= 90)\n{\n    Console.WriteLine("Performance: Excellent");\n}\nelse if (score >= 80)\n{\n    Console.WriteLine("Performance: Very Good");\n}\nelse if (score >= 75)\n{\n    Console.WriteLine("Performance: Good");\n}\nelse\n{\n    Console.WriteLine("Performance: Needs Improvement");\n}',
   },
   {
     chapter: 4,
-    title: 'Lesson 4: The Switch Statement',
+    title: 'Lesson 4: The switch Statement',
     definition: [
-      'Evaluates an expression once and compares its value against multiple case options to execute matching code blocks.',
+      'The switch statement selects one of many code blocks to be executed based on a matching case value.',
+      'Use switch when comparing a single variable against multiple fixed, discrete options instead of chaining multiple if...else statements.',
     ],
     syntax:
-      'switch(expression)\n{\n  case x:\n    // code block\n    break;\n\n  case y:\n    // code block\n    break;\n\n  default:\n    // code block\n    break;\n}',
-    syntaxNotes: [],
+      'switch (option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n    case 2:\n        ViewGrades();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
+    syntaxNotes: [
+      'The switch expression is evaluated once and compared against each case value.',
+      'Each case represents a possible value and must end with a colon (:).',
+      'The break statement ends the selected case and exits the switch.',
+      'The default block is optional and executes if no case values match.',
+    ],
     mistakes: [
       {
-        wrong: 'Missing break statements',
-        fix: 'Forgetting break, return, or goto causes execution to mistakenly bleed into the next case.',
+        wrong: 'case 1 ViewSchedule();',
+        fix: 'Each case label must include a value followed by a colon (:).',
+      },
+      {
+        wrong: 'Missing break statement',
+        fix: 'In C#, each non-empty case block must end with a break; statement to prevent unintended fall-through.',
+      },
+      {
+        wrong: 'default InvalidChoice();',
+        fix: 'The default keyword must always be followed by a colon (:).',
       },
     ],
     uses: [
-      'Menu navigation in an activity tab can open an exercise for variables or operators.',
+      'Campus Self-Service Kiosks: Selecting between Schedule, Grades, and Registration forms.',
+      'Laboratory Workstation Assignment: Directing students to Computer 1, 2, or 3.',
+      'Menu Selection: Choosing exercises such as Variables, Operators, or Control Structures.',
+      'Campus Navigation: Routing users to destinations like the Library, Cafeteria, or Programming Lab.',
     ],
     example:
-      'switch (selectedActivity)\n{\n    case "Variables":\n        Console.WriteLine("Opening Variables practice exercise...");\n        break;\n\n    case "Operators":\n        Console.WriteLine("Opening Operators practice exercise...");\n        break;\n\n    default:\n        Console.WriteLine("Unknown menu selection.");\n        break;\n}',
+      'int destination = 1;\n\nswitch (destination)\n{\n    case 1:\n        Console.WriteLine("Destination: Library");\n        break;\n    case 2:\n        Console.WriteLine("Destination: Cafeteria");\n        break;\n    case 3:\n        Console.WriteLine("Destination: Programming Laboratory");\n        break;\n    default:\n        Console.WriteLine("Error: Invalid destination.");\n        break;\n}',
   },
   {
     chapter: 5,

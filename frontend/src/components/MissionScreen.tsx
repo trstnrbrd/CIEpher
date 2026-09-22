@@ -33,6 +33,39 @@ import {
   CH3_HISTORY_PAGE,
   CH3_INTRO_PAGES,
   CH3_PART_ONE_SCENE_PAGE,
+  CH3_SCORE_PAGE,
+  CH3_SCHOLARSHIP_GREETING_PAGE,
+  CH3_SCHOLARSHIP_STAFF_PAGE,
+  CH3_SITUATION_PAGE,
+  CH3_M2_CORRECT_CARD,
+  CH3_M2_QUALIFIED_PAGE,
+  CH3_M2_THANKS_PAGE,
+  CH3_M3_WIFI_PAGE,
+  CH3_M3_PROF_PAGE,
+  CH3_M3_SUBMITTED_PAGE,
+  CH3_M3_SITUATION_PAGE,
+  CH3_M3_CORRECT_CARD,
+  CH3_M3_MEDAL_PAGE,
+  CH3_M4_PROF_PAGE,
+  CH3_M4_PC_PAGE,
+  CH3_M4_SITUATION_PAGE,
+  CH3_COMPLETE_PAGE,
+  CH4_INTRO_PAGES,
+  CH4_SCENE_1_1_PAGE,
+  CH4_SCENE_1_2_PAGE,
+  CH4_SCENE_ENTER_LAB_PAGE,
+  CH4_M2_SITUATION_PAGE,
+  CH4_SCENE_2_1_PAGE,
+  CH4_SCENE_2_2_PAGE,
+  CH4_M3_SITUATION_PAGE,
+  CH4_SCENE_3_1_PAGE,
+  CH4_SCENE_3_2_PAGE,
+  CH4_M4_SITUATION_PAGE,
+  CH4_SCENE_4_1_PAGE,
+  CH4_SCENE_4_2_PAGE,
+  CH4_M5_SITUATION_PAGE,
+  CH4_COMPLETE_PAGE,
+  CH4_CLOSING_PAGE,
   CLASSROOM_ARRIVAL_PAGE,
   CLASSROOM_ATTENDANCE_RECORDED_PAGE,
   CLASSROOM_CORRECT_PAGE,
@@ -64,7 +97,9 @@ import {
 import guardImg from '../chapter1/guard.webp'
 import loginPcImg from '../chapter 2/LOGIN_PC.webp'
 import loggedInImg from '../chapter 2/LOGGED_IN.webp'
-import chapterThreeComputerImg from '../chapter 3/computer.png'
+import chapterThreeComputerImg from '../chapter 3/computer.webp'
+import chapterThreeStaffImg from '../chapter 3/girl.webp'
+import ch4KioskBeginImg from '../assets/chapter 4/kioskTaptobegin.webp'
 import boyHallwayVideo from '../chapter1/boy_hallway.mp4'
 import girlHallwayVideo from '../chapter1/girl_hallway.mp4'
 import boyImg from '../assets/boy.webp'
@@ -74,6 +109,7 @@ import CoreBreakdown from './CoreBreakdown'
 import ProgramFlow from './ProgramFlow'
 import ChapterTwoFeedback from './ChapterTwoFeedback'
 import ChapterThreeFeedback from './ChapterThreeFeedback'
+import ChapterFourFeedback from './ChapterFourFeedback'
 import MistakeHighlight from './MistakeHighlight'
 import SakayAnimation from './SakayAnimation'
 import LevelUnlock from './LevelUnlock'
@@ -89,7 +125,7 @@ interface MissionScreenProps {
   // The session ended (401): straight back to Login, nothing to ask.
   onUnauthorized: () => void
   onOpenMission: (chapter: number, mission: number) => void
-  onJournal: () => void
+  onJournal: (chapter?: number) => void
   onSettings: () => void
 }
 
@@ -107,6 +143,104 @@ function normalizeChoiceSyntax(value: string): string {
     .replace(/[ \t]+/g, ' ')
     .replace(/ *\n */g, '\n')
 }
+
+// Normalizes code syntax for token comparison while preserving keyword differences
+// like `else if` vs `elseif`.
+function normalizeCodeTokens(value: string): string {
+  return value
+    .replace(/\r\n/g, '\n')
+    .replace(/\belse\s+if\b/gi, 'else if')
+    .replace(/\s*([(){};><!=+\-*/])\s*/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function computeDiceSimilarity(a: string, b: string): number {
+  if (a === b) return 1
+  if (a.length === 0 || b.length === 0) return 0
+
+  const aBigrams = new Map<string, number>()
+  for (let i = 0; i < a.length - 1; i++) {
+    const bigram = a.substring(i, i + 2)
+    aBigrams.set(bigram, (aBigrams.get(bigram) ?? 0) + 1)
+  }
+
+  let intersection = 0
+  for (let i = 0; i < b.length - 1; i++) {
+    const bigram = b.substring(i, i + 2)
+    const count = aBigrams.get(bigram) ?? 0
+    if (count > 0) {
+      aBigrams.set(bigram, count - 1)
+      intersection++
+    }
+  }
+
+  const total = a.length - 1 + (b.length - 1)
+  return total > 0 ? (2 * intersection) / total : 0
+}
+
+function findMatchingChoiceIndex(choices: string[], answer: string): number {
+  const trimmed = answer.trim()
+  if (!trimmed) return -1
+
+  // 1. Exact trimmed match
+  const exact = choices.findIndex((c) => c.trim().toLowerCase() === trimmed.toLowerCase())
+  if (exact !== -1) return exact
+
+  // 2. Normalized choice syntax match (linebreaks/indentation normalized)
+  const normAnswer = normalizeChoiceSyntax(answer).toLowerCase()
+  const normIndex = choices.findIndex(
+    (c) => normalizeChoiceSyntax(c).toLowerCase() === normAnswer,
+  )
+  if (normIndex !== -1) return normIndex
+
+  // 3. Token-normalized match (spaces around braces/operators collapsed)
+  const codeAnswer = normalizeCodeTokens(answer)
+  const codeIndex = choices.findIndex(
+    (c) => normalizeCodeTokens(c) === codeAnswer,
+  )
+  if (codeIndex !== -1) return codeIndex
+
+  // 4. Feature-based distinctive syntax matching
+  const lowerAnswer = answer.toLowerCase()
+  const lowerChoices = choices.map((c) => c.toLowerCase())
+
+  if (lowerAnswer.includes('elseif')) {
+    const idx = lowerChoices.findIndex((c) => c.includes('elseif'))
+    if (idx !== -1) return idx
+  }
+
+  if (lowerAnswer.includes('else(') || lowerAnswer.includes('else (')) {
+    const idx = lowerChoices.findIndex(
+      (c) => c.includes('else(') || c.includes('else ('),
+    )
+    if (idx !== -1) return idx
+  }
+
+  // 5. Similarity scoring based on character bigrams
+  let bestIndex = -1
+  let bestScore = 0
+  for (let i = 0; i < choices.length; i++) {
+    const cTokens = normalizeCodeTokens(choices[i])
+    const score = computeDiceSimilarity(codeAnswer, cTokens)
+    if (score > bestScore) {
+      bestScore = score
+      bestIndex = i
+    }
+  }
+
+  if (bestScore >= 0.5) {
+    return bestIndex
+  }
+
+  if (choices.length === 2 && bestScore >= 0.3) {
+    return bestIndex
+  }
+
+  return -1
+}
+
 
 function MissionScreen({
   chapter,
@@ -254,6 +388,64 @@ function MissionScreen({
     chapter === 3 && mission === 1 && questionNumber === 1,
   )
   const [showingCh3History, setShowingCh3History] = useState(false)
+  const [showingCh3Score, setShowingCh3Score] = useState(false)
+  const [showingCh3M2Opening, setShowingCh3M2Opening] = useState(
+    chapter === 3 && mission === 2,
+  )
+  const [showingCh3M2Situation, setShowingCh3M2Situation] = useState(
+    chapter === 3 && mission === 2,
+  )
+  const [showingCh3M2Correct, setShowingCh3M2Correct] = useState(false)
+  const [showingCh3M2Qualified, setShowingCh3M2Qualified] = useState(false)
+  const [showingCh3M2Thanks, setShowingCh3M2Thanks] = useState(false)
+  const [showingCh3M3Opening, setShowingCh3M3Opening] = useState(
+    chapter === 3 && mission === 3,
+  )
+  const [showingCh3M4Opening, setShowingCh3M4Opening] = useState(
+    chapter === 3 && mission === 4,
+  )
+  const [showingCh3M4Situation, setShowingCh3M4Situation] = useState(
+    chapter === 3 && mission === 4,
+  )
+  const [showingCh3M3Correct, setShowingCh3M3Correct] = useState(false)
+  const [showingCh3M3Medal, setShowingCh3M3Medal] = useState(false)
+  const [showingCh3M5Opening, setShowingCh3M5Opening] = useState(
+    chapter === 3 && mission === 5,
+  )
+  const [showingCh3M5Situation, setShowingCh3M5Situation] = useState(
+    chapter === 3 && mission === 5,
+  )
+  const [showingCh3Complete, setShowingCh3Complete] = useState(false)
+  const [showingCh4Intro, setShowingCh4Intro] = useState<boolean>(
+    chapter === 4 && mission === 1 && questionNumber === 1,
+  )
+  const [showingCh4Situation, setShowingCh4Situation] = useState<boolean>(
+    chapter === 4 && mission === 1 && questionNumber === 1,
+  )
+  const [showingCh4Scene11, setShowingCh4Scene11] = useState<boolean>(false)
+  const [showingCh4Scene12, setShowingCh4Scene12] = useState<boolean>(false)
+  const [showingCh4SceneEnterLab, setShowingCh4SceneEnterLab] =
+    useState<boolean>(false)
+  const [showingCh4M2Situation, setShowingCh4M2Situation] = useState<boolean>(
+    chapter === 4 && mission === 2,
+  )
+  const [showingCh4Scene21, setShowingCh4Scene21] = useState<boolean>(false)
+  const [showingCh4Scene22, setShowingCh4Scene22] = useState<boolean>(false)
+  const [showingCh4M3Situation, setShowingCh4M3Situation] = useState<boolean>(
+    chapter === 4 && mission === 3,
+  )
+  const [showingCh4Scene31, setShowingCh4Scene31] = useState<boolean>(false)
+  const [showingCh4Scene32, setShowingCh4Scene32] = useState<boolean>(false)
+  const [showingCh4M4Situation, setShowingCh4M4Situation] = useState<boolean>(
+    chapter === 4 && mission === 4,
+  )
+  const [showingCh4Scene41, setShowingCh4Scene41] = useState<boolean>(false)
+  const [showingCh4Scene42, setShowingCh4Scene42] = useState<boolean>(false)
+  const [showingCh4M5Situation, setShowingCh4M5Situation] = useState<boolean>(
+    chapter === 4 && mission === 5,
+  )
+  const [showingCh4Complete, setShowingCh4Complete] = useState<boolean>(false)
+  const [showingCh4Closing, setShowingCh4Closing] = useState<boolean>(false)
   // The "sakay" animation plays after the last prologue puzzle (mission 3).
   const [showingAnimation, setShowingAnimation] = useState<boolean>(false)
   // When the last mission of a chapter is cleared, a celebration shows the
@@ -405,6 +597,57 @@ function MissionScreen({
       case 'ch3History':
         setShowingCh3History(true)
         break
+      case 'ch3Score':
+        setShowingCh3Score(true)
+        break
+      case 'ch3M2Correct':
+        setShowingCh3M2Correct(true)
+        break
+      case 'ch3M2Qualified':
+        setShowingCh3M2Qualified(true)
+        break
+      case 'ch3M2Thanks':
+        setShowingCh3M2Thanks(true)
+        break
+      case 'ch3M3Correct':
+        setShowingCh3M3Correct(true)
+        break
+      case 'ch3M3Medal':
+        setShowingCh3M3Medal(true)
+        break
+      case 'ch3Complete':
+        setShowingCh3Complete(true)
+        break
+      case 'ch4Scene11':
+        setShowingCh4Scene11(true)
+        break
+      case 'ch4Scene12':
+        setShowingCh4Scene12(true)
+        break
+      case 'ch4SceneEnterLab':
+        setShowingCh4SceneEnterLab(true)
+        break
+      case 'ch4Scene21':
+        setShowingCh4Scene21(true)
+        break
+      case 'ch4Scene22':
+        setShowingCh4Scene22(true)
+        break
+      case 'ch4Scene31':
+        setShowingCh4Scene31(true)
+        break
+      case 'ch4Scene32':
+        setShowingCh4Scene32(true)
+        break
+      case 'ch4Scene41':
+        setShowingCh4Scene41(true)
+        break
+      case 'ch4Scene42':
+        setShowingCh4Scene42(true)
+        break
+      case 'ch4Complete':
+        setShowingCh4Complete(true)
+        break
     }
   }
 
@@ -439,6 +682,9 @@ function MissionScreen({
     setWrongChoiceIndex(null)
     setSolved(false)
     setSteps([])
+    if (chapter === 4 && mission === 1) {
+      setShowingCh4Situation(true)
+    }
   }
 
   // A correct answer starts the post-correct flow defined for this level by
@@ -495,6 +741,14 @@ function MissionScreen({
           'Could not confirm chapter completion. Reopen the chapter to refresh your progress.',
         )
       }
+      return
+    }
+    if (chapter === 3) {
+      setShowingCh3Complete(true)
+      return
+    }
+    if (chapter === 4) {
+      setShowingCh4Complete(true)
       return
     }
     const nextChapter = progress?.chapters.find((c) => c.id === chapter + 1)
@@ -1260,6 +1514,7 @@ function MissionScreen({
     return (
       <>
         <PrologueStory
+          key="ch3-history"
           character={character}
           pages={[CH3_HISTORY_PAGE]}
           onFinish={() => {
@@ -1268,6 +1523,743 @@ function MissionScreen({
             continueFromScene()
           }}
           onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Scene 1.2: Computer screen showing score "90"
+  if (showingCh3Score) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-score"
+          character={character}
+          pages={[CH3_SCORE_PAGE]}
+          onFinish={() => {
+            setShowingCh3Score(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 2 Opening: Player greets scholarship staff, then staff responds
+  if (showingCh3M2Opening) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m2-opening"
+          character={character}
+          pages={[CH3_SCHOLARSHIP_GREETING_PAGE, CH3_SCHOLARSHIP_STAFF_PAGE]}
+          onFinish={() => {
+            setShowingCh3M2Opening(false)
+            setShowingCh3M2Situation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 2 Situation Card modal
+  if (showingCh3M2Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m2-situation"
+          character={character}
+          pages={[CH3_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh3M2Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 2 Correct Card modal (image.png)
+  if (showingCh3M2Correct) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m2-correct"
+          character={character}
+          pages={[CH3_M2_CORRECT_CARD]}
+          onFinish={() => {
+            setShowingCh3M2Correct(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Scene 2.1: Staff says qualified (image copy.png)
+  if (showingCh3M2Qualified) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m2-qualified"
+          character={character}
+          pages={[CH3_M2_QUALIFIED_PAGE]}
+          onFinish={() => {
+            setShowingCh3M2Qualified(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Scene 2.2: Player thanks staff (image copy 2.png)
+  if (showingCh3M2Thanks) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m2-thanks"
+          character={character}
+          pages={[CH3_M2_THANKS_PAGE]}
+          onFinish={() => {
+            setShowingCh3M2Thanks(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 3 Opening: Wi-Fi check on retro monitor
+  if (showingCh3M3Opening) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m3-opening"
+          character={character}
+          pages={[CH3_M3_WIFI_PAGE]}
+          onFinish={() => {
+            setShowingCh3M3Opening(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 4 Opening: Professor announcement -> Activity submitted
+  if (showingCh3M4Opening) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m4-opening"
+          character={character}
+          pages={[CH3_M3_PROF_PAGE, CH3_M3_SUBMITTED_PAGE]}
+          onFinish={() => {
+            setShowingCh3M4Opening(false)
+            setShowingCh3M4Situation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 4 Situation Card modal
+  if (showingCh3M4Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m4-situation"
+          character={character}
+          pages={[CH3_M3_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh3M4Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 3 Post-Flow Cutscene 1: Correct Card modal (image copy 3.png)
+  if (showingCh3M3Correct) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m3-correct"
+          character={character}
+          pages={[CH3_M3_CORRECT_CARD]}
+          onFinish={() => {
+            setShowingCh3M3Correct(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Mission 3 Post-Flow Cutscene 2: Gold Medal Screen (image copy 4.png)
+  if (showingCh3M3Medal) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m3-medal"
+          character={character}
+          pages={[CH3_M3_MEDAL_PAGE]}
+          onFinish={() => {
+            setShowingCh3M3Medal(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Part 4 Opening: Professor Reyes announcement -> Portal check
+  if (showingCh3M5Opening) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m5-opening"
+          character={character}
+          pages={[CH3_M4_PROF_PAGE, CH3_M4_PC_PAGE]}
+          onFinish={() => {
+            setShowingCh3M5Opening(false)
+            setShowingCh3M5Situation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3, Part 4 Situation Card modal
+  if (showingCh3M5Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch3-m5-situation"
+          character={character}
+          pages={[CH3_M4_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh3M5Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 3 Complete screen (media_1790090007943.png)
+  if (showingCh3Complete) {
+    return (
+      <PrologueStory
+        character={character}
+        pages={[CH3_COMPLETE_PAGE]}
+        onFinish={() => {
+          setShowingCh3Complete(false)
+          onJournal(3)
+        }}
+        onJournal={() => {
+          setShowingCh3Complete(false)
+          onJournal(3)
+        }}
+        onSettings={onSettings}
+      />
+    )
+  }
+
+  // Chapter 4 Intro: Professor Reyes at Campus Kiosk
+  if (showingCh4Intro) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-intro"
+          character={character}
+          pages={CH4_INTRO_PAGES}
+          onFinish={() => {
+            setShowingCh4Intro(false)
+            setShowingCh4Situation(true)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 1.1: Player at kiosk selecting schedule
+  if (showingCh4Scene11) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-1-1"
+          character={character}
+          pages={[CH4_SCENE_1_1_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene11(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 1.2: Kiosk displays schedule
+  if (showingCh4Scene12) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-1-2"
+          character={character}
+          pages={[CH4_SCENE_1_2_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene12(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 1.3: Enter Programming Lab
+  if (showingCh4SceneEnterLab) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-enter-lab"
+          character={character}
+          pages={[CH4_SCENE_ENTER_LAB_PAGE]}
+          onFinish={() => {
+            setShowingCh4SceneEnterLab(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Mission 2 Situation Card
+  if (showingCh4M2Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-m2-situation"
+          character={character}
+          pages={[CH4_M2_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh4M2Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 2.1: Workstation PC-2 Assigned
+  if (showingCh4Scene21) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-2-1"
+          character={character}
+          pages={[CH4_SCENE_2_1_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene21(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 2.2: Computer displays lab activities list
+  if (showingCh4Scene22) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-2-2"
+          character={character}
+          pages={[CH4_SCENE_2_2_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene22(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Mission 3 Situation Card
+  if (showingCh4M3Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-m3-situation"
+          character={character}
+          pages={[CH4_M3_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh4M3Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 3.1: Workstation displays Control Structures Exercise
+  if (showingCh4Scene31) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-3-1"
+          character={character}
+          pages={[CH4_SCENE_3_1_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene31(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 3.2: Select Destination
+  if (showingCh4Scene32) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-3-2"
+          character={character}
+          pages={[CH4_SCENE_3_2_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene32(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Mission 4 Situation Card
+  if (showingCh4M4Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-m4-situation"
+          character={character}
+          pages={[CH4_M4_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh4M4Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 4.1: Night Library Room
+  if (showingCh4Scene41) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-4-1"
+          character={character}
+          pages={[CH4_SCENE_4_1_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene41(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Scene 4.2: Professor Reyes gives final challenge
+  if (showingCh4Scene42) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-scene-4-2"
+          character={character}
+          pages={[CH4_SCENE_4_2_PAGE]}
+          onFinish={() => {
+            setShowingCh4Scene42(false)
+            continueFromScene()
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Mission 5 Situation Card
+  if (showingCh4M5Situation) {
+    return (
+      <>
+        <PrologueStory
+          key="ch4-m5-situation"
+          character={character}
+          pages={[CH4_M5_SITUATION_PAGE]}
+          onFinish={() => {
+            setShowingCh4M5Situation(false)
+          }}
+          onJournal={onJournal}
+          onSettings={onSettings}
+        />
+        <TaskBar
+          chapter={chapter}
+          progress={progress}
+          currentMission={mission}
+          onOpenMission={onOpenMission}
+        />
+      </>
+    )
+  }
+
+  // Chapter 4 Complete card
+  if (showingCh4Complete) {
+    return (
+      <PrologueStory
+        character={character}
+        pages={[CH4_COMPLETE_PAGE]}
+        onFinish={() => {
+          setShowingCh4Complete(false)
+          setShowingCh4Closing(true)
+        }}
+        onJournal={() => {
+          setShowingCh4Complete(false)
+          onJournal(4)
+        }}
+        onSettings={onSettings}
+      />
+    )
+  }
+
+  // Chapter 4 Closing dialogue
+  if (showingCh4Closing) {
+    return (
+      <>
+        <PrologueStory
+          character={character}
+          pages={[CH4_CLOSING_PAGE]}
+          onFinish={() => {
+            setShowingCh4Closing(false)
+            const nextChapter = progress?.chapters.find((c) => c.id === 5)
+            if (nextChapter?.unlocked) {
+              setUnlockChapter(5)
+            } else {
+              onJournal(4)
+            }
+          }}
+          onJournal={() => {
+            setShowingCh4Closing(false)
+            onJournal(4)
+          }}
           onSettings={onSettings}
         />
         <TaskBar
@@ -1325,17 +2317,10 @@ function MissionScreen({
         beginPostCorrect()
       } else {
         setMistakes(result.mistakes)
-        const normalizedAnswer = normalizeChoiceSyntax(answer)
-        const selectedChoice = currentQuestion?.choices?.findIndex(
-          (choice) => normalizeChoiceSyntax(choice) === normalizedAnswer,
-        )
-        setWrongChoiceIndex(
-          chapter === 3 && mission === 1
-            ? (selectedChoice ?? -1) >= 0
-              ? (selectedChoice ?? null)
-              : null
-            : null,
-        )
+        const matchedIndex = currentQuestion?.choices
+          ? findMatchingChoiceIndex(currentQuestion.choices, answer)
+          : -1
+        setWrongChoiceIndex(matchedIndex >= 0 ? matchedIndex : null)
         setFeedback({
           ok: false,
           text: 'SYNTAX ERROR: CHECK THE HIGHLIGHTED PART OF YOUR CODE AND TRY AGAIN. THE PROGRAM WILL NOT EXECUTE UNTIL THE CORRECT SYNTAX IS ENTERED.',
@@ -1456,6 +2441,7 @@ function MissionScreen({
         effectiveSceneBg ? 'mission-scene-bg' : '',
         chapter === 2 ? 'chapter-two-mission' : '',
         chapter === 3 ? 'chapter-three-mission' : '',
+        chapter === 4 ? 'chapter-four-mission' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -1473,7 +2459,7 @@ function MissionScreen({
           />
         </>
       )}
-      {chapter === 3 && sceneBg && (
+      {chapter === 3 && sceneBg && mission === 1 && (
         <>
           <img
             className="chapter-three-computer"
@@ -1487,11 +2473,48 @@ function MissionScreen({
           />
         </>
       )}
+      {chapter === 3 && sceneBg && mission === 2 && (
+        <>
+          <img
+            className="chapter-three-staff"
+            src={chapterThreeStaffImg}
+            alt="Scholarship Staff"
+          />
+          <img
+            className="chapter-three-avatar chapter-three-avatar-m2"
+            src={character === 'girl' ? girlImg : boyImg}
+            alt=""
+          />
+        </>
+      )}
+      {chapter === 4 && sceneBg && mission === 1 && (
+        <>
+          <img
+            className="chapter-four-kiosk"
+            src={ch4KioskBeginImg}
+            alt="Campus Kiosk"
+          />
+          <img
+            className="chapter-four-avatar"
+            src={character === 'girl' ? girlImg : boyImg}
+            alt=""
+          />
+        </>
+      )}
+      {chapter === 4 && sceneBg && mission > 1 && (
+        <img
+          className="chapter-four-avatar chapter-four-avatar-lab"
+          src={character === 'girl' ? girlImg : boyImg}
+          alt=""
+        />
+      )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
       <TaskBar
         chapter={chapter}
         progress={progress}
         currentMission={mission}
+        currentQuestion={questionNumber}
+        totalQuestions={lesson?.questions?.length}
         onOpenMission={onOpenMission}
       />
       <div className="mission-content">
@@ -1526,8 +2549,35 @@ function MissionScreen({
                 NEXT
               </button>
             </section>
+          ) : showingCh4Situation && lesson ? (
+            <section
+              className="chapter-four-situation"
+              aria-labelledby="chapter-four-situation-title"
+            >
+              <h2 id="chapter-four-situation-title">SITUATION</h2>
+              <p>{currentQuestion?.situation ?? lesson.story}</p>
+              <button
+                type="button"
+                className="pixel-button chapter-four-situation-next"
+                onClick={() => setShowingCh4Situation(false)}
+              >
+                NEXT
+              </button>
+            </section>
           ) : (
-            <div className="mission-challenge">
+            <div
+              className={`mission-challenge ${
+                mistakes.length > 0 ? 'mission-challenge-error' : ''
+              }`}
+            >
+              {lesson?.questions && lesson.questions.length > 1 && (
+                <div className="mission-challenge-badge-row">
+                  <span className="mission-challenge-badge">
+                    PART {mission} · QUESTION {questionNumber} OF{' '}
+                    {lesson.questions.length}
+                  </span>
+                </div>
+              )}
               <p className="mission-challenge-prompt">
                 {currentQuestion.prompt}
               </p>
@@ -1559,13 +2609,25 @@ function MissionScreen({
                       .join(' ')}
                     value={answer}
                     onChange={(e) => changeAnswer(e.target.value)}
+                    onFocus={() => {
+                      if (mistakes.length > 0) {
+                        setMistakes([])
+                        setWrongChoiceIndex(null)
+                      }
+                    }}
+                    onClick={() => {
+                      if (mistakes.length > 0) {
+                        setMistakes([])
+                        setWrongChoiceIndex(null)
+                      }
+                    }}
                     aria-label="Type your answer"
                     onScroll={(event) => {
                       if (answerOverlay.current) {
                         answerOverlay.current.scrollTop =
-                          event.currentTarget.scrollTop
+                            event.currentTarget.scrollTop
                         answerOverlay.current.scrollLeft =
-                          event.currentTarget.scrollLeft
+                            event.currentTarget.scrollLeft
                       }
                     }}
                     placeholder="TYPE HERE"
@@ -1574,9 +2636,20 @@ function MissionScreen({
                     spellCheck={false}
                     disabled={checking}
                     rows={
-                      (chapter === 2 &&
-                        !(mission === 1 && questionNumber === 1)) ||
-                      (chapter === 3 && mission === 1 && questionNumber === 2)
+                      chapter === 4
+                        ? mission === 1 && questionNumber === 1
+                          ? 2
+                          : mission === 5
+                          ? 16
+                          : 10
+                        : chapter === 3 && mission === 5
+                        ? 14
+                        : (chapter === 2 &&
+                            !(mission === 1 && questionNumber === 1)) ||
+                          (chapter === 3 && mission === 1 && questionNumber === 2) ||
+                          (chapter === 3 && mission === 2) ||
+                          (chapter === 3 && mission === 3) ||
+                          (chapter === 3 && mission === 4)
                         ? 9
                         : 2
                     }
@@ -1655,17 +2728,31 @@ function MissionScreen({
         />
       )}
 
-      {showCore && chapter !== 2 && chapter !== 3 && lesson?.workflow && (
-        <CodeWorkflow
-          code={acceptedAnswer}
-          workflow={lesson.workflow}
-          onClose={closeCore}
+      {showCore && chapter === 4 && lesson && (
+        <ChapterFourFeedback
+          key={questionNumber}
+          lesson={lesson}
+          question={questionNumber}
+          onContinue={closeCore}
         />
       )}
 
       {showCore &&
         chapter !== 2 &&
         chapter !== 3 &&
+        chapter !== 4 &&
+        lesson?.workflow && (
+          <CodeWorkflow
+            code={acceptedAnswer}
+            workflow={lesson.workflow}
+            onClose={closeCore}
+          />
+        )}
+
+      {showCore &&
+        chapter !== 2 &&
+        chapter !== 3 &&
+        chapter !== 4 &&
         !lesson?.workflow &&
         lesson?.programFlow && (
           <ProgramFlow
@@ -1678,6 +2765,7 @@ function MissionScreen({
       {showCore &&
         chapter !== 2 &&
         chapter !== 3 &&
+        chapter !== 4 &&
         !lesson?.workflow &&
         lesson?.programFlow === undefined &&
         lesson?.core && (

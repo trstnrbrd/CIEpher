@@ -45,6 +45,23 @@ export type SceneId =
   | 'scene31'
   | 'scene41'
   | 'ch3History'
+  | 'ch3Score'
+  | 'ch3M2Correct'
+  | 'ch3M2Qualified'
+  | 'ch3M2Thanks'
+  | 'ch3M3Correct'
+  | 'ch3M3Medal'
+  | 'ch3Complete'
+  | 'ch4Scene11'
+  | 'ch4Scene12'
+  | 'ch4SceneEnterLab'
+  | 'ch4Scene21'
+  | 'ch4Scene22'
+  | 'ch4Scene31'
+  | 'ch4Scene32'
+  | 'ch4Scene41'
+  | 'ch4Scene42'
+  | 'ch4Complete'
 
 export type CorrectStep =
   | { kind: 'core' }
@@ -58,7 +75,11 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
     '0:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'animation' }],
     '1:1': (question) =>
       question === 1
-        ? [{ kind: 'scene', id: 'gateCorrect' }, { kind: 'advance-question' }]
+        ? [
+            { kind: 'core' },
+            { kind: 'scene', id: 'gateCorrect' },
+            { kind: 'advance-question' },
+          ]
         : [
             { kind: 'core' },
             { kind: 'scene', id: 'gateSyntaxCorrect' },
@@ -69,10 +90,7 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
       { kind: 'scene', id: 'classroomCorrect' },
       { kind: 'scene', id: 'classroomAttendance' },
     ],
-    '1:3': () => [
-      { kind: 'core' },
-      { kind: 'scene', id: 'programmingLabCorrect' },
-    ],
+    '1:3': () => [{ kind: 'core' }, { kind: 'scene', id: 'programmingLabCorrect' }],
     '1:4': () => [
       { kind: 'core' },
       { kind: 'scene', id: 'homeworkCorrect' },
@@ -98,7 +116,54 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
             { kind: 'scene', id: 'ch3History' },
             { kind: 'advance-question' },
           ]
-        : [{ kind: 'core' }],
+        : [{ kind: 'core' }, { kind: 'scene', id: 'ch3Score' }],
+    '3:2': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch3M2Correct' },
+      { kind: 'scene', id: 'ch3M2Qualified' },
+      { kind: 'scene', id: 'ch3M2Thanks' },
+    ],
+    '3:3': () => [
+      { kind: 'core' },
+    ],
+    '3:4': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch3M3Correct' },
+      { kind: 'scene', id: 'ch3M3Medal' },
+    ],
+    '3:5': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch3Complete' },
+    ],
+    '4:1': (question) =>
+      question === 1
+        ? [
+            { kind: 'core' },
+            { kind: 'advance-question' },
+          ]
+        : [
+            { kind: 'core' },
+            { kind: 'scene', id: 'ch4SceneEnterLab' },
+          ],
+    '4:2': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch4Scene21' },
+      { kind: 'scene', id: 'ch4Scene22' },
+    ],
+    '4:3': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch4Scene31' },
+      { kind: 'scene', id: 'ch4Scene32' },
+    ],
+    '4:4': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch4Scene41' },
+      { kind: 'scene', id: 'ch4Scene42' },
+    ],
+    '4:5': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch4Complete' },
+    ],
   }
 
 export function postCorrectSteps(

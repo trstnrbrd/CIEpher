@@ -72,7 +72,7 @@ const ICONS: Record<WorkflowIcon, { fill: string; cells: string }[]> = {
   ],
 }
 
-function PixelIcon({ name }: { name: WorkflowIcon }) {
+export function PixelIcon({ name }: { name: WorkflowIcon }) {
   return (
     <svg viewBox="0 0 10 10" shapeRendering="crispEdges" aria-hidden="true">
       {ICONS[name].map((layer) =>
@@ -134,25 +134,41 @@ function CodeLine({ line }: { line: string }) {
       </span>
     )
   }
-  return <span className="workflow-code-line">{line}</span>
+  return <span className="workflow-code-line">{line || '\u00A0'}</span>
 }
 
 // The poster is laid out at its design size (the artwork's proportions) and
 // then scaled to whatever room the screen has, so every part keeps its place
 // exactly as drawn.
-const DESIGN_WIDTH = 820
-const DESIGN_HEIGHT = 1024
+const LANDSCAPE_WIDTH = 1180
+const LANDSCAPE_HEIGHT = 760
+const PORTRAIT_WIDTH = 820
+const PORTRAIT_HEIGHT = 920
 
 function CodeWorkflow({ code, workflow, onClose }: CodeWorkflowProps) {
   const screen = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
+  const [isLandscape, setIsLandscape] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileTab, setMobileTab] = useState<'all' | 'code' | 'flow'>('all')
 
   useEffect(() => {
     const box = screen.current
     if (!box) return
     const fit = (): void => {
       const { width, height } = box.getBoundingClientRect()
-      setScale(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT, 1.6))
+      const mobile = width <= 768 || (width < height && width <= 820)
+      setIsMobile(mobile)
+      if (mobile) {
+        setScale(1)
+        setIsLandscape(false)
+        return
+      }
+      const landscape = width >= height * 1.0
+      setIsLandscape(landscape)
+      const dw = landscape ? LANDSCAPE_WIDTH : PORTRAIT_WIDTH
+      const dh = landscape ? LANDSCAPE_HEIGHT : PORTRAIT_HEIGHT
+      setScale(Math.min(width / dw, height / dh, 1.45))
     }
     fit()
     const watch = new ResizeObserver(fit)
@@ -160,81 +176,119 @@ function CodeWorkflow({ code, workflow, onClose }: CodeWorkflowProps) {
     return () => watch.disconnect()
   }, [])
 
+  const showLeftPanel = !isMobile || mobileTab === 'code' || mobileTab === 'all'
+  const showRightPanel = !isMobile || mobileTab === 'flow' || mobileTab === 'all'
+  const isSingleTab = isMobile && mobileTab !== 'all'
+
   return (
     <div
-      className="workflow-screen"
+      className={`workflow-screen ${isMobile ? 'is-mobile' : ''}`}
       role="dialog"
       aria-label="Understand the code"
       ref={screen}
     >
-      <div className="workflow-card" style={{ transform: `scale(${scale})` }}>
+      <div
+        className={`workflow-card ${isMobile ? 'is-mobile' : isLandscape ? 'is-landscape' : 'is-portrait'} ${isSingleTab ? 'single-tab' : ''}`}
+        style={isMobile ? undefined : { transform: `scale(${scale})` }}
+      >
         <h2 className="workflow-title">UNDERSTAND THE CODE</h2>
         <p className="workflow-subtitle">{workflow.subtitle}</p>
 
+        {/* Mobile Tab Switcher */}
+        {isMobile && (
+          <div className="workflow-mobile-tabs" role="tablist">
+            <button
+              type="button"
+              className={`workflow-mobile-tab ${mobileTab === 'all' ? 'active' : ''}`}
+              onClick={() => setMobileTab('all')}
+            >
+              ALL
+            </button>
+            <button
+              type="button"
+              className={`workflow-mobile-tab ${mobileTab === 'code' ? 'active' : ''}`}
+              onClick={() => setMobileTab('code')}
+            >
+              THE CODE
+            </button>
+            <button
+              type="button"
+              className={`workflow-mobile-tab ${mobileTab === 'flow' ? 'active' : ''}`}
+              onClick={() => setMobileTab('flow')}
+            >
+              PROGRAM FLOW
+            </button>
+          </div>
+        )}
+
         <div className="workflow-panels">
-          <section className="workflow-panel workflow-panel-code">
-            <h3 className="workflow-panel-head">THE CODE</h3>
-            <div className="workflow-window">
-              <span className="workflow-window-bar" aria-hidden="true">
-                <i className="workflow-dot workflow-dot-red" />
-                <i className="workflow-dot workflow-dot-yellow" />
-                <i className="workflow-dot workflow-dot-green" />
-              </span>
-              <pre className="workflow-code">
-                {code.split('\n').map((line, i) => (
-                  <CodeLine key={i} line={line} />
-                ))}
-              </pre>
-            </div>
-
-            <ul className="workflow-parts">
-              {workflow.parts.map((part) => (
-                <li
-                  key={part.chip}
-                  className={`workflow-part workflow-part-${part.tone}`}
-                >
-                  <span className="workflow-chip">{part.chip}</span>
-                  <span className="workflow-part-text">{part.text}</span>
-                  <span className="workflow-part-icon">
-                    <PixelIcon name={part.icon} />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="workflow-panel workflow-panel-flow">
-            <h3 className="workflow-panel-head">PROGRAM FLOW</h3>
-            <div className="workflow-flow">
-              <span className="workflow-box workflow-box-start">START</span>
-              <span className="workflow-arrow" aria-hidden="true" />
-              <span className="workflow-box">{workflow.check}</span>
-              <span className="workflow-arrow" aria-hidden="true" />
-              <span className="workflow-diamond">{workflow.condition}</span>
-
-              <div className="workflow-branches">
-                <span className="workflow-split" aria-hidden="true" />
-                <div className="workflow-branch workflow-branch-yes">
-                  <span className="workflow-branch-label">YES</span>
-                  <span className="workflow-box">{workflow.yes[0]}</span>
-                  <span className="workflow-arrow" aria-hidden="true" />
-                  <span className="workflow-box workflow-box-done">
-                    {workflow.yes[1]}
-                  </span>
-                </div>
-                <div className="workflow-branch workflow-branch-no">
-                  <span className="workflow-branch-label">NO</span>
-                  <span className="workflow-box workflow-box-stop">
-                    {workflow.no}
-                  </span>
-                </div>
-                <span className="workflow-join" aria-hidden="true" />
+          {showLeftPanel && (
+            <section className="workflow-panel workflow-panel-code">
+              <h3 className="workflow-panel-head">THE CODE</h3>
+              <div className="workflow-window">
+                <span className="workflow-window-bar" aria-hidden="true">
+                  <i className="workflow-dot workflow-dot-red" />
+                  <i className="workflow-dot workflow-dot-yellow" />
+                  <i className="workflow-dot workflow-dot-green" />
+                </span>
+                <pre className="workflow-code">
+                  {code.split('\n').map((line, i) => (
+                    <CodeLine key={i} line={line} />
+                  ))}
+                </pre>
               </div>
 
-              <span className="workflow-arrow" aria-hidden="true" />
-              <span className="workflow-box workflow-box-end">END</span>
-            </div>
-          </section>
+              <ul className="workflow-parts">
+                {workflow.parts.map((part) => (
+                  <li
+                    key={part.chip}
+                    className={`workflow-part workflow-part-${part.tone}`}
+                  >
+                    <span className="workflow-chip">{part.chip}</span>
+                    <span className="workflow-part-text">{part.text}</span>
+                    <span className="workflow-part-icon">
+                      <PixelIcon name={part.icon} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {showRightPanel && (
+            <section className="workflow-panel workflow-panel-flow">
+              <h3 className="workflow-panel-head">PROGRAM FLOW</h3>
+              <div className="workflow-flow">
+                <span className="workflow-box workflow-box-start">START</span>
+                <span className="workflow-arrow" aria-hidden="true" />
+                <span className="workflow-box">{workflow.check}</span>
+                <span className="workflow-arrow" aria-hidden="true" />
+                <span className="workflow-diamond">{workflow.condition}</span>
+
+                <div className="workflow-branches">
+                  <span className="workflow-split" aria-hidden="true" />
+                  <div className="workflow-branch workflow-branch-yes">
+                    <span className="workflow-branch-label">YES</span>
+                    <span className="workflow-box">{workflow.yes[0]}</span>
+                    <span className="workflow-arrow" aria-hidden="true" />
+                    <span className="workflow-box workflow-box-done">
+                      {workflow.yes[1]}
+                    </span>
+                  </div>
+                  <div className="workflow-branch workflow-branch-no">
+                    <span className="workflow-branch-label">NO</span>
+                    <span className="workflow-box workflow-box-stop">
+                      {workflow.no}
+                    </span>
+                  </div>
+                  <span className="workflow-join" aria-hidden="true" />
+                </div>
+
+                <span className="workflow-arrow" aria-hidden="true" />
+                <span className="workflow-box workflow-box-end">END</span>
+              </div>
+            </section>
+          )}
         </div>
 
         <p className="workflow-label">★ {workflow.label} ★</p>

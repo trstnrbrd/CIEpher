@@ -7,6 +7,8 @@ interface TaskBarProps {
   chapter: number
   progress: Progress | null
   currentMission?: number
+  currentQuestion?: number
+  totalQuestions?: number
   onOpenMission: (chapter: number, mission: number) => void
 }
 
@@ -27,6 +29,8 @@ function TaskBar({
   chapter,
   progress,
   currentMission,
+  currentQuestion,
+  totalQuestions,
   onOpenMission,
 }: TaskBarProps) {
   const [open, setOpen] = useState(false)
@@ -88,6 +92,14 @@ function TaskBar({
             </span>
           ))}
         </span>
+        {currentMission &&
+        totalQuestions &&
+        totalQuestions > 1 &&
+        currentQuestion ? (
+          <span className="task-bar-step-pill">
+            Q{currentQuestion}/{totalQuestions}
+          </span>
+        ) : null}
         <span className="task-bar-count">
           {done}/{total}
         </span>
@@ -108,6 +120,13 @@ function TaskBar({
             </p>
             {missions.map((m) => {
               const lesson = getLesson(chapter, m.number)
+              const partNumber = m.number
+              const isCurrent = m.number === currentMission
+              const hasMultiQuestions =
+                isCurrent &&
+                totalQuestions &&
+                totalQuestions > 1 &&
+                currentQuestion
               return (
                 <button
                   key={m.number}
@@ -115,7 +134,7 @@ function TaskBar({
                   className={[
                     'task-part',
                     m.unlocked ? '' : 'locked',
-                    m.number === currentMission ? 'current' : '',
+                    isCurrent ? 'current' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -127,9 +146,14 @@ function TaskBar({
                     {m.completed && <span className="task-book-check">✓</span>}
                   </span>
                   <span className="task-part-name">
-                    <span className="task-part-tag">PART {m.number}</span>
+                    <span className="task-part-tag">
+                      PART {partNumber}
+                      {hasMultiQuestions
+                        ? ` · QUESTION ${currentQuestion} OF ${totalQuestions}`
+                        : ''}
+                    </span>
                     <span className="task-part-title">
-                      {lesson?.title ?? `MISSION ${m.number}`}
+                      {lesson?.title ?? `MISSION ${partNumber}`}
                     </span>
                   </span>
                   <span

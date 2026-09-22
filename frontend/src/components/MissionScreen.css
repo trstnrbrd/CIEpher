@@ -165,6 +165,67 @@
   flex-direction: column;
   gap: 52px;
   overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Container becomes red on syntax mistakes */
+.mission-challenge.mission-challenge-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.4), 0 8px 24px rgba(220, 38, 38, 0.25) !important;
+  animation: missionChallengeErrorShake 0.45s ease-in-out;
+}
+
+@keyframes missionChallengeErrorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-7px);
+  }
+  30% {
+    transform: translateX(7px);
+  }
+  45% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+.mission-challenge.mission-challenge-error .mission-challenge-badge {
+  background: #dc2626 !important;
+  box-shadow: 0 3px 0 rgba(140, 20, 20, 0.5) !important;
+}
+
+.mission-challenge-badge-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: -20px;
+}
+
+.mission-challenge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ad201d;
+  color: #fffef5;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+  text-transform: uppercase;
+}
+
+.chapter-three-mission .mission-challenge-badge-row {
+  margin-bottom: -6px;
 }
 
 .chapter-two-mission {
@@ -261,37 +322,118 @@
 }
 
 .chapter-three-mission .mission-content {
-  width: min(900px, calc(100vw - 48px));
+  width: min(960px, calc(100vw - 40px));
   padding: 0 0 24px;
 }
 
 .chapter-three-mission .mission-challenge {
   min-height: 0;
-  padding: clamp(24px, 3.5vw, 48px);
-  gap: clamp(20px, 3vw, 36px);
+  padding: clamp(20px, 3.5vw, 42px);
+  gap: clamp(16px, 2.5vw, 28px);
+  border: 3px solid #ad201d;
+  border-radius: 28px;
+  background: #fffef5;
+}
+
+.chapter-three-mission .mission-challenge-prompt {
+  font-size: clamp(13px, 1.8vw, 22px);
+  text-align: center;
+  color: #0b1020;
 }
 
 .chapter-three-mission .mission-choices {
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(10px, 1.5vw, 18px);
+  width: 100%;
 }
 
 .chapter-three-mission .mission-choice {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: clamp(14px, 1.7vw, 20px) clamp(12px, 2vw, 24px);
-  font-size: clamp(10px, 1vw, 14px);
-  text-align: center;
+  padding: clamp(12px, 1.6vw, 18px) clamp(10px, 1.4vw, 16px);
+  font-size: clamp(8px, 0.95vw, 12px);
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  font-family: 'Press Start 2P', monospace;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 18px;
+  color: #171420;
+  cursor: default;
+  user-select: text;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 .chapter-three-mission .mission-form {
-  gap: clamp(14px, 2.5vw, 28px);
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 24px);
+  width: 100%;
+}
+
+.chapter-three-mission .mission-code-zone {
+  flex: 1;
+}
+
+.chapter-three-mission .mission-input {
+  width: 100%;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 16px;
+  color: #171420;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.chapter-three-mission .mission-input.highlighted {
+  border-color: #e2454d;
+  box-shadow: 0 0 8px rgba(226, 69, 77, 0.35);
+  caret-color: #ad201d;
+}
+
+.chapter-three-mission .mission-code-overlay {
+  padding: 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.chapter-three-mission .mission-input::placeholder {
+  color: #ffffff;
+  -webkit-text-stroke: 1px #ad201d;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  font-size: clamp(12px, 1.6vw, 18px);
+}
+
+.chapter-three-mission .mission-execute {
+  padding: 14px clamp(20px, 2.8vw, 36px);
+  font-size: clamp(12px, 1.5vw, 18px);
+  background: #ffffff;
+  color: #0b1020;
+  border: 2px solid #ad201d;
+  border-radius: 22px;
+  box-shadow: 0 4px 0 #ad201d;
+  cursor: pointer;
+  flex: none;
+}
+
+.chapter-three-mission .mission-execute:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #ad201d;
 }
 
 /* The lesson's computer and selected character stay behind the Chapter 3
    cards. They make both the situation and challenge feel like they happen
    inside the same laboratory instead of on a plain backdrop. */
 .chapter-three-computer,
-.chapter-three-avatar {
+.chapter-three-avatar,
+.chapter-three-staff {
   position: fixed;
   z-index: 0;
   height: auto;
@@ -310,6 +452,17 @@
   bottom: max(-4vh, -30px);
   width: clamp(140px, 20vw, 280px);
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+}
+
+.chapter-three-staff {
+  left: clamp(14%, 20vw, 24%);
+  bottom: max(-4vh, -30px);
+  width: clamp(130px, 19vw, 260px);
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+}
+
+.chapter-three-avatar-m2 {
+  left: clamp(56%, 62vw, 68%);
 }
 
 .chapter-three-situation {
@@ -361,10 +514,236 @@
   background: #fff5df;
 }
 
+/* ---- Chapter 4 (switch statement) ---- */
+.chapter-four-mission {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  padding: max(76px, calc(16px + env(safe-area-inset-top, 0px))) 0
+    calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.chapter-four-mission .mission-content {
+  width: min(960px, calc(100vw - 40px));
+  padding: 0 0 24px;
+}
+
+.chapter-four-mission .mission-challenge {
+  min-height: 0;
+  padding: clamp(20px, 3.5vw, 42px);
+  gap: clamp(16px, 2.5vw, 28px);
+  border: 3px solid #ad201d;
+  border-radius: 28px;
+  background: #fffef5;
+}
+
+.chapter-four-mission .mission-challenge-badge-row {
+  margin-bottom: -6px;
+}
+
+.chapter-four-mission .mission-challenge-prompt {
+  font-size: clamp(13px, 1.8vw, 22px);
+  text-align: center;
+  color: #0b1020;
+}
+
+.chapter-four-mission .mission-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(10px, 1.5vw, 18px);
+  width: 100%;
+}
+
+.chapter-four-mission .mission-choice {
+  padding: clamp(12px, 1.6vw, 18px) clamp(10px, 1.4vw, 16px);
+  font-size: clamp(8px, 0.95vw, 12px);
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  font-family: 'Press Start 2P', monospace;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 18px;
+  color: #171420;
+  cursor: default;
+  user-select: text;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.chapter-four-mission .mission-form {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 24px);
+  width: 100%;
+}
+
+.chapter-four-mission .mission-code-zone {
+  flex: 1;
+}
+
+.chapter-four-mission .mission-input {
+  width: 100%;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 16px;
+  color: #171420;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.chapter-four-mission .mission-input.highlighted {
+  border-color: #dc2626;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+  caret-color: #dc2626;
+}
+
+.chapter-four-mission .mission-code-overlay {
+  padding: 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.chapter-four-mission .mission-input::placeholder {
+  color: #ffffff;
+  -webkit-text-stroke: 1px #ad201d;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  font-size: clamp(12px, 1.6vw, 18px);
+}
+
+.chapter-four-mission .mission-execute {
+  padding: 14px clamp(20px, 2.8vw, 36px);
+  font-size: clamp(12px, 1.5vw, 18px);
+  background: #ffffff;
+  color: #0b1020;
+  border: 2px solid #ad201d;
+  border-radius: 22px;
+  box-shadow: 0 4px 0 #ad201d;
+  cursor: pointer;
+  flex: none;
+}
+
+.chapter-four-mission .mission-execute:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #ad201d;
+}
+
+/* Chapter 4 stage sprites and micro-animations */
+.chapter-four-kiosk,
+.chapter-four-avatar {
+  position: fixed;
+  z-index: 0;
+  height: auto;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.chapter-four-kiosk {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: clamp(200px, 28vw, 360px);
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.4));
+}
+
+.chapter-four-avatar {
+  left: clamp(14%, 18vw, 22%);
+  bottom: max(-4vh, -30px);
+  width: clamp(140px, 20vw, 280px);
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+  animation: ch4AvatarBreathe 3s ease-in-out infinite alternate;
+}
+
+@keyframes ch4AvatarBreathe {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+.chapter-four-avatar-lab {
+  left: clamp(58%, 66vw, 75%);
+}
+
+.chapter-four-situation {
+  width: min(720px, 100%);
+  margin-inline: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  gap: clamp(20px, 4vw, 36px);
+  padding: clamp(28px, 5vw, 54px);
+  border: 3px solid #ad201d;
+  border-radius: 28px;
+  background: #fffef5;
+  color: #171420;
+  text-align: center;
+}
+
+.chapter-four-situation h2,
+.chapter-four-situation p {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  overflow-wrap: break-word;
+}
+
+.chapter-four-situation h2 {
+  font-size: clamp(15px, 2vw, 24px);
+}
+
+.chapter-four-situation p {
+  max-width: 55ch;
+  font-size: clamp(10px, 1.2vw, 14px);
+  line-height: 1.8;
+  text-align: left;
+  white-space: pre-line;
+}
+
+.chapter-four-situation-next {
+  min-width: 150px;
+  padding: 13px 26px;
+  border-radius: 999px !important;
+  background: #f8eacf;
+  color: #16130d;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.chapter-four-situation-next:hover {
+  background: #fff5df;
+}
+
+@keyframes choiceWrongShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.chapter-three-mission .mission-choice.mission-choice-wrong,
 .chapter-three-mission .mission-choice-wrong {
-  border-color: #9f131c;
-  background: #e2454d;
-  box-shadow: 0 4px 0 rgba(100, 10, 10, 0.35);
+  border-color: #9f131c !important;
+  background: #e2454d !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(226, 69, 77, 0.45);
+  animation: choiceWrongShake 0.35s ease-in-out;
 }
 
 .mission-challenge-prompt {
@@ -414,8 +793,11 @@
 }
 
 .mission-choice-wrong {
-  color: #080808;
-  background: #e33d4f;
+  color: #ffffff !important;
+  background: #e33d4f !important;
+  border-color: #9f131c !important;
+  box-shadow: 0 4px 12px rgba(227, 61, 79, 0.45);
+  animation: choiceWrongShake 0.35s ease-in-out;
 }
 
 /* The TYPE HERE box plus its red-character overlay. */
@@ -432,12 +814,20 @@
    red per-character highlighting reads through; the caret stays visible. */
 .mission-input.highlighted {
   color: transparent;
-  caret-color: #ffffff;
+  caret-color: #ad201d;
+}
+
+.mission-input.highlighted:focus {
+  color: #171420;
+}
+
+.mission-code-zone:focus-within .mission-code-overlay {
+  display: none;
 }
 
 .mission-input.highlighted::selection {
-  background: transparent;
-  color: transparent;
+  background: rgba(226, 69, 77, 0.25);
+  color: #171420;
 }
 
 .mission-code-overlay {
@@ -669,6 +1059,44 @@
     width: min(220px, 57vw);
   }
 
+  .chapter-four-mission .mission-content {
+    width: min(440px, calc(100vw - 24px));
+  }
+
+  .chapter-four-mission .mission-challenge {
+    padding: 20px 14px 18px;
+    gap: 18px;
+  }
+
+  .chapter-four-kiosk {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: min(220px, 55vw);
+  }
+
+  .chapter-four-avatar {
+    left: 18%;
+    bottom: -3px;
+    width: min(140px, 35vw);
+  }
+
+  .chapter-four-situation {
+    min-height: min(430px, calc(100vh - 160px));
+    justify-content: center;
+    border-radius: 20px;
+    padding: 28px 20px;
+  }
+
+  .chapter-four-situation p {
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .chapter-four-situation-next {
+    width: min(100%, 220px);
+  }
+
   .chapter-three-avatar {
     left: 54%;
     bottom: -3px;
@@ -775,6 +1203,15 @@
 
   .chapter-three-mission .mission-content {
     width: min(960px, calc(100vw - 48px));
+  }
+
+  .chapter-four-mission .mission-content {
+    width: min(960px, calc(100vw - 48px));
+  }
+
+  .chapter-four-mission .mission-challenge {
+    padding: 20px 28px;
+    gap: 20px;
   }
 
   .chapter-two-mission .mission-challenge {
