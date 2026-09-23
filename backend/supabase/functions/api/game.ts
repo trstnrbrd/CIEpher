@@ -83,13 +83,16 @@ export function supabaseGame(config: SupabaseConfig): Game {
       const correct = answers.some((accepted) => sameCode(answer, accepted));
 
       // The database records the try, and completes the mission when this
-      // is the right answer to its last question (autosave).
+      // is the right answer to its last question (autosave). The typed answer
+      // goes with it, so the study can see which question students get wrong
+      // and what they type instead (mission_attempts).
       const { error: recordError } = await admin.rpc("record_mission_attempt", {
         p_player_id: player.id,
         p_chapter: chapter,
         p_mission: mission,
         p_question: question,
         p_correct: correct,
+        p_answer: answer,
       });
       if (recordError) throw recordError;
 
