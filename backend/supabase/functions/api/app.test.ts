@@ -2,6 +2,7 @@ import { assertEquals, assertFalse } from "@std/assert";
 import type { Accounts, Player } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
 import { ApiError } from "./errors.ts";
+import { type Exam, isExam } from "./exam.ts";
 import type { Game } from "./game.ts";
 import type { LoginInput, RegisterInput, SubmitInput } from "./schemas.ts";
 
@@ -63,11 +64,52 @@ function fakeGame(overrides: Partial<Game> = {}): Game {
   };
 }
 
+// The exam stand-in. Its point is that answering says nothing about being
+// right: only finish() ever gives a score.
+const EXAM_STATE = {
+  chapter: 8,
+  mission: 1,
+  attempts: 0,
+  lastScore: null,
+  bestScore: null,
+  passed: false,
+  running: false,
+};
+
+function fakeExam(overrides: Partial<Exam> = {}): Exam {
+  return {
+    start: () =>
+      Promise.resolve({
+        attemptNumber: 1,
+        totalItems: 10,
+        passScore: 7,
+        answered: 0,
+      }),
+    answer: (_player, input) =>
+      Promise.resolve({
+        saved: true,
+        answered: input.question,
+        totalItems: 10,
+      }),
+    finish: () =>
+      Promise.resolve({
+        attemptNumber: 1,
+        score: 8,
+        totalItems: 10,
+        passScore: 7,
+        passed: true,
+      }),
+    state: () => Promise.resolve(EXAM_STATE),
+    ...overrides,
+  };
+}
+
 function testApp(overrides: Partial<AppConfig> = {}) {
   return createApp({
     allowedOrigins: [FRONTEND],
     accounts: fakeAccounts(),
     game: fakeGame(),
+    exam: fakeExam(),
     ...overrides,
   });
 }
@@ -739,7 +781,7 @@ Deno.test("progress: returns the logged-in player's progress", async () => {
     headers: { authorization: "Bearer valid-token" },
   });
   assertEquals(res.status, 200);
-  assertEquals(await res.json(), PROGRESS);
+  assertEquals(await res.json(), { ...PROGRESS, exam: EXAM_STATE });
   assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
 });
 
@@ -852,14 +894,14 @@ Deno.test("submit: chapter and mission must be whole numbers", async () => {
   assertEquals(body.error.field, "chapter");
 });
 
-Deno.test("submit: the question is a whole number from 1 to 9", async () => {
-  for (const question of [0, 10, 1.5, "2"]) {
+Deno.test("submit: the question is a whole number from 1 to 10", async () => {
+  for (const question of [0, 11, 1.5, "2"]) {
     const res = await submit({ ...MISSION_1, question, answer: "x" });
     assertEquals(res.status, 400);
     assertEquals(await res.json(), {
       error: {
         code: "VALIDATION_ERROR",
-        message: "Question must be a whole number from 1 to 9.",
+        message: "Question must be a whole number from 1 to 10.",
         field: "question",
       },
     });
@@ -917,3 +959,163 @@ Deno.test(
     });
   },
 );
+
+// ---------- the epilogue exam (POST /api/exam/*) ----------
+
+function examPost(
+  path: string,
+  body?: unknown,
+  token = "valid-token",
+  app = testApp(),
+) {
+  return app.request(`/api/exam/${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+}
+
+Deno.test("exam: every route requires login", async () => {
+  for (const path of ["start", "answer", "finish"]) {
+    const res = await examPost(path, { question: 1, answer: "x" }, "nope");
+    assertEquals(res.status, 401);
+    assertEquals(await res.json(), UNAUTHORIZED);
+  }
+});
+
+Deno.test("exam: starting says how many items and what passes", async () => {
+  let asked: Player | undefined;
+  const app = testApp({
+    exam: fakeExam({
+      start: (player) => {
+        asked = player;
+        return Promise.resolve({
+          attemptNumber: 2,
+          totalItems: 10,
+          passScore: 7,
+          answered: 3,
+        });
+      },
+    }),
+  });
+  const res = await examPost("start", {}, "valid-token", app);
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    attemptNumber: 2,
+    totalItems: 10,
+    passScore: 7,
+    answered: 3,
+  });
+  assertEquals(asked, { id: PLAYER.id, accessToken: "valid-token" });
+});
+
+Deno.test(
+  "exam: an answer is saved without saying if it was right",
+  async () => {
+    let got: { question: number; answer: string } | undefined;
+    const app = testApp({
+      exam: fakeExam({
+        answer: (_player, input) => {
+          got = input;
+          return Promise.resolve({ saved: true, answered: 4, totalItems: 10 });
+        },
+      }),
+    });
+    const res = await examPost(
+      "answer",
+      { question: 4, answer: "if(hasID)" },
+      "valid-token",
+      app,
+    );
+    assertEquals(res.status, 200);
+    const body = await res.json();
+    assertEquals(body, { saved: true, answered: 4, totalItems: 10 });
+    // The whole point of the exam: nothing about being right.
+    assertFalse("correct" in body);
+    assertFalse("mistakes" in body);
+    assertEquals(got, { question: 4, answer: "if(hasID)" });
+  },
+);
+
+Deno.test("exam: the item number and the answer are checked", async () => {
+  const bad = await examPost("answer", { question: 11, answer: "x" });
+  assertEquals(bad.status, 400);
+  assertEquals(await bad.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Question must be a whole number from 1 to 10.",
+      field: "question",
+    },
+  });
+
+  const empty = await examPost("answer", { question: 1, answer: "   " });
+  assertEquals(empty.status, 400);
+  assertEquals(await empty.json(), {
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Type your answer first.",
+      field: "answer",
+    },
+  });
+});
+
+Deno.test("exam: finishing gives the score and the verdict", async () => {
+  const app = testApp({
+    exam: fakeExam({
+      finish: () =>
+        Promise.resolve({
+          attemptNumber: 1,
+          score: 6,
+          totalItems: 10,
+          passScore: 7,
+          passed: false,
+        }),
+    }),
+  });
+  const res = await examPost("finish", {}, "valid-token", app);
+  assertEquals(res.status, 200);
+  assertEquals(await res.json(), {
+    attemptNumber: 1,
+    score: 6,
+    totalItems: 10,
+    passScore: 7,
+    passed: false,
+  });
+});
+
+Deno.test("exam: answering before starting is refused", async () => {
+  const app = testApp({
+    exam: fakeExam({
+      answer: () => {
+        throw new ApiError(
+          409,
+          "NO_EXAM_RUNNING",
+          "Start the exam before answering.",
+        );
+      },
+    }),
+  });
+  const res = await examPost(
+    "answer",
+    { question: 1, answer: "x" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 409);
+  assertEquals(await res.json(), {
+    error: {
+      code: "NO_EXAM_RUNNING",
+      message: "Start the exam before answering.",
+    },
+  });
+});
+
+Deno.test("exam: only chapter 8 mission 1 is the exam", () => {
+  assertEquals(isExam(8, 1), true);
+  assertFalse(isExam(8, 2));
+  assertFalse(isExam(7, 1));
+  assertFalse(isExam(0, 1));
+});

@@ -256,6 +256,12 @@ async function checkWithCompiler(): Promise<void> {
           ok(
             `${at}  wrong choice "${oneLine(wrong)}" is an error in C# (${errors[0]})`,
           );
+        } else if (q.appropriateness) {
+          // The epilogue exam tests judgement: a choice can compile and still
+          // be wrong (wrong structure, or a stray ";" that skips the block).
+          ok(
+            `${at}  wrong choice "${oneLine(wrong)}" is valid C# on purpose (this question tests judgement, not only syntax)`,
+          );
         } else {
           warn(
             `${at}  wrong choice "${oneLine(wrong)}" is valid C#: the game calls it wrong, so check it with the client`,

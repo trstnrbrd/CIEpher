@@ -252,6 +252,27 @@ Success, **200** (this player has finished prologue mission 1):
 
 The real response lists chapters 0 to 8 (8 is the epilogue); chapters 3 to 8 look like chapter 2 here.
 
+The response also carries the **epilogue exam** (chapter 8, mission 1), so the exam screen can be drawn without asking anywhere else:
+
+```json
+{
+  "exam": {
+    "chapter": 8,
+    "mission": 1,
+    "attempts": 1,
+    "lastScore": 6,
+    "bestScore": 6,
+    "passed": false,
+    "running": false
+  }
+}
+```
+
+- `attempts`: how many finished tries (0 before the first one).
+- `lastScore` / `bestScore`: `null` until an attempt is finished.
+- `passed`: true once any attempt passed. Chapter 8 also shows as `completed`.
+- `running`: an attempt was started and not finished (e.g. the player refreshed in the middle). Send them back into the exam at item `answered + 1` from `POST /exam/start`.
+
 - Chapter `0` is the prologue. Missions are numbered from 1, in play order.
 - Chapter 1 has 5 missions. Chapters 2 to 8 have `"missions": []` until the client sends their content.
 - **The server decides what's unlocked.** Never work it out in the frontend:
@@ -336,10 +357,59 @@ What to do with the result:
 | Status | code                 | What to do                                                                                                      |
 | ------ | -------------------- | --------------------------------------------------------------------------------------------------------------- |
 | 400    | `VALIDATION_ERROR`   | `field` is `answer` ("Type your answer first."): show it. `chapter`, `mission` or `question`: a bug in the call |
+| 400    | `USE_EXAM_ROUTES`    | Chapter 8 mission 1 is the final exam: use the exam routes below                                                 |
 | 401    | `UNAUTHORIZED`       | Send the player to Login                                                                                        |
 | 403    | `MISSION_LOCKED`     | The screen opened a mission that isn't unlocked yet: refresh with `getProgress()`                               |
 | 404    | `MISSION_NOT_FOUND`  | Wrong chapter or mission number: a bug in the mission data                                                      |
 | 404    | `QUESTION_NOT_FOUND` | That mission has no such question number: a bug in the mission data                                             |
+
+### ✅ `POST /exam/start`, `POST /exam/answer`, `POST /exam/finish` (logged in)
+
+The epilogue (chapter 8, mission 1) is a **final practical exam**, not a normal mission. The player answers all 10 items with **no feedback at all** - no "correct", no red marks, no retry - and only finds out at the end. `POST /missions/submit` refuses it (`400 USE_EXAM_ROUTES`), because that route would give away every item as the player goes.
+
+The flow is: **start → answer ×10 → finish**, and a failed attempt can be retaken from the beginning.
+
+**`POST /exam/start`** - no body. Starts an attempt, or hands back the one already running (so a refresh loses nothing).
+
+```json
+{ "attemptNumber": 1, "totalItems": 10, "passScore": 7, "answered": 0 }
+```
+
+Resume at item `answered + 1`.
+
+**`POST /exam/answer`** - one item. No chapter or mission: there is only one exam.
+
+```json
+{ "question": 4, "answer": "switch(menu)
+{
+    case 1:
+ ... }" }
+```
+
+```json
+{ "saved": true, "answered": 4, "totalItems": 10 }
+```
+
+That is the whole reply: **nothing says whether the answer was right.** Show "Answer Submitted" and move to the next item. Sending the same item again replaces the earlier answer. Send `answer` exactly as typed, spaces and line breaks included.
+
+**`POST /exam/finish`** - no body. Ends the attempt and scores it.
+
+```json
+{ "attemptNumber": 1, "score": 8, "totalItems": 10, "passScore": 7, "passed": true }
+```
+
+- `passed`: show PASSED and the graduation scene. Chapter 8 is now `completed`.
+- not passed: show NOT PASSED with the score, the Code Journal button, and RETAKE FINAL EXAM, which simply calls `POST /exam/start` again.
+
+The pass mark is 70% of the items, rounded up (7 of 10), and it is decided by the server. Never work out the score in the frontend: the answers are not there.
+
+| Status | code                 | What to do                                                                              |
+| ------ | -------------------- | ----------------------------------------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR`   | `field` is `answer` or `question`: show it, or a bug in the call                          |
+| 401    | `UNAUTHORIZED`       | Send the player to Login                                                                  |
+| 403    | `MISSION_LOCKED`     | Chapters 1-7 are not all finished yet: refresh with `getProgress()`                       |
+| 404    | `QUESTION_NOT_FOUND` | No such item number: a bug in the exam data                                               |
+| 409    | `NO_EXAM_RUNNING`    | `answer`/`finish` before `start`, or after the attempt was finished: call `start` first    |
 
 ## Not in the API (use supabase-js directly)
 
