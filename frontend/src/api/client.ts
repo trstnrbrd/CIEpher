@@ -38,7 +38,40 @@ export type ChapterStatus = {
   missions: MissionStatus[]
 }
 
-export type Progress = { chapters: ChapterStatus[] }
+// The epilogue exam (chapter 8, mission 1), as GET /progress reports it.
+// lastScore and bestScore are null until an attempt has been finished.
+export type ExamState = {
+  chapter: number
+  mission: number
+  attempts: number
+  lastScore: number | null
+  bestScore: number | null
+  passed: boolean
+  running: boolean
+}
+
+export type Progress = { chapters: ChapterStatus[]; exam: ExamState }
+
+// What POST /exam/start gives back: resume at item `answered + 1`.
+export type ExamStart = {
+  attemptNumber: number
+  totalItems: number
+  passScore: number
+  answered: number
+}
+
+// The whole reply to an exam answer. There is deliberately nothing here
+// about being right: the exam says nothing until it is finished.
+export type ExamSaved = { saved: true; answered: number; totalItems: number }
+
+// The one moment the exam reveals anything.
+export type ExamResult = {
+  attemptNumber: number
+  score: number
+  totalItems: number
+  passScore: number
+  passed: boolean
+}
 
 // Where a wrong answer is wrong: positions in the answer exactly as it was
 // sent, counted from 0, with `end` just past the last character.
@@ -273,6 +306,46 @@ export async function submitAnswer(
     'POST',
     '/missions/submit',
     { chapter, mission, question, answer },
+    await currentAccessToken(),
+  )
+}
+
+// ---- The epilogue exam (chapter 8, mission 1) ----
+// It is not a normal mission: the player answers all ten items with no
+// feedback, and only finishExam() gives a score. submitAnswer() refuses it
+// (USE_EXAM_ROUTES), because that route would reveal each item as they go.
+
+// Starts an attempt, or resumes the one already running after a refresh.
+export async function startExam(): Promise<ExamStart> {
+  return request<ExamStart>(
+    'POST',
+    '/exam/start',
+    {},
+    await currentAccessToken(),
+  )
+}
+
+// Saves one item. The reply only says how many items are answered, so show
+// "Answer Submitted" and move on - there is nothing to mark red here.
+export async function answerExam(
+  question: number,
+  answer: string,
+): Promise<ExamSaved> {
+  return request<ExamSaved>(
+    'POST',
+    '/exam/answer',
+    { question, answer },
+    await currentAccessToken(),
+  )
+}
+
+// Ends the attempt and scores it. Passing completes chapter 8; failing
+// leaves it open, and RETAKE simply calls startExam() again.
+export async function finishExam(): Promise<ExamResult> {
+  return request<ExamResult>(
+    'POST',
+    '/exam/finish',
+    {},
     await currentAccessToken(),
   )
 }

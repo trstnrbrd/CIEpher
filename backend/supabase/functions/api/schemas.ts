@@ -93,9 +93,10 @@ export const submitSchema = z.object({
     .min(1, "Mission must be a whole number from 1 to 99.")
     .max(99, "Mission must be a whole number from 1 to 99."),
   question: z
-    .int({ error: "Question must be a whole number from 1 to 9." })
-    .min(1, "Question must be a whole number from 1 to 9.")
-    .max(9, "Question must be a whole number from 1 to 9.")
+    .int({ error: "Question must be a whole number from 1 to 10." })
+    .min(1, "Question must be a whole number from 1 to 10.")
+    // The epilogue exam is one mission with 10 items.
+    .max(10, "Question must be a whole number from 1 to 10.")
     .default(1),
   answer: z
     .string({ error: "Type your answer first." })
@@ -104,6 +105,16 @@ export const submitSchema = z.object({
 });
 
 export type SubmitInput = z.infer<typeof submitSchema>;
+
+// One item of the epilogue exam. There is only one exam, so the chapter and
+// mission are not sent: the server knows which mission it is (exam.ts). The
+// reply never says whether the answer was right.
+export const examAnswerSchema = submitSchema.pick({
+  question: true,
+  answer: true,
+});
+
+export type ExamAnswerInput = z.infer<typeof examAnswerSchema>;
 
 // Checks a request body against a schema. If it's invalid, throws a 400 that
 // names the first wrong field, so the frontend can highlight it.

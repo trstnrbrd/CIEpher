@@ -6,6 +6,7 @@ import {
   type SupabaseConfig,
 } from "./accounts.ts";
 import { findMistakes, type Mistake, sameCode } from "./csharp.ts";
+import { isExam } from "./exam.ts";
 import { ApiError } from "./errors.ts";
 import { buildProgress, findMission, type Progress } from "./progress.ts";
 import type { SubmitInput } from "./schemas.ts";
@@ -47,6 +48,17 @@ export function supabaseGame(config: SupabaseConfig): Game {
           403,
           "MISSION_LOCKED",
           "That mission is still locked.",
+        );
+      }
+
+      // The final exam tells the player nothing until it is finished, so it
+      // has its own routes (exam.ts). Answering it here would give away
+      // every item as the player goes.
+      if (isExam(chapter, mission)) {
+        throw new ApiError(
+          400,
+          "USE_EXAM_ROUTES",
+          "The final exam is answered through the exam routes.",
         );
       }
 
