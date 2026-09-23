@@ -1,2 +1,5 @@
 node_modules/
 supabase/functions/.env
+
+# Study data pulled from the database: student data, never commit it.
+study-export/

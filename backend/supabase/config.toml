@@ -437,3 +437,36 @@ entrypoint = "./functions/api/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/api/*.html" ]
+
+# ---------------------------------------------------------------------------
+# Staging only. Everything above is for the stack on a developer's PC, so
+# site_url stays localhost there and emails land in the local Mailpit. These
+# overrides are what `supabase config push` sends to the staging project.
+# ---------------------------------------------------------------------------
+[remotes.staging]
+project_id = "ljdxoyttpyrvbibazxyv"
+
+[remotes.staging.auth]
+# Where the links in emails point. With localhost here, a password reset
+# link opens nothing on a student's phone.
+site_url = "https://ciepher.ciepher.workers.dev"
+additional_redirect_urls = ["https://ciepher.ciepher.workers.dev"]
+
+# The project Gmail sends the password reset emails. The app password is not
+# in this file: it comes from the environment when the config is pushed
+# (see backend/README or the deploy notes).
+[remotes.staging.auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 465
+user = "ciepher1@gmail.com"
+pass = "env(CIEPHER_SMTP_PASSWORD)"
+admin_email = "ciepher1@gmail.com"
+sender_name = "CIEpher"
+
+# Staging's connection pooler is already tuned for it (the load test ran
+# against these numbers). They are repeated here so pushing the email
+# settings does not quietly change the database along with them.
+[remotes.staging.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
