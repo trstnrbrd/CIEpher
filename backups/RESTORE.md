@@ -2,6 +2,8 @@
 
 Use this when the database is broken or data was deleted by mistake, and to practice: do a practice restore every few months and after big database changes.
 
+**Last practice restore: 2026-09-23** (the backup of 2026-09-22, restored on a PC; all 73 database tests passed, 24 accounts / 21 profiles / 98 progress rows came back).
+
 **Never restore over the live database.** Restore into a new, empty Supabase project. If the live project still works and only some rows were lost, restore into a new project and copy those rows back.
 
 All commands are for PowerShell on Windows.
@@ -48,6 +50,7 @@ docker run --rm -v "${PWD}:/w" -w /w postgres:17 psql --single-transaction --var
 
 - It's all or nothing: if any line fails, nothing is saved. Fix the cause and run it again.
 - **Don't skip `before-schema.sql`.** Without it, the restored database lets anyone look up players' emails (the file explains why).
+- **If `data.sql` stops with "relation ... does not exist":** the backup came from a newer Supabase than the database you are restoring into. Supabase keeps updating the login system's own `auth.*` tables, and the cloud runs ahead of the CLI on your PC. Restoring into a **new cloud project** is safe, because it is the same age or newer. This only bites in the practice restore below.
 - **`roles.sql` is left out on purpose.** It only holds Supabase's own role settings, which a new project already has, and one of its lines is always refused (`permission denied for parameter log_min_messages`). CIEpher has no roles of its own. If you ever add some, run `roles.sql` on its own first and ignore that one error.
 
 ## 5. Check it
@@ -96,5 +99,10 @@ This restores into a blank Supabase on your PC, on ports 553xx, next to your nor
    npx --prefix C:\path\to\CIEpher\backend supabase start -x studio,realtime,storage-api,imgproxy,mailpit,logflare,vector,edge-runtime,postgres-meta,supavisor,postgrest
    ```
 4. Do steps 1, 2 and 4 above, with `postgresql://postgres:postgres@host.docker.internal:55322/postgres` as `DATABASE_URL`.
+   Before running step 4, take out the `auth.*` tables your PC's older login system doesn't have, or the restore stops at the first one and saves nothing (it is all or nothing). On 2026-09-23 those were `mfa_recovery_code_sets`, `mfa_recovery_codes`, `scim_tokens` and `scim_users`, all empty. Delete each one's block in `data.sql` — from its `COPY ... FROM stdin;` line down to the `\.` line — and check the block really is empty before you remove it. To see which tables your PC has:
+   ```powershell
+   docker run --rm postgres:17 psql -At -c "select table_schema||'.'||table_name from information_schema.tables where table_schema in ('auth','storage') order by 1" --dbname "postgresql://postgres:postgres@host.docker.internal:55322/postgres"
+   ```
 5. Check it: copy this repo's `backend\supabase\tests` folder into this folder's `supabase` folder, then run `npx --prefix C:\path\to\CIEpher\backend supabase test db`. Every test must pass.
+   Take the tests from the commit the backup was made at, not from today: `answer_keys.test.sql` follows the content files, so a backup made before a new chapter was added fails against the current version. Use `git show <commit>:backend/supabase/tests/database/answer_keys.test.sql > supabase\tests\database\answer_keys.test.sql`.
 6. Clean up: `npx --prefix C:\path\to\CIEpher\backend supabase stop --no-backup`, then delete both folders.
