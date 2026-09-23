@@ -1,6 +1,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { supabaseAccounts } from "./accounts.ts";
 import { createApp } from "./app.ts";
+import { supabaseExam } from "./exam.ts";
 import { supabaseGame } from "./game.ts";
 import { turnstileCheck } from "./humans.ts";
 import { sentryReporter } from "./sentry.ts";
@@ -18,11 +19,15 @@ const supabase = {
   serviceRoleKey: requireEnv("SUPABASE_SERVICE_ROLE_KEY"),
 };
 
+// The exam borrows the game's unlock rules, so both see the same progress.
+const game = supabaseGame(supabase);
+
 Deno.serve(
   createApp({
     allowedOrigins,
     accounts: supabaseAccounts(supabase),
-    game: supabaseGame(supabase),
+    game,
+    exam: supabaseExam(supabase, (player) => game.getProgress(player)),
     // Set only on staging and production (Supabase secrets).
     reportError: sentryReporter(
       Deno.env.get("SENTRY_DSN"),

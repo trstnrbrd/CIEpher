@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(19);
+select plan(21);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1, 2, 3, 4, 5, 6, 7)$$,
+    where chapter_id not in (0, 1, 2, 3, 4, 5, 6, 7, 8)$$,
   'every chapter with missions has a content file'
 );
 
@@ -218,6 +218,33 @@ select results_eq(
     (4, 1, E'for(int i = 0; i < 15; i++)\n{\n    GenerateReport();\n}'),
     (5, 1, E'for(int i = 0; i < 25; i++)\n{\n    DisplayStudent();\n}')$keys$,
   'chapter 7: its answer keys'
+);
+
+-- Chapter 8: Epilogue: the final practical exam. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 8 group by 1 order by 1$$,
+  $$values (1, 10)$$,
+  'chapter 8: its missions and questions'
+);
+
+-- Chapter 8's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 8 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'if(hasID)\n{\n    EnterCampus();\n}'),
+    (1, 2, E'if(hasPaid)\n{\n    ContinueEnrollment();\n}\nelse\n{\n    DisplayPaymentReminder();\n}'),
+    (1, 3, E'if(average >= 98)\n{\n    AwardPresidentScholar();\n}\nelse if(average >= 95)\n{\n    AwardDeanScholar();\n}\nelse\n{\n    AwardCertificate();\n}'),
+    (1, 4, E'switch(menu)\n{\n    case 1:\n        ViewClassSchedule();\n        break;\n\n    case 2:\n        ViewGrades();\n        break;\n\n    case 3:\n        PrintRegistrationCertificate();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}'),
+    (1, 5, E'while(processedBooks < totalBooks)\n{\n    ProcessBorrowedBook();\n}'),
+    (1, 6, E'do\n{\n    Login();\n}\nwhile(loginFailed);'),
+    (1, 7, E'for(int student = 1; student <= 30; student++)\n{\n    GenerateGradeReport();\n}'),
+    (1, 8, E'if(hasPermit)\n{\n    OpenGate();\n}\nelse\n{\n    DisplayAccessDenied();\n}'),
+    (1, 9, E'switch(document)\n{\n    case 1:\n        RequestCertificateOfRegistration();\n        break;\n\n    case 2:\n        RequestCertificateOfGrades();\n        break;\n\n    case 3:\n        RequestGoodMoralCertificate();\n        break;\n\n    case 4:\n        RequestTranscriptOfRecords();\n        break;\n\n    default:\n        ShowInvalidSelection();\n        break;\n}'),
+    (1, 10, E'for(int currentOffice = 1; currentOffice <= totalOffices; currentOffice++)\n{\n    ProcessClearance();\n}')$keys$,
+  'chapter 8: its answer keys'
 );
 
 select * from finish();

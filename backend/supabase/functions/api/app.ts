@@ -8,10 +8,12 @@ import {
   handleNotFound,
   type ReportError,
 } from "./errors.ts";
+import type { Exam } from "./exam.ts";
 import type { Game } from "./game.ts";
 import type { HumanCheck } from "./humans.ts";
 import {
   characterSchema,
+  examAnswerSchema,
   forgotPasswordSchema,
   loginSchema,
   parse,
@@ -29,6 +31,9 @@ export type AppConfig = {
   accounts: Accounts;
   // The game itself (progress, then answers): the same, real or fake.
   game: Game;
+  // The epilogue's final exam, which answers without saying anything
+  // until it is finished (exam.ts).
+  exam: Exam;
   // Where bugs (the 500s) are reported: Sentry in index.ts, a fake in tests.
   // Left out, bugs are only logged.
   reportError?: ReportError;
@@ -44,6 +49,7 @@ export function createApp({
   allowedOrigins,
   accounts,
   game,
+  exam,
   reportError,
   humanCheck,
 }: AppConfig) {
@@ -130,13 +136,35 @@ export function createApp({
   });
 
   app.get("/progress", requirePlayer, async (c) => {
-    const progress = await game.getProgress(c.get("player"));
-    return c.json(progress);
+    const player = c.get("player");
+    const [progress, examState] = await Promise.all([
+      game.getProgress(player),
+      exam.state(player),
+    ]);
+    return c.json({ ...progress, exam: examState });
   });
 
   app.post("/missions/submit", requirePlayer, async (c) => {
     const input = parse(submitSchema, await readJson(c));
     const result = await game.submitAnswer(c.get("player"), input);
+    return c.json(result);
+  });
+
+  // The epilogue exam. Answers are saved silently; only "finish" gives a
+  // score, so a player can never learn an item's answer during the exam.
+  app.post("/exam/start", requirePlayer, async (c) => {
+    const started = await exam.start(c.get("player"));
+    return c.json(started);
+  });
+
+  app.post("/exam/answer", requirePlayer, async (c) => {
+    const input = parse(examAnswerSchema, await readJson(c));
+    const saved = await exam.answer(c.get("player"), input);
+    return c.json(saved);
+  });
+
+  app.post("/exam/finish", requirePlayer, async (c) => {
+    const result = await exam.finish(c.get("player"));
     return c.json(result);
   });
 

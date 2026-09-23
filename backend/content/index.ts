@@ -12,6 +12,7 @@ import chapter4 from "./chapter-4.json" with { type: "json" };
 import chapter5 from "./chapter-5.json" with { type: "json" };
 import chapter6 from "./chapter-6.json" with { type: "json" };
 import chapter7 from "./chapter-7.json" with { type: "json" };
+import chapter8 from "./chapter-8.json" with { type: "json" };
 
 export type Question = {
   mission: number;
@@ -23,6 +24,10 @@ export type Question = {
   wrong: string[];
   // false for a choice that isn't a line of code (e.g. "if" or "while").
   code?: boolean;
+  // true when the question tests judgement, not only syntax (the epilogue
+  // exam). Some of its wrong choices compile on purpose - a wrong structure,
+  // or a stray ";" - so the compiler check expects that instead of warning.
+  appropriateness?: boolean;
 };
 
 export type Chapter = {
@@ -46,4 +51,5 @@ export const CHAPTERS: Chapter[] = [
   chapter5,
   chapter6,
   chapter7,
+  chapter8,
 ];

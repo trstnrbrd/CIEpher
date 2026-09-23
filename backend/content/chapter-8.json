@@ -1,0 +1,142 @@
+{
+  "chapter": 8,
+  "title": "Epilogue: the final practical exam",
+  "source": "Documents/Epilogue.pdf",
+  "program": [
+    "bool hasID, hasPaid, hasPermit, loginFailed;",
+    "int average, menu, document, processedBooks, totalBooks, student, currentOffice, totalOffices;",
+    "void EnterCampus() {}",
+    "void ContinueEnrollment() {}",
+    "void DisplayPaymentReminder() {}",
+    "void AwardPresidentScholar() {}",
+    "void AwardDeanScholar() {}",
+    "void AwardCertificate() {}",
+    "void ViewClassSchedule() {}",
+    "void ViewGrades() {}",
+    "void PrintRegistrationCertificate() {}",
+    "void ShowInvalidOption() {}",
+    "void ProcessBorrowedBook() {}",
+    "void Login() {}",
+    "void GenerateGradeReport() {}",
+    "void OpenGate() {}",
+    "void DisplayAccessDenied() {}",
+    "void RequestCertificateOfRegistration() {}",
+    "void RequestCertificateOfGrades() {}",
+    "void RequestGoodMoralCertificate() {}",
+    "void RequestTranscriptOfRecords() {}",
+    "void ShowInvalidSelection() {}",
+    "void ProcessClearance() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "appropriateness": true,
+      "answer": "if(hasID)\n{\n    EnterCampus();\n}",
+      "wrong": [
+        "if hasID\n{\n    EnterCampus();\n}",
+        "if(hasID);\n{\n    EnterCampus();\n}",
+        "if(hasID)\n    EnterCampus()"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "appropriateness": true,
+      "answer": "if(hasPaid)\n{\n    ContinueEnrollment();\n}\nelse\n{\n    DisplayPaymentReminder();\n}",
+      "wrong": [
+        "if(hasPaid)\n{\n    ContinueEnrollment();\n}",
+        "if(hasPaid);\n{\n    ContinueEnrollment();\n}\nelse\n{\n    DisplayPaymentReminder();\n}",
+        "if(hasPaid)\n{\n    ContinueEnrollment()\n}\nelse\n{\n    DisplayPaymentReminder();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 3,
+      "appropriateness": true,
+      "answer": "if(average >= 98)\n{\n    AwardPresidentScholar();\n}\nelse if(average >= 95)\n{\n    AwardDeanScholar();\n}\nelse\n{\n    AwardCertificate();\n}",
+      "wrong": [
+        "if(average >= 98)\n{\n    AwardPresidentScholar();\n}\nif(average >= 95)\n{\n    AwardDeanScholar();\n}\nelse\n{\n    AwardCertificate();\n}",
+        "if(average >= 98);\n{\n    AwardPresidentScholar();\n}\nelse if(average >= 95)\n{\n    AwardDeanScholar();\n}\nelse\n{\n    AwardCertificate();\n}",
+        "if(average >= 98)\n{\n    AwardPresidentScholar();\n}\nelse if(average >= 95)\n{\n    AwardDeanScholar()\n}\nelse\n{\n    AwardCertificate();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 4,
+      "appropriateness": true,
+      "answer": "switch(menu)\n{\n    case 1:\n        ViewClassSchedule();\n        break;\n\n    case 2:\n        ViewGrades();\n        break;\n\n    case 3:\n        PrintRegistrationCertificate();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}",
+      "wrong": [
+        "if(menu == 1)\n{\n    ViewClassSchedule();\n}\nelse if(menu == 2)\n{\n    ViewGrades();\n}\nelse if(menu == 3)\n{\n    PrintRegistrationCertificate();\n}\nelse\n{\n    ShowInvalidOption();\n}",
+        "switch(menu)\n{\n    case 1\n        ViewClassSchedule();\n        break;\n\n    case 2:\n        ViewGrades();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}",
+        "switch(menu)\n{\n    case 1:\n        ViewClassSchedule();\n\n    case 2:\n        ViewGrades();\n\n    case 3:\n        PrintRegistrationCertificate();\n\n    default:\n        ShowInvalidOption();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 5,
+      "appropriateness": true,
+      "answer": "while(processedBooks < totalBooks)\n{\n    ProcessBorrowedBook();\n}",
+      "wrong": [
+        "do\n{\n    ProcessBorrowedBook();\n}\nwhile(processedBooks < totalBooks);",
+        "for(int i = 0; i < totalBooks; i++)\n{\n    ProcessBorrowedBook();\n}",
+        "while(processedBooks < totalBooks)\n{\n    ProcessBorrowedBook()\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 6,
+      "appropriateness": true,
+      "answer": "do\n{\n    Login();\n}\nwhile(loginFailed);",
+      "wrong": [
+        "while(loginFailed)\n{\n    Login();\n}",
+        "do\n{\n    Login()\n}\nwhile(loginFailed);",
+        "do\n{\n    Login();\n}\nwhile(loginFailed)"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 7,
+      "appropriateness": true,
+      "answer": "for(int student = 1; student <= 30; student++)\n{\n    GenerateGradeReport();\n}",
+      "wrong": [
+        "while(student < 30)\n{\n    GenerateGradeReport();\n}",
+        "do\n{\n    GenerateGradeReport();\n}\nwhile(student < 30);",
+        "for(int student = 1 student <= 30; student++)\n{\n    GenerateGradeReport();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 8,
+      "appropriateness": true,
+      "answer": "if(hasPermit)\n{\n    OpenGate();\n}\nelse\n{\n    DisplayAccessDenied();\n}",
+      "wrong": [
+        "if(hasPermit)\n{\n    OpenGate();\n}",
+        "switch(hasPermit)\n{\n    case true:\n        OpenGate();\n        break;\n}",
+        "if(hasPermit)\n{\n    OpenGate()\n}\nelse\n{\n    DisplayAccessDenied();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 9,
+      "appropriateness": true,
+      "answer": "switch(document)\n{\n    case 1:\n        RequestCertificateOfRegistration();\n        break;\n\n    case 2:\n        RequestCertificateOfGrades();\n        break;\n\n    case 3:\n        RequestGoodMoralCertificate();\n        break;\n\n    case 4:\n        RequestTranscriptOfRecords();\n        break;\n\n    default:\n        ShowInvalidSelection();\n        break;\n}",
+      "wrong": [
+        "if(document == 1)\n{\n    RequestCertificateOfRegistration();\n}\nelse if(document == 2)\n{\n    RequestCertificateOfGrades();\n}\nelse if(document == 3)\n{\n    RequestGoodMoralCertificate();\n}\nelse if(document == 4)\n{\n    RequestTranscriptOfRecords();\n}\nelse\n{\n    ShowInvalidSelection();\n}",
+        "switch(document)\n{\n    case 1\n        RequestCertificateOfRegistration();\n        break;\n\n    case 2:\n        RequestCertificateOfGrades();\n        break;\n\n    case 3:\n        RequestGoodMoralCertificate();\n        break;\n\n    default:\n        ShowInvalidSelection();\n        break;\n}",
+        "switch(document)\n{\n    case 1:\n        RequestCertificateOfRegistration();\n\n    case 2:\n        RequestCertificateOfGrades();\n\n    case 3:\n        RequestGoodMoralCertificate();\n\n    case 4:\n        RequestTranscriptOfRecords();\n\n    default:\n        ShowInvalidSelection();\n}"
+      ]
+    },
+    {
+      "mission": 1,
+      "question": 10,
+      "appropriateness": true,
+      "answer": "for(int currentOffice = 1; currentOffice <= totalOffices; currentOffice++)\n{\n    ProcessClearance();\n}",
+      "wrong": [
+        "while(currentOffice <= totalOffices)\n{\n    ProcessClearance();\n}",
+        "if(currentOffice <= totalOffices)\n{\n    ProcessClearance();\n}",
+        "do\n{\n    ProcessClearance();\n}\nwhile(currentOffice <= totalOffices);"
+      ]
+    }
+  ]
+}
