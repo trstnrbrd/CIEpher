@@ -11,7 +11,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(17);
+select plan(19);
 
 -- Every mission has at least one answer.
 select is_empty(
@@ -35,7 +35,7 @@ select is_empty(
 -- Every chapter with missions has a content file (backend/content/).
 select is_empty(
   $$select distinct chapter_id from public.missions
-    where chapter_id not in (0, 1, 2, 3, 4, 5, 6)$$,
+    where chapter_id not in (0, 1, 2, 3, 4, 5, 6, 7)$$,
   'every chapter with missions has a content file'
 );
 
@@ -195,6 +195,29 @@ select results_eq(
     (4, 1, E'do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion);'),
     (5, 1, E'do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson);')$keys$,
   'chapter 6: its answer keys'
+);
+
+-- Chapter 7: The for loop. Its missions, and how many
+-- questions each one asks.
+select results_eq(
+  $$select mission_number::int, max(question)::int from public.mission_answers
+    where chapter_id = 7 group by 1 order by 1$$,
+  $$values (1, 2), (2, 1), (3, 1), (4, 1), (5, 1)$$,
+  'chapter 7: its missions and questions'
+);
+
+-- Chapter 7's answer keys, exactly.
+select results_eq(
+  $$select mission_number::int, question::int, answer from public.mission_answers
+    where chapter_id = 7 order by 1, 2, answer collate "C"$$,
+  $keys$values
+    (1, 1, E'for'),
+    (1, 2, E'for(int i = 0; i < 10; i++)\n{\n    PrintStudentID();\n}'),
+    (2, 1, E'for(int i = 0; i < 20; i++)\n{\n    CheckComputer();\n}'),
+    (3, 1, E'for(int i = 0; i < 30; i++)\n{\n    DistributeModule();\n}'),
+    (4, 1, E'for(int i = 0; i < 15; i++)\n{\n    GenerateReport();\n}'),
+    (5, 1, E'for(int i = 0; i < 25; i++)\n{\n    DisplayStudent();\n}')$keys$,
+  'chapter 7: its answer keys'
 );
 
 select * from finish();
