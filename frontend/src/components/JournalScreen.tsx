@@ -5,6 +5,7 @@ import JournalShelf from './JournalShelf'
 import './JournalScreen.css'
 
 interface JournalScreenProps {
+  initialChapter?: number
   onBack: () => void
   onUnauthorized: () => void
 }
@@ -116,7 +117,11 @@ function RightPage({ lesson }: { lesson: JournalLesson }) {
 
 // The journal opens on its books (JournalShelf); a book opens that lesson's
 // notes in the notebook, and BACK goes back to the books.
-function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
+function JournalScreen({
+  initialChapter,
+  onBack,
+  onUnauthorized,
+}: JournalScreenProps) {
   const [progress, setProgress] = useState<Progress | null>(null)
   const [error, setError] = useState<string | null>(null)
   // The open lesson, by its place among the written ones; null shows the
@@ -128,7 +133,21 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
     let active = true
     getProgress()
       .then((p) => {
-        if (active) setProgress(p)
+        if (!active) return
+        setProgress(p)
+        if (initialChapter !== undefined) {
+          const avail = JOURNAL.filter(
+            (lesson) =>
+              lesson.chapter === initialChapter ||
+              p.chapters.some(
+                (chapter) => chapter.id === lesson.chapter && chapter.completed,
+              ),
+          )
+          const idx = avail.findIndex((l) => l.chapter === initialChapter)
+          if (idx !== -1) {
+            setOpen(idx)
+          }
+        }
       })
       .catch((err) => {
         if (!active) return
@@ -145,15 +164,17 @@ function JournalScreen({ onBack, onUnauthorized }: JournalScreenProps) {
     return () => {
       active = false
     }
-  }, [onUnauthorized])
+  }, [initialChapter, onUnauthorized])
 
   // A chapter's lesson is written into the journal once the chapter is
   // completed, in chapter order.
   const lessons = progress
-    ? JOURNAL.filter((lesson) =>
-        progress.chapters.some(
-          (chapter) => chapter.id === lesson.chapter && chapter.completed,
-        ),
+    ? JOURNAL.filter(
+        (lesson) =>
+          lesson.chapter === initialChapter ||
+          progress.chapters.some(
+            (chapter) => chapter.id === lesson.chapter && chapter.completed,
+          ),
       )
     : []
   const lesson: JournalLesson | undefined =

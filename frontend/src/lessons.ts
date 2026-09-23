@@ -16,7 +16,11 @@ import profClassroomImg from './chapter1/prof_classroom.webp'
 import bookstoreImg from './chapter 2/bookstore.webp'
 import noWifiImg from './chapter 2/no wifi.webp'
 import pcImg from './chapter 2/pc.webp'
-import chapterThreeRoomImg from './chapter 3/room.png'
+import chapterThreeRoomImg from './chapter 3/room.webp'
+import chapterThreeRoom2Img from './chapter 3/room2.webp'
+import hallwayImg from './chapter1/Hallway.webp'
+import ch4PCActivityImg from './assets/chapter 4/programmingActivityPC.webp'
+import ch4DestinationImg from './assets/chapter 4/SelectADestination.webp'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -807,6 +811,423 @@ const LESSONS: Record<string, Lesson> = {
       flowGraphic: 'terminal',
       takeaway:
         'Use else if when the program needs to check more than two possible outcomes in sequence.',
+    },
+  },
+  '3:2': {
+    chapter: 3,
+    mission: 2,
+    title: 'Scholarship Eligibility',
+    story:
+      "The scholarship office determines a student's eligibility.\n\n• GPA 1.25 or better ➡ Full Scholarship\n• GPA 1.75 or better ➡ Partial Scholarship\n• Otherwise ➡ Not Qualified",
+    lesson:
+      'The else if statement evaluates multiple conditions in sequence to determine eligibility.',
+    code: 'if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}',
+    sceneBg: chapterThreeRoom2Img,
+    prompt: 'CHALLENGE: CHOOSE & TYPE THE CORRECT SYNTAX',
+    choices: [
+      'if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelseif(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}',
+      'if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}',
+      'if(gpa <= 1.25)\n{\n    FullScholarship()\n}\nelse if(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(gpa <= 1.25)\n{\n    FullScholarship();\n}\nelseif(gpa <= 1.75)\n{\n    PartialScholarship();\n}\nelse\n{\n    NotQualified();\n}',
+      incorrectNote: 'The C# keyword is else if, written as two separate words.',
+      correctNote: 'Remember that else if is written as two separate words.',
+      anatomy: [
+        { text: 'if', label: 'Checks the first condition.' },
+        { text: 'gpa <= 1.25', label: 'Tests for a Full Scholarship.' },
+        {
+          text: 'else if',
+          label: 'Checks another condition when the first one is false.',
+        },
+        { text: 'gpa <= 1.75', label: 'Tests for a Partial Scholarship.' },
+        { text: 'else', label: 'Handles every remaining GPA.' },
+      ],
+      flow: [
+        'START',
+        'Check gpa <= 1.25',
+        'YES → FullScholarship()',
+        'NO → Check gpa <= 1.75',
+        'YES → PartialScholarship()',
+        'NO → NotQualified()',
+        'END',
+      ],
+      takeaway: 'Always write else if as two separate words with a space.',
+    },
+  },
+  '3:3': {
+    chapter: 3,
+    mission: 3,
+    title: 'Network Connection Speed',
+    story:
+      'The university network displays different connection quality.\n\n• Speed >= 100 Mbps ➡ Excellent\n• Speed >= 50 Mbps ➡ Good\n• Otherwise ➡ Poor',
+    lesson:
+      'The else block executes when none of the previous if or else if conditions are true.',
+    code: 'if(speed >= 100)\n{\n    ShowExcellent();\n}\nelse if(speed >= 50)\n{\n    ShowGood();\n}\nelse\n{\n    ShowPoor();\n}',
+    sceneBg: pcImg,
+    prompt: 'CHALLENGE: CHOOSE & TYPE THE CORRECT SYNTAX',
+    choices: [
+      'if(speed >= 100)\n{\n    ShowExcellent();\n}\nelse if(speed >= 50)\n{\n    ShowGood();\n}\nElse\n{\n    ShowPoor();\n}',
+      'if(speed >= 100)\n{\n    ShowExcellent();\n}\nelse(speed >= 50)\n{\n    ShowGood();\n}',
+      'if(speed >= 100)\n{\n    ShowExcellent();\n}\nelse if(speed >= 50)\n{\n    ShowGood();\n}\nelse\n{\n    ShowPoor();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(speed >= 100)\n{\n    ShowExcellent();\n}\nelse if(speed >= 50)\n{\n    ShowGood();\n}\nElse\n{\n    ShowPoor();\n}',
+      incorrectNote:
+        'C# keywords are case-sensitive: use lowercase else, not Else.',
+      correctNote:
+        'The else block executes when none of the earlier conditions match.',
+      anatomy: [
+        { text: 'if', label: 'Checks the first condition.' },
+        { text: 'speed >= 100', label: 'Tests for an Excellent connection.' },
+        { text: 'else if', label: 'Checks if speed is at least 50.' },
+        { text: 'speed >= 50', label: 'Tests for a Good connection.' },
+        { text: 'else', label: 'Handles every remaining speed (Poor).' },
+      ],
+      flow: [
+        'START',
+        'Check speed >= 100',
+        'YES → ShowExcellent()',
+        'NO → Check speed >= 50',
+        'YES → ShowGood()',
+        'NO → ShowPoor()',
+        'END',
+      ],
+      takeaway:
+        'C# keywords are case-sensitive. Always write else in lowercase.',
+    },
+  },
+  '3:4': {
+    chapter: 3,
+    mission: 4,
+    title: 'Competition Award',
+    story:
+      "The competition system determines the player's award.\n\n• Score >= 95 ➡ Gold\n• Score >= 85 ➡ Silver\n• Otherwise ➡ Bronze",
+    lesson:
+      'The else if statement evaluates multiple conditions in sequence to determine the award.',
+    code: 'if(score >= 95)\n{\n    AwardGold();\n}\nelse if(score >= 85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}',
+    sceneBg: pcImg,
+    prompt: 'CHALLENGE: Choose & Type the CORRECT syntax',
+    choices: [
+      'if(score >= 95)\n{\n    AwardGold();\n}\nelseif(score >= 85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}',
+      'if(score >= 95)\n{\n    AwardGold();\n}\nelse if(score >= 85)\n    AwardSilver();\nelse\n{\n    AwardBronze();\n}',
+      'if(score >= 95)\n{\n    AwardGold();\n}\nelse if(score >= 85)\n{\n    AwardSilver();\n}\nelse\n{\n    AwardBronze();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(score >= 95)\n{\n    AwardGold();\n}\nelse if(score >= 85)\n    AwardSilver();\nelse\n{\n    AwardBronze();\n}',
+      incorrectNote: 'Every block should be enclosed with braces {}.',
+      correctNote: 'Every block should be enclosed with braces {}.',
+      anatomy: [
+        { text: 'if', label: 'Checks the first condition.' },
+        { text: 'score >= 95', label: 'Tests for a Gold award.' },
+        {
+          text: 'else if',
+          label: 'Checks another condition when the first one is false.',
+        },
+        { text: 'score >= 85', label: 'Tests for a Silver award.' },
+        { text: 'else', label: 'Handles every remaining score (Bronze).' },
+      ],
+      flow: [
+        'START',
+        'Check score',
+        'score >= 95 ?',
+        'YES → AwardGold()',
+        'NO → score >= 85 ?',
+        'YES → AwardSilver()',
+        'NO → AwardBronze()',
+        'END',
+      ],
+      takeaway: 'Every block should be enclosed with braces {}.',
+    },
+  },
+  '3:5': {
+    chapter: 3,
+    mission: 5,
+    title: 'Final Laboratory Performance',
+    story:
+      "The university evaluates the student's final laboratory performance.\n\n• 90-100 ➡ Excellent\n• 80-89 ➡ Very Good\n• 75-79 ➡ Good\n• Below 75 ➡ Needs Improvement",
+    lesson:
+      'Chaining multiple else if statements allows a program to test several conditions sequentially.',
+    code: 'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 80)\n{\n    ShowVeryGood();\n}\nelse if(score >= 75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+    sceneBg: pcImg,
+    prompt: 'CHALLENGE: Choose & Type the CORRECT syntax',
+    choices: [
+      'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 80)\n{\n    ShowVeryGood();\n}\nelse if(score >= 75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+      'if(score >= 90)\n{\n    ShowExcellent();\n}\nelseif(score >= 80)\n{\n    ShowVeryGood();\n}\nelse if(score >= 75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+      'if(score >= 90)\n{\n    ShowExcellent();\n}\nelse if(score >= 80)\n{\n    ShowVeryGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}\nelse if(score >= 75)\n{\n    ShowGood();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'if(score >= 90)\n{\n    ShowExcellent();\n}\nelseif(score >= 80)\n{\n    ShowVeryGood();\n}\nelse if(score >= 75)\n{\n    ShowGood();\n}\nelse\n{\n    ShowNeedsImprovement();\n}',
+      incorrectNote: 'Always write else if as two separate words.',
+      correctNote: 'The else if statement evaluates multiple conditions in sequence.',
+      anatomy: [
+        { text: 'if', label: 'First decision to check.' },
+        { text: 'score >= 90', label: 'Condition for Excellent (90-100).' },
+        { text: 'else if', label: 'Second decision when first is false.' },
+        { text: 'score >= 80', label: 'Condition for Very Good (80-89).' },
+        { text: 'else if', label: 'Third decision when second is false.' },
+        { text: 'score >= 75', label: 'Condition for Good (75-79).' },
+        { text: 'else', label: 'Fallback when all previous are false.' },
+        { text: 'ShowNeedsImprovement();', label: 'Action for scores below 75.' },
+      ],
+      flow: [
+        'START',
+        'Check score',
+        'score >= 90?',
+        'YES → ShowExcellent()',
+        'NO → score >= 80?',
+        'YES → ShowVeryGood()',
+        'NO → score >= 75?',
+        'YES → ShowGood()',
+        'NO → ShowNeedsImprovement()',
+        'END',
+      ],
+      takeaway:
+        'Chaining else if allows evaluating complex multi-tier decision paths accurately.',
+    },
+  },
+  '4:1': {
+    chapter: 4,
+    mission: 1,
+    title: 'Campus Self-Service Kiosk',
+    story:
+      'The university kiosk offers different services:\n\n• Option 1 ➡ View Schedule\n• Option 2 ➡ View Grades\n• Option 3 ➡ Print Registration Form\n• Default ➡ Invalid Option',
+    lesson:
+      'The switch statement is best when selecting one action from multiple fixed options.',
+    code: 'switch(option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n    case 2:\n        ViewGrades();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
+    sceneBg: hallwayImg,
+    questions: [
+      {
+        prompt: 'Which C# control structure is most appropriate for this situation?',
+        choices: ['else if', 'switch', 'while'],
+      },
+      {
+        prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+        situation:
+          'The kiosk asks the player to select an option to check their class schedule. Complete the switch statement with case 1 to view schedule, case 2 to view grades, and default to show invalid option.',
+        choices: [
+          'switch(option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n    case 2:\n        ViewGrades();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
+          'switch(option)\n{\n    case 1\n        ViewSchedule();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
+          'switch(option)\n{\n    case 1:\n        ViewSchedule();\n    default:\n        ShowInvalidOption();\n}',
+        ],
+      },
+    ],
+    core: {
+      incorrectExample:
+        'switch(option)\n{\n    case 1\n        ViewSchedule();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
+      incorrectNote:
+        'Each case label must include a value followed by a colon (:).',
+      correctNote:
+        'The switch statement checks the value of option and executes the matching case.',
+      anatomy: [
+        { text: 'switch(option)', label: 'Evaluates the value of option.' },
+        { text: 'case 1:', label: 'Executes when option is 1.' },
+        { text: 'ViewSchedule();', label: 'Displays the class schedule.' },
+        { text: 'break;', label: 'Ends the selected case and exits switch.' },
+        { text: 'default:', label: 'Executes when none of the cases match.' },
+      ],
+      flow: [
+        'START',
+        'Check option',
+        'option == 1?',
+        'YES → ViewSchedule()',
+        'NO → option == 2?',
+        'YES → ViewGrades()',
+        'NO → ShowInvalidOption()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The break; statement ends the selected case and exits the switch.',
+    },
+  },
+  '4:2': {
+    chapter: 4,
+    mission: 2,
+    title: 'Select a Laboratory Computer',
+    story:
+      'Students are assigned to different computers:\n\n• Computer 1\n• Computer 2\n• Computer 3\n\nDisplay the correct workstation based on the selected computer number.',
+    lesson:
+      'Each case represents a possible value. When pcNumber matches a case, the statements inside that case are executed.',
+    code: 'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2:\n        OpenPC2();\n        break;\n    default:\n        DisplayUnavailable();\n        break;\n}',
+    sceneBg: profClassroomImg,
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2\n        OpenPC2();\n        break;\n}',
+      'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2:\n        OpenPC2();\n        break;\n    default:\n        DisplayUnavailable();\n        break;\n}',
+      'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n    case 2:\n        OpenPC2();\n    default:\n        DisplayUnavailable();\n}',
+    ],
+    core: {
+      incorrectExample:
+        'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2\n        OpenPC2();\n        break;\n}',
+      incorrectNote:
+        'Missing colon after case 2 and no default block for unavailable workstations.',
+      correctNote:
+        'Each case represents a possible value. The default block runs when none match.',
+      anatomy: [
+        { text: 'switch(pcNumber)', label: 'Evaluates the selected PC number.' },
+        { text: 'case 1:', label: 'Runs when pcNumber is 1.' },
+        { text: 'OpenPC1();', label: 'Opens Computer 1.' },
+        { text: 'case 2:', label: 'Runs when pcNumber is 2.' },
+        { text: 'OpenPC2();', label: 'Opens Computer 2.' },
+        { text: 'default:', label: 'Fallback if computer number is not found.' },
+        { text: 'DisplayUnavailable();', label: 'Shows workstation is unavailable.' },
+      ],
+      flow: [
+        'START',
+        'Check pcNumber',
+        'pcNumber == 1?',
+        'YES → OpenPC1()',
+        'NO → pcNumber == 2?',
+        'YES → OpenPC2()',
+        'NO → DisplayUnavailable()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'When pcNumber matches a case, the statements inside that case are executed.',
+    },
+  },
+  '4:3': {
+    chapter: 4,
+    mission: 3,
+    title: 'Choose a Programming Exercise',
+    story:
+      "Today's laboratory lets students choose an exercise:\n\n• 1 ➡ Variables\n• 2 ➡ Operators\n• 3 ➡ Control Structures\n\nDisplay the selected activity.",
+    lesson:
+      'The default block executes when none of the listed case values match the selected value.',
+    code: 'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n    case 2:\n        ShowOperators();\n        break;\n    case 3:\n        ShowControlStructures();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
+    sceneBg: ch4PCActivityImg,
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'switch(choice)\n{\ncase 1:\nShowVariables();\nbreak;\ncase 2:\nShowOperators();\nbreak;\n}',
+      'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n    case 2:\n        ShowOperators();\n        break;\n    default\n        InvalidChoice();\n        break;\n}',
+      'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n    case 2:\n        ShowOperators();\n        break;\n    case 3:\n        ShowControlStructures();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n    case 2:\n        ShowOperators();\n        break;\n    default\n        InvalidChoice();\n        break;\n}',
+      incorrectNote: 'The default keyword must always be followed by a colon (:).',
+      correctNote: 'The default block executes when none of the cases match.',
+      anatomy: [
+        { text: 'switch(choice)', label: 'Checks the user choice.' },
+        { text: 'case 1:', label: 'Shows Variables lesson.' },
+        { text: 'case 2:', label: 'Shows Operators lesson.' },
+        { text: 'case 3:', label: 'Shows Control Structures lesson.' },
+        { text: 'default:', label: 'Handles invalid inputs.' },
+        { text: 'InvalidChoice();', label: 'Displays invalid choice message.' },
+      ],
+      flow: [
+        'START',
+        'Check choice',
+        'choice == 1?',
+        'YES → ShowVariables()',
+        'NO → choice == 2?',
+        'YES → ShowOperators()',
+        'NO → choice == 3?',
+        'YES → ShowControlStructures()',
+        'NO → InvalidChoice()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The default block executes when none of the listed case values match.',
+    },
+  },
+  '4:4': {
+    chapter: 4,
+    mission: 4,
+    title: 'Select a Campus Destination',
+    story:
+      'The campus navigation system helps students find different locations:\n\n• 1 ➡ Library\n• 2 ➡ Cafeteria\n• 3 ➡ Programming Laboratory\n\nDisplay the correct destination.',
+    lesson:
+      'Each case label uses the keyword case, followed by a value and a colon :.',
+    code: 'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n    case 2:\n        GoToCafeteria();\n        break;\n    case 3:\n        GoToProgrammingLab();\n        break;\n    default:\n        ShowInvalidDestination();\n        break;\n}',
+    sceneBg: ch4DestinationImg,
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n    case 2:\n        GoToCafeteria();\n        break;\n    case 3:\n        GoToProgrammingLab();\n        break;\n    default:\n        ShowInvalidDestination();\n        break;\n}',
+      'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n    case 2:\n        GoToCafeteria();\n    case 3:\n        GoToProgrammingLab();\n}',
+      'switch(destination)\n{\ncase1:\nGoToLibrary();\nbreak;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'switch(destination)\n{\ncase1:\nGoToLibrary();\nbreak;\n}',
+      incorrectNote: 'case and the value must have a space between them (e.g. case 1:).',
+      correctNote: 'Each case label must include a value followed by a colon (:).',
+      anatomy: [
+        { text: 'switch(destination)', label: 'Checks destination number.' },
+        { text: 'case 1:', label: 'Sends student to the Library.' },
+        { text: 'case 2:', label: 'Sends student to the Cafeteria.' },
+        { text: 'case 3:', label: 'Sends student to the Programming Lab.' },
+        { text: 'default:', label: 'Handles invalid destination numbers.' },
+        { text: 'ShowInvalidDestination();', label: 'Displays invalid destination.' },
+      ],
+      flow: [
+        'START',
+        'Check destination',
+        'destination == 1?',
+        'YES → GoToLibrary()',
+        'NO → destination == 2?',
+        'YES → GoToCafeteria()',
+        'NO → destination == 3?',
+        'YES → GoToProgrammingLab()',
+        'NO → ShowInvalidDestination()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'Each case label uses the keyword case, followed by a value and a colon :.',
+    },
+  },
+  '4:5': {
+    chapter: 4,
+    mission: 5,
+    title: 'Programming Laboratory Menu',
+    story:
+      'The Programming Laboratory menu lets students choose an action:\n\n• 1 ➡ Start Coding\n• 2 ➡ View Instructions\n• 3 ➡ Exit Laboratory\n\nWrite the correct switch statement.',
+    lesson:
+      'The switch statement allows a program to select one action from several fixed options cleanly and efficiently.',
+    code: 'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n    case 2:\n        ViewInstructions();\n        break;\n    case 3:\n        ExitLab();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
+    sceneBg: profClassroomImg,
+    prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
+    choices: [
+      'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n    case 2:\n        ViewInstructions();\n        break;\n    case 3:\n        ExitLab();\n        break;\n    default\n        InvalidChoice();\n        break;\n}',
+      'switch(menu)\n{\n    case 1\n        StartCoding();\n        break;\n}',
+      'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n    case 2:\n        ViewInstructions();\n        break;\n    case 3:\n        ExitLab();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'switch(menu)\n{\n    case 1\n        StartCoding();\n        break;\n}',
+      incorrectNote: 'Missing colon after case 1 and missing cases 2, 3 and default.',
+      correctNote: 'The switch statement cleanly routes execution based on fixed values.',
+      anatomy: [
+        { text: 'switch(menu)', label: 'Checks the selected menu option.' },
+        { text: 'case 1:', label: 'Starts the coding activity.' },
+        { text: 'case 2:', label: 'Displays laboratory instructions.' },
+        { text: 'case 3:', label: 'Exits the laboratory safely.' },
+        { text: 'default:', label: 'Handles invalid inputs.' },
+        { text: 'InvalidChoice();', label: 'Displays invalid choice message.' },
+      ],
+      flow: [
+        'START',
+        'Check menu',
+        'menu == 1?',
+        'YES → StartCoding()',
+        'NO → menu == 2?',
+        'YES → ViewInstructions()',
+        'NO → menu == 3?',
+        'YES → ExitLab()',
+        'NO → InvalidChoice()',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'switch checks one value, runs the matching case, and break stops the switch.',
     },
   },
 }

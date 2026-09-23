@@ -261,7 +261,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
 }
@@ -270,17 +270,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .flow-step-text {
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
+  font-size: clamp(12px, 1.35vw, 15px);
+  line-height: 1.45;
   color: #ffffff;
   background: #39416e;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border: 2px solid #5a659e;
+  border-radius: 8px;
+  padding: 10px 18px;
   text-align: center;
   max-width: 100%;
   box-sizing: border-box;
@@ -325,7 +327,8 @@
 
 .flow-arrow {
   font-family: 'Press Start 2P', monospace;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: bold;
   color: #ffe066;
 }
 
@@ -450,8 +453,30 @@
   border-radius: 5px;
 }
 
-/* Narrow screens: stack the panels and the lower row. */
-@media (max-width: 720px) {
+/* Narrow screens: make full screen on mobile and stack panels. */
+@media (max-width: 768px) {
+  .core-screen {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .core-card {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 16px 12px 24px;
+    gap: 12px;
+  }
+
+  .core-title {
+    font-size: clamp(0.95rem, 4.2vw, 1.3rem);
+  }
+
   .core-compare,
   .core-lower {
     grid-template-columns: 1fr;

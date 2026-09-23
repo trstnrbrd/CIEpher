@@ -81,6 +81,9 @@ function App() {
   // replacing it, so closing them restores the exact screen and prologue
   // page the player was on.
   const [journalOpen, setJournalOpen] = useState<boolean>(false)
+  const [journalChapter, setJournalChapter] = useState<number | undefined>(
+    undefined,
+  )
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false)
 
   const navigate = useCallback((nextView: GameView): void => {
@@ -216,7 +219,10 @@ function App() {
   }
   const openMission = (chapter: number, mission: number): void =>
     navigate({ screen: 'mission', chapter, mission })
-  const openJournal = (): void => setJournalOpen(true)
+  const openJournal = (targetChapter?: number): void => {
+    setJournalChapter(targetChapter)
+    setJournalOpen(true)
+  }
   const openSettings = (): void => setSettingsOpen(true)
 
   let screen: ReactNode
@@ -263,7 +269,11 @@ function App() {
       {screen}
       {journalOpen && (
         <JournalScreen
-          onBack={() => setJournalOpen(false)}
+          initialChapter={journalChapter}
+          onBack={() => {
+            setJournalOpen(false)
+            setJournalChapter(undefined)
+          }}
           onUnauthorized={handleLogout}
         />
       )}
