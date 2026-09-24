@@ -4,7 +4,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(11);
+select plan(15);
 
 -- A test player. Everything here is rolled back at the end.
 insert into auth.users (id, email) values
@@ -119,6 +119,54 @@ select throws_ok(
   'players cannot record tries themselves'
 );
 set local role postgres;
+
+-- The attempt log: every answer is kept, with what was typed, so the study
+-- can see which question is hard and what students type instead.
+
+-- 12. Players can never read it.
+set local role postgres;
+select ok(
+  not has_table_privilege('authenticated', 'public.mission_attempts', 'select')
+    and not has_table_privilege('anon', 'public.mission_attempts', 'select'),
+  'players cannot read the attempt log'
+);
+
+-- 13. Every try above was logged, right or wrong.
+select is(
+  (select count(*)::int from public.mission_attempts
+   where player_id = '11111111-1111-1111-1111-111111111111'),
+  5,
+  'every answer is logged, including the replay (the two refused calls are not)'
+);
+
+-- 14. The new version keeps what was typed.
+set local role service_role;
+do $$ begin perform public.record_mission_attempt(
+  '11111111-1111-1111-1111-111111111111', 0, 3, 1, false, 'RideJeep:'); end $$;
+set local role postgres;
+select results_eq(
+  $$select question, answer, correct from public.mission_attempts
+    where player_id = '11111111-1111-1111-1111-111111111111'
+      and chapter_id = 0 and mission_number = 3
+    order by id desc limit 1$$,
+  $$values (1::smallint, 'RideJeep:', false)$$,
+  'the typed answer is kept with the try'
+);
+
+-- 15. The old five-argument version still works during a deploy, with no
+--     answer text.
+set local role service_role;
+do $$ begin perform public.record_mission_attempt(
+  '11111111-1111-1111-1111-111111111111', 0, 3, 1, true); end $$;
+set local role postgres;
+select results_eq(
+  $$select answer is null from public.mission_attempts
+    where player_id = '11111111-1111-1111-1111-111111111111'
+      and chapter_id = 0 and mission_number = 3
+    order by id desc limit 1$$,
+  $$values (true)$$,
+  'the old version still records a try, without the answer'
+);
 
 select * from finish();
 rollback;

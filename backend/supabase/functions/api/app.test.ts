@@ -1,7 +1,7 @@
 import { assertEquals, assertFalse } from "@std/assert";
 import type { Accounts, Player } from "./accounts.ts";
 import { type AppConfig, createApp } from "./app.ts";
-import { ApiError } from "./errors.ts";
+import { answerLimitError, ApiError } from "./errors.ts";
 import { type Exam, isExam } from "./exam.ts";
 import type { Game } from "./game.ts";
 import type { LoginInput, RegisterInput, SubmitInput } from "./schemas.ts";
@@ -875,6 +875,27 @@ Deno.test("submit: an empty answer is a 400 that names the field", async () => {
   });
 });
 
+// A 0 byte cannot be stored in Postgres text, and the answer is kept now
+// (mission_attempts). Nobody can type one, but a script can send it.
+Deno.test(
+  "submit: an answer with a 0 byte in it is a 400, not a crash",
+  async () => {
+    const res = await submit({
+      ...MISSION_1,
+      answer: "OpenDoor();\u0000x",
+    });
+    assertEquals(res.status, 400);
+    assertEquals(await res.json(), {
+      error: {
+        code: "VALIDATION_ERROR",
+        message:
+          "That answer has a character we can't read. Please type it again.",
+        field: "answer",
+      },
+    });
+  },
+);
+
 Deno.test("submit: an answer over 500 characters is a 400", async () => {
   const res = await submit({ ...MISSION_1, answer: "x".repeat(501) });
   assertEquals(res.status, 400);
@@ -1118,4 +1139,59 @@ Deno.test("exam: only chapter 8 mission 1 is the exam", () => {
   assertFalse(isExam(8, 2));
   assertFalse(isExam(7, 1));
   assertFalse(isExam(0, 1));
+});
+
+// ---------- the speed limit on answers ----------
+
+const TOO_FAST = {
+  error: {
+    code: "TOO_MANY_ANSWERS",
+    message: "You're answering too fast. Wait a moment, then try again.",
+  },
+};
+
+Deno.test(
+  "speed limit: the database's PT429 becomes a 429, anything else stays a bug",
+  () => {
+    const limited = answerLimitError({ code: "PT429" });
+    assertEquals(limited?.status, 429);
+    assertEquals(limited?.code, "TOO_MANY_ANSWERS");
+    assertEquals(answerLimitError({ code: "P0002" }), null);
+    assertEquals(answerLimitError({}), null);
+  },
+);
+
+Deno.test("speed limit: a mission answer over the limit is a 429", async () => {
+  const app = testApp({
+    game: fakeGame({
+      submitAnswer: () => {
+        throw answerLimitError({ code: "PT429" });
+      },
+    }),
+  });
+  const res = await submit(
+    { ...MISSION_1, answer: "OpenDoor();" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 429);
+  assertEquals(await res.json(), TOO_FAST);
+});
+
+Deno.test("speed limit: an exam answer over the limit is a 429", async () => {
+  const app = testApp({
+    exam: fakeExam({
+      answer: () => {
+        throw answerLimitError({ code: "PT429" });
+      },
+    }),
+  });
+  const res = await examPost(
+    "answer",
+    { question: 1, answer: "x" },
+    "valid-token",
+    app,
+  );
+  assertEquals(res.status, 429);
+  assertEquals(await res.json(), TOO_FAST);
 });

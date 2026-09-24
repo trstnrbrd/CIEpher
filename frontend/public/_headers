@@ -1,0 +1,12 @@
+# How long browsers may keep each file (Cloudflare Workers static assets).
+#
+# Everything under /assets/ has a content hash in its name (for example
+# index-Pk2jzgOr.js), and every new build gives a changed file a new name. So a
+# browser can keep these for a year and still never show an old version.
+# Without this, every visit re-checks every file, which is slow on school
+# Wi-Fi and phone data.
+#
+# index.html is left alone on purpose: it must always be fresh, because it is
+# the file that points to the newest assets.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

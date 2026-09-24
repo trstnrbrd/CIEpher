@@ -362,6 +362,7 @@ What to do with the result:
 | 403    | `MISSION_LOCKED`     | The screen opened a mission that isn't unlocked yet: refresh with `getProgress()`                               |
 | 404    | `MISSION_NOT_FOUND`  | Wrong chapter or mission number: a bug in the mission data                                                      |
 | 404    | `QUESTION_NOT_FOUND` | That mission has no such question number: a bug in the mission data                                             |
+| 429    | `TOO_MANY_ANSWERS`   | More than 30 answers in a minute (only a script gets there). Show the message under the question; EXECUTE works again after a minute |
 
 ### ✅ `POST /exam/start`, `POST /exam/answer`, `POST /exam/finish` (logged in)
 
@@ -410,6 +411,7 @@ The pass mark is 70% of the items, rounded up (7 of 10), and it is decided by th
 | 403    | `MISSION_LOCKED`     | Chapters 1-7 are not all finished yet: refresh with `getProgress()`                       |
 | 404    | `QUESTION_NOT_FOUND` | No such item number: a bug in the exam data                                               |
 | 409    | `NO_EXAM_RUNNING`    | `answer`/`finish` before `start`, or after the attempt was finished: call `start` first    |
+| 429    | `TOO_MANY_ANSWERS`   | More than 30 answers in a minute, missions and exam together. Same as for missions        |
 
 ## Not in the API (use supabase-js directly)
 

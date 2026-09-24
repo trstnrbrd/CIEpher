@@ -20,6 +20,19 @@ export class ApiError extends Error {
   }
 }
 
+// The database refuses an answer with this SQLSTATE when a player sends more
+// than 30 a minute (the answer_rate_limit migration). It's the speed limit
+// working, not a bug, so it becomes a 429 instead of a 500.
+export function answerLimitError(error: { code?: string }): ApiError | null {
+  return error.code === "PT429"
+    ? new ApiError(
+        429,
+        "TOO_MANY_ANSWERS",
+        "You're answering too fast. Wait a moment, then try again.",
+      )
+    : null;
+}
+
 // Sends a bug to error monitoring (Sentry in index.ts, a fake in tests).
 // Gets only the error and the route: never the request body, headers or player.
 export type ReportError = (error: unknown, context: { route: string }) => void;
