@@ -56,12 +56,29 @@ export type SceneId =
   | 'ch4Scene12'
   | 'ch4SceneEnterLab'
   | 'ch4Scene21'
+  | 'ch4Scene2Video'
   | 'ch4Scene22'
   | 'ch4Scene31'
   | 'ch4Scene32'
   | 'ch4Scene41'
+  | 'ch4Scene4Video'
   | 'ch4Scene42'
+  | 'ch4Scene43'
   | 'ch4Complete'
+  | 'ch5Scene12'
+  | 'ch5Situation2'
+  | 'ch5M1Video'
+  | 'ch5Scene22'
+  | 'ch5Scene3Video'
+  | 'ch5Scene31'
+  | 'ch5Scene42'
+  | 'ch6Scene11'
+  | 'ch6Scene12'
+  | 'ch6Scene21'
+  | 'ch6Scene22'
+  | 'ch6Scene31'
+  | 'ch6Scene41'
+  | 'ch6Scene42'
 
 export type CorrectStep =
   | { kind: 'core' }
@@ -139,30 +156,87 @@ const POST_CORRECT_STEPS: Record<string, (question: number) => CorrectStep[]> =
       question === 1
         ? [
             { kind: 'core' },
+            { kind: 'scene', id: 'ch4Scene11' },
             { kind: 'advance-question' },
           ]
         : [
             { kind: 'core' },
+            { kind: 'scene', id: 'ch4Scene12' },
             { kind: 'scene', id: 'ch4SceneEnterLab' },
           ],
     '4:2': () => [
       { kind: 'core' },
       { kind: 'scene', id: 'ch4Scene21' },
-      { kind: 'scene', id: 'ch4Scene22' },
+      { kind: 'scene', id: 'ch4Scene2Video' },
     ],
     '4:3': () => [
       { kind: 'core' },
       { kind: 'scene', id: 'ch4Scene31' },
-      { kind: 'scene', id: 'ch4Scene32' },
     ],
     '4:4': () => [
       { kind: 'core' },
       { kind: 'scene', id: 'ch4Scene41' },
+      { kind: 'scene', id: 'ch4Scene4Video' },
       { kind: 'scene', id: 'ch4Scene42' },
+      { kind: 'scene', id: 'ch4Scene43' },
     ],
     '4:5': () => [
       { kind: 'core' },
       { kind: 'scene', id: 'ch4Complete' },
+    ],
+    '5:1': (question) =>
+      question === 1
+        ? [
+            { kind: 'scene', id: 'ch5Scene12' },
+            { kind: 'scene', id: 'ch5Situation2' },
+            { kind: 'advance-question' },
+          ]
+        : [
+            { kind: 'core' },
+            { kind: 'scene', id: 'ch5M1Video' },
+          ],
+    '5:2': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch5Scene22' },
+    ],
+    '5:3': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch5Scene3Video' },
+      { kind: 'scene', id: 'ch5Scene31' },
+    ],
+    '5:4': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch5Scene42' },
+    ],
+    '5:5': () => [
+      { kind: 'core' },
+    ],
+    '6:1': (question) =>
+      question === 1
+        ? [
+            { kind: 'scene', id: 'ch6Scene11' },
+            { kind: 'advance-question' },
+          ]
+        : [
+            { kind: 'core' },
+            { kind: 'scene', id: 'ch6Scene12' },
+          ],
+    '6:2': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch6Scene21' },
+      { kind: 'scene', id: 'ch6Scene22' },
+    ],
+    '6:3': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch6Scene31' },
+    ],
+    '6:4': () => [
+      { kind: 'core' },
+      { kind: 'scene', id: 'ch6Scene41' },
+      { kind: 'scene', id: 'ch6Scene42' },
+    ],
+    '6:5': () => [
+      { kind: 'core' },
     ],
   }
 

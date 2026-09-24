@@ -147,15 +147,15 @@
    Professor Reyes raised in front of the blackboard. */
 .story-scene-chapter3-room .story-person,
 .story-scene-chapter3-room .story-person.story-person-left {
-  --size: calc(84 * var(--h));
+  --size: calc(105 * var(--h));
   left: 20%;
-  bottom: calc(-10 * var(--h));
+  bottom: calc(-42 * var(--h));
 }
 
 .story-scene-chapter3-room .story-professor {
-  --size: calc(66 * var(--h));
+  --size: calc(55 * var(--h));
   right: auto;
-  bottom: calc(22 * var(--h));
+  bottom: calc(18 * var(--h));
   left: 50%;
   transform: translateX(-50%);
 }
@@ -275,6 +275,98 @@
   border-style: solid;
   border-width: 14px 14px 0 0;
   border-color: #fffff2 transparent transparent transparent;
+}
+
+.story-scene-chapter3-room .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-white .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #111111 !important;
+  margin-top: 1.2em;
+}
+
+/* Player response in Chapter 3 room (matching Chapter 4 Part 4 post-video Scene 4.3 page 2, Image 3) */
+.story-scene-chapter3-room .story-bubble.story-bubble-player {
+  top: calc(14 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 23% !important;
+  right: auto !important;
+  transform: none !important;
+  width: min(28vw, calc(46 * var(--h))) !important;
+  min-width: 140px !important;
+  box-sizing: border-box !important;
+  padding: clamp(10px, 1.2vw, 16px) clamp(14px, 1.5vw, 22px) !important;
+  background: #fffff2 !important;
+  border-radius: 4px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-player::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -14px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 14px 14px 0 0 !important;
+  border-color: #fffff2 transparent transparent transparent !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-player .story-tap {
+  display: none !important;
+}
+
+/* Student dialogue on the left in Chapter 5 Part 1 Scene 1.2 (matching Image 5) */
+.story-scene-chapter3-room .story-bubble.story-bubble-left {
+  top: calc(4 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 14% !important;
+  right: auto !important;
+  transform: none !important;
+  width: min(42vw, calc(72 * var(--h))) !important;
+  box-sizing: border-box !important;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 26px) !important;
+  background: #fffff2 !important;
+  border-radius: 4px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-left::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -14px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 14px 14px 0 0 !important;
+  border-color: #fffff2 transparent transparent transparent !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-left .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+}
+
+.story-scene-chapter3-room .story-bubble.story-bubble-left .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #111111 !important;
+  margin-top: 1.2em !important;
+  display: block !important;
 }
 
 /* Monitor scenes with player on the right (Scenes 1, 3, 6 matching Canva screenshots) */
@@ -666,15 +758,16 @@
 
   .story-scene-chapter3-room .story-person,
   .story-scene-chapter3-room .story-person.story-person-left {
-    --size: calc(62 * var(--h));
+    --size: calc(85 * var(--h));
     left: 18%;
-    bottom: calc(-6 * var(--h));
+    bottom: calc(-32 * var(--h));
   }
 
   .story-scene-chapter3-room .story-professor {
-    --size: calc(52 * var(--h));
+    --size: calc(48 * var(--h));
     bottom: calc(18 * var(--h));
-    left: 58%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .story-text {
@@ -1371,83 +1464,356 @@
   }
 }
 
-/* Chapter 4 Hallway Kiosk Scene specific placements */
-.story-scene-chapter4-kiosk .story-person {
-  left: 17% !important;
-  right: auto !important;
-  bottom: calc(-4 * var(--h)) !important;
-  transform: translateX(-50%) !important;
-  --size: calc(82 * var(--h)) !important;
-  z-index: 3;
+/* Mouse cursor targets & animations on the campus kiosk */
+.story-kiosk-mouse-tapToBegin {
+  top: 36%;
+  left: 50.5%;
+  transform: translate(-50%, -50%);
+  animation: kioskTapAnimation 1.6s ease-in-out infinite;
 }
 
-.story-scene-chapter4-kiosk .story-professor {
-  right: 12% !important;
-  left: auto !important;
-  bottom: calc(-4 * var(--h)) !important;
-  --size: calc(76 * var(--h)) !important;
-  z-index: 3;
+@keyframes kioskTapAnimation {
+  0%, 100% {
+    top: 36%;
+    left: 50.5%;
+    transform: translate(-50%, -50%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    top: 37%;
+    left: 50.5%;
+    transform: translate(-50%, -50%) scale(0.85);
+    filter: drop-shadow(0 0 10px #ffbd2e);
+  }
 }
 
-/* Clean, themed dialogue box at top center with zero character overlap */
-.story-scene-chapter4-kiosk .story-bubble.story-bubble-white {
-  top: calc(6.5 * var(--h) + env(safe-area-inset-top, 0px)) !important;
-  left: 50% !important;
+.story-kiosk-mouse-checkSchedule {
+  top: 27%;
+  left: 32%;
+  transform: translate(-50%, -50%);
+  animation: kioskCheckScheduleAnimation 1.6s ease-in-out infinite;
+}
+
+@keyframes kioskCheckScheduleAnimation {
+  0%, 100% {
+    top: 27%;
+    left: 32%;
+    transform: translate(-50%, -50%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    top: 28%;
+    left: 32%;
+    transform: translate(-50%, -50%) scale(0.85);
+    filter: drop-shadow(0 0 10px #ff5f56);
+  }
+}
+
+.story-kiosk-mouse-schedule {
+  top: 27%;
+  left: 33%;
+  transform: translate(-50%, -50%);
+  animation: kioskScheduleAnimation 1.6s ease-in-out infinite;
+}
+
+@keyframes kioskScheduleAnimation {
+  0%, 100% {
+    top: 27%;
+    left: 33%;
+    transform: translate(-50%, -50%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    top: 28%;
+    left: 33%;
+    transform: translate(-50%, -50%) scale(0.85);
+    filter: drop-shadow(0 0 8px #ffd23f);
+  }
+}
+
+.story-kiosk-mouse-controlStructures {
+  top: 44.5% !important;
+  left: 22.5% !important;
+  width: clamp(24px, 3.2vw, 36px) !important;
+  transform: translate(-15%, -20%) !important;
+  animation: kioskControlStructuresAnimation 1.6s ease-in-out infinite !important;
+}
+
+@keyframes kioskControlStructuresAnimation {
+  0%, 100% {
+    top: 44.5% !important;
+    left: 22.5% !important;
+    transform: translate(-15%, -20%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    top: 45% !important;
+    left: 23% !important;
+    transform: translate(-15%, -20%) scale(0.88);
+    filter: drop-shadow(0 0 10px #ffd23f);
+  }
+}
+
+.story-kiosk-mouse-selectDestination {
+  top: 36% !important;
+  left: 45% !important;
+  width: clamp(24px, 3.2vw, 36px) !important;
+  transform: translate(-10%, -15%) !important;
+  animation: kioskCampusDestinationMouse 2.2s ease-in-out infinite !important;
+}
+
+@keyframes kioskCampusDestinationMouse {
+  0%, 100% {
+    top: 36%;
+    left: 45%;
+    transform: translate(-10%, -15%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  25% {
+    top: 35%;
+    left: 47%;
+    transform: translate(-10%, -15%) scale(1.04);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    top: 29.5%;
+    left: 63%;
+    transform: translate(-10%, -15%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+  65% {
+    top: 29.5%;
+    left: 63%;
+    transform: translate(-10%, -15%) scale(0.85);
+    filter: drop-shadow(0 0 12px #ffd23f);
+  }
+  80% {
+    top: 29.5%;
+    left: 63%;
+    transform: translate(-10%, -15%) scale(1);
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.6));
+  }
+}
+
+/* Chapter 4 Intro (room2.webp / room3.png): Professor on left, Kiosk in center, Player on right */
+.story-scene-chapter4-room2 .story-professor,
+.story-scene-chapter4-room3 .story-professor,
+.story-scene-chapter4-intro .story-professor {
+  left: 35.5% !important;
+  right: auto !important;
+  bottom: calc(0.5 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  --size: calc(55 * var(--h)) !important;
+  z-index: 3 !important;
+}
+
+.story-scene-chapter4-room2 .story-kiosk-wrap,
+.story-scene-chapter4-room3 .story-kiosk-wrap,
+.story-scene-chapter4-intro .story-kiosk-wrap {
+  left: 53% !important;
+  right: auto !important;
+  bottom: calc(0.5 * var(--h)) !important;
+  height: calc(46 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+}
+
+.story-scene-chapter4-room2 .story-person,
+.story-scene-chapter4-room3 .story-person,
+.story-scene-chapter4-intro .story-person {
+  left: 68% !important;
+  right: auto !important;
+  bottom: calc(0.5 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  --size: calc(60 * var(--h)) !important;
+  z-index: 3 !important;
+}
+
+.story-scene-chapter4-room2 .story-speaker,
+.story-scene-chapter4-room3 .story-speaker,
+.story-scene-chapter4-intro .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter4-room2 .story-bubble.story-bubble-white,
+.story-scene-chapter4-room3 .story-bubble.story-bubble-white,
+.story-scene-chapter4-intro .story-bubble.story-bubble-white {
+  top: calc(13.5 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 56% !important;
   right: auto !important;
   transform: translateX(-50%) !important;
-  width: min(580px, calc(100vw - 32px)) !important;
+  width: min(390px, calc(88vw - 20px)) !important;
   box-sizing: border-box !important;
-  padding: clamp(12px, 1.4vw, 18px) clamp(16px, 2vw, 24px) !important;
-  background: #fffef5 !important;
-  border: 3px solid #ad201d !important;
-  border-radius: 18px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
-  color: #171420 !important;
+  padding: clamp(12px, 1.4vw, 18px) clamp(16px, 1.8vw, 22px) !important;
+  background: #fffff2 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  color: #000000 !important;
   z-index: 20 !important;
 }
 
-.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-speaker {
-  display: block;
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(10px, 1.1vw, 13px);
-  color: #ad201d;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.story-scene-chapter4-room2 .story-bubble.story-bubble-white::after,
+.story-scene-chapter4-room3 .story-bubble.story-bubble-white::after,
+.story-scene-chapter4-intro .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -20px !important;
+  left: 22px !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-top: 20px solid #fffff2 !important;
+  border-right: 22px solid transparent !important;
+  border-left: 0 !important;
+  z-index: 21 !important;
 }
 
-.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-text {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(9px, 1.05vw, 12px);
-  line-height: 1.6;
-  color: #171420;
-  text-align: center;
+.story-scene-chapter4-room2 .story-bubble.story-bubble-white .story-text,
+.story-scene-chapter4-room3 .story-bubble.story-bubble-white .story-text,
+.story-scene-chapter4-intro .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(9px, 1.05vw, 12px) !important;
+  line-height: 1.7 !important;
+  color: #000000 !important;
+  text-align: center !important;
 }
 
-.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-tap {
-  font-size: clamp(8px, 0.85vw, 10px);
-  color: #8c1c1c;
-  margin-top: 6px;
+.story-scene-chapter4-room2 .story-bubble.story-bubble-white .story-tap,
+.story-scene-chapter4-room3 .story-bubble.story-bubble-white .story-tap,
+.story-scene-chapter4-intro .story-bubble.story-bubble-white .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #000000 !important;
+  margin-top: 10px !important;
+  display: block !important;
+}
+
+/* Chapter 4 Kiosk Room (room3.png / room2.webp): Kiosk on left, Player on right */
+.story-scene-chapter4-kiosk .story-kiosk-wrap,
+.story-scene-chapter4-kiosk-room2 .story-kiosk-wrap,
+.story-scene-chapter4-kiosk-room3 .story-kiosk-wrap {
+  left: 26.5% !important;
+  right: auto !important;
+  bottom: calc(4 * var(--h)) !important;
+  height: calc(56 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+}
+
+.story-scene-chapter4-kiosk .story-person,
+.story-scene-chapter4-kiosk-room2 .story-person,
+.story-scene-chapter4-kiosk-room3 .story-person {
+  left: 47% !important;
+  right: auto !important;
+  bottom: calc(4 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  --size: calc(60 * var(--h)) !important;
+  z-index: 3 !important;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white,
+.story-scene-chapter4-kiosk-room2 .story-bubble.story-bubble-white,
+.story-scene-chapter4-kiosk-room3 .story-bubble.story-bubble-white {
+  top: calc(8 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 72% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(410px, calc(85vw - 20px)) !important;
+  box-sizing: border-box !important;
+  padding: clamp(12px, 1.4vw, 18px) clamp(16px, 1.8vw, 24px) !important;
+  background: #fffdf0 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white::after,
+.story-scene-chapter4-kiosk-room2 .story-bubble.story-bubble-white::after,
+.story-scene-chapter4-kiosk-room3 .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -20px !important;
+  left: 40px !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-top: 20px solid #fffdf0 !important;
+  border-right: 22px solid transparent !important;
+  border-left: 0 !important;
+  z-index: 21 !important;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-text,
+.story-scene-chapter4-kiosk-room2 .story-bubble.story-bubble-white .story-text,
+.story-scene-chapter4-kiosk-room3 .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.15vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+  text-align: center !important;
+}
+
+.story-scene-chapter4-kiosk .story-bubble.story-bubble-white .story-tap,
+.story-scene-chapter4-kiosk-room2 .story-bubble.story-bubble-white .story-tap,
+.story-scene-chapter4-kiosk-room3 .story-bubble.story-bubble-white .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #000000 !important;
+  margin-top: 10px !important;
+  display: block !important;
 }
 
 @media (max-width: 680px) {
-  .story-scene-chapter4-kiosk .story-person {
-    left: 12% !important;
-    --size: calc(65 * var(--h)) !important;
+  .story-scene-chapter4-room2 .story-professor,
+  .story-scene-chapter4-room3 .story-professor,
+  .story-scene-chapter4-intro .story-professor {
+    left: 26% !important;
+    --size: calc(46 * var(--h)) !important;
   }
 
-  .story-scene-chapter4-kiosk .story-professor {
-    right: 4% !important;
-    --size: calc(65 * var(--h)) !important;
+  .story-scene-chapter4-room2 .story-kiosk-wrap,
+  .story-scene-chapter4-room3 .story-kiosk-wrap,
+  .story-scene-chapter4-intro .story-kiosk-wrap {
+    left: 52% !important;
+    height: calc(40 * var(--h)) !important;
   }
 
-  .story-scene-chapter4-kiosk .story-kiosk-wrap {
-    height: min(58vh, 390px);
-    bottom: calc(-3 * var(--h));
+  .story-scene-chapter4-room2 .story-person,
+  .story-scene-chapter4-room3 .story-person,
+  .story-scene-chapter4-intro .story-person {
+    left: 78% !important;
+    --size: calc(50 * var(--h)) !important;
   }
 
-  .story-scene-chapter4-kiosk .story-bubble.story-bubble-white {
-    top: calc(2 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  .story-scene-chapter4-room2 .story-bubble.story-bubble-white,
+  .story-scene-chapter4-room3 .story-bubble.story-bubble-white,
+  .story-scene-chapter4-intro .story-bubble.story-bubble-white {
+    top: calc(8 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    width: calc(100vw - 20px) !important;
+    padding: 10px 14px !important;
+  }
+
+  .story-scene-chapter4-kiosk .story-kiosk-wrap,
+  .story-scene-chapter4-kiosk-room2 .story-kiosk-wrap,
+  .story-scene-chapter4-kiosk-room3 .story-kiosk-wrap {
+    left: 28% !important;
+    height: calc(46 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-kiosk .story-person,
+  .story-scene-chapter4-kiosk-room2 .story-person,
+  .story-scene-chapter4-kiosk-room3 .story-person {
+    left: 65% !important;
+    --size: calc(50 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-kiosk .story-bubble.story-bubble-white,
+  .story-scene-chapter4-kiosk-room2 .story-bubble.story-bubble-white,
+  .story-scene-chapter4-kiosk-room3 .story-bubble.story-bubble-white {
+    top: calc(4 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
     width: calc(100vw - 20px) !important;
     padding: 10px 14px !important;
   }
@@ -1518,4 +1884,792 @@
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
+
+/* =========================================================================
+   Chapter 4 Part 2 — Scene 1: Choosing PC Room (Where should i sit?)
+   ========================================================================= */
+
+.story-scene-chapter4-choose-pc .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter4-choose-pc .story-person {
+  --size: calc(47 * var(--h));
+  position: absolute;
+  left: 49%;
+  bottom: calc(28 * var(--h));
+  height: var(--size);
+  width: auto;
+  transform: translateX(-50%);
+  object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+.story-scene-chapter4-choose-pc .story-bubble.story-bubble-white {
+  position: absolute;
+  top: 8.5%;
+  left: 53%;
+  width: min(240px, calc(86vw - 20px));
+  max-width: 90vw;
+  background: #ffffff;
+  border: 3px solid #111111;
+  border-radius: 8px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45);
+  padding: 12px 14px;
+  z-index: 5;
+}
+
+.story-scene-chapter4-choose-pc .story-bubble.story-bubble-white::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  bottom: -14px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 10px 0 0;
+  border-color: #ffffff transparent transparent transparent;
+  filter: drop-shadow(0 3px 0 #111111);
+}
+
+.story-scene-chapter4-choose-pc .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.2vw, 13px);
+  color: #111111;
+  line-height: 1.7;
+}
+
+.story-scene-chapter4-choose-pc .story-bubble.story-bubble-white .story-tap {
+  color: #555555;
+}
+
+/* =========================================================================
+   Chapter 4 Part 2 — Scene 2: PC 2 Working (This computer working i should sit here.)
+   ========================================================================= */
+
+.story-scene-chapter4-pc2-working .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter4-pc2-working .story-person {
+  --size: calc(105 * var(--h));
+  position: absolute;
+  left: 63.2%;
+  top: calc(27 * var(--h));
+  height: var(--size);
+  width: auto;
+  transform: translateX(-50%);
+  object-fit: contain;
+  clip-path: none !important;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+.story-monitor-pc2-screen-digit {
+  position: absolute;
+  left: 17.19%;
+  top: 41.48%;
+  width: 23.44%;
+  height: 30.93%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: calc(11 * var(--pic) / 100);
+  line-height: 1;
+  color: #01b52d;
+  text-shadow: 0 0 14px rgba(1, 181, 45, 0.75), 2px 2px 0 #005a0f;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+.story-scene-chapter4-pc2-working .story-bubble.story-bubble-white {
+  position: absolute;
+  top: 21%;
+  left: 74%;
+  width: min(220px, calc(86vw - 20px));
+  max-width: 90vw;
+  background: #ffffff;
+  border: 3px solid #111111;
+  border-radius: 8px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45);
+  padding: 10px 12px;
+  z-index: 5;
+}
+
+.story-scene-chapter4-pc2-working .story-bubble.story-bubble-white::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  bottom: -13px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 13px 9px 0 0;
+  border-color: #ffffff transparent transparent transparent;
+  filter: drop-shadow(0 3px 0 #111111);
+}
+
+.story-scene-chapter4-pc2-working .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.15vw, 12px);
+  color: #111111;
+  line-height: 1.6;
+}
+
+.story-scene-chapter4-pc2-working .story-bubble.story-bubble-white .story-tap {
+  color: #555555;
+  font-size: clamp(8px, 0.95vw, 10px);
+}
+
+/* Chapter 4 Part 3: Choosing Activity (room3.png with selectActivityPC on left, player in center, bubble on right) */
+.story-scene-chapter4-choose-activity .story-kiosk-wrap {
+  position: absolute !important;
+  left: 26% !important;
+  right: auto !important;
+  bottom: 0 !important;
+  height: calc(62 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  pointer-events: none !important;
+}
+
+.story-scene-chapter4-choose-activity .story-kiosk-img {
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+}
+
+.story-scene-chapter4-choose-activity .story-person {
+  position: absolute !important;
+  left: 63% !important;
+  right: auto !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  --size: calc(73 * var(--h)) !important;
+  height: var(--size) !important;
+  width: auto !important;
+  z-index: 3 !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  clip-path: none !important;
+}
+
+.story-scene-chapter4-choose-activity .story-bubble.story-bubble-white {
+  position: absolute !important;
+  top: calc(22 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 86% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(320px, calc(34vw)) !important;
+  box-sizing: border-box !important;
+  padding: 16px 20px !important;
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+  z-index: 10 !important;
+}
+
+.story-scene-chapter4-choose-activity .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -15px !important;
+  left: -14px !important;
+  width: 28px !important;
+  height: 18px !important;
+  background: #ffffff !important;
+  clip-path: polygon(0% 100%, 100% 0%, 45% 0%) !important;
+  z-index: 11 !important;
+}
+
+.story-scene-chapter4-choose-activity .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+  text-align: center !important;
+}
+
+.story-scene-chapter4-choose-activity .story-bubble.story-bubble-white .story-tap {
+  display: none !important;
+}
+
+@media (max-width: 680px) {
+  .story-scene-chapter4-choose-activity .story-kiosk-wrap {
+    left: 22% !important;
+    height: calc(48 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-choose-activity .story-person {
+    left: 65% !important;
+    --size: calc(56 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-choose-activity .story-bubble.story-bubble-white {
+    top: calc(8 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    width: calc(100vw - 24px) !important;
+    padding: 12px 16px !important;
+  }
+
+  .story-scene-chapter4-choose-activity .story-bubble.story-bubble-white::after {
+    left: 40px !important;
+    bottom: -14px !important;
+    clip-path: polygon(0% 100%, 100% 0%, 0% 0%) !important;
+  }
+}
+
+/* Chapter 4 Part 4: Choosing Destination (room3.png with selectACampusPC on left, player in center, bubble on right, card overlay on page 2) */
+.story-scene-chapter4-choose-destination .story-kiosk-wrap {
+  position: absolute !important;
+  left: 26% !important;
+  right: auto !important;
+  bottom: 0 !important;
+  height: calc(62 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  pointer-events: none !important;
+}
+
+.story-scene-chapter4-choose-destination .story-kiosk-img {
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+}
+
+.story-scene-chapter4-choose-destination .story-person {
+  position: absolute !important;
+  left: 63% !important;
+  right: auto !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  --size: calc(73 * var(--h)) !important;
+  height: var(--size) !important;
+  width: auto !important;
+  z-index: 3 !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  clip-path: none !important;
+}
+
+.story-scene-chapter4-choose-destination .story-bubble.story-bubble-white {
+  position: absolute !important;
+  top: calc(22 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 86% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(320px, calc(34vw)) !important;
+  box-sizing: border-box !important;
+  padding: 16px 20px !important;
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+  z-index: 10 !important;
+}
+
+.story-scene-chapter4-choose-destination .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -15px !important;
+  left: -14px !important;
+  width: 28px !important;
+  height: 18px !important;
+  background: #ffffff !important;
+  clip-path: polygon(0% 100%, 100% 0%, 45% 0%) !important;
+  z-index: 11 !important;
+}
+
+.story-scene-chapter4-choose-destination .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+  text-align: center !important;
+}
+
+.story-scene-chapter4-choose-destination .story-bubble.story-bubble-white .story-tap {
+  display: none !important;
+}
+
+.story-scene-chapter4-choose-destination .story-tap-layer .story-tap {
+  display: none !important;
+}
+
+/* Page 2: SelectADestination banner card at bottom of viewport */
+.story-scene-chapter4-choose-destination .story-destination-wrap {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 56vh !important;
+  z-index: 6 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.story-scene-chapter4-choose-destination .story-destination-img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 56vh !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+}
+
+@media (max-width: 680px) {
+  .story-scene-chapter4-choose-destination .story-kiosk-wrap {
+    left: 22% !important;
+    height: calc(48 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-choose-destination .story-person {
+    left: 65% !important;
+    --size: calc(56 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-choose-destination .story-bubble.story-bubble-white {
+    top: calc(8 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    width: calc(100vw - 24px) !important;
+    padding: 12px 16px !important;
+  }
+
+  .story-scene-chapter4-choose-destination .story-bubble.story-bubble-white::after {
+    left: 40px !important;
+    bottom: -14px !important;
+    clip-path: polygon(0% 100%, 100% 0%, 0% 0%) !important;
+  }
+
+  .story-scene-chapter4-choose-destination .story-destination-wrap {
+    height: 55vh !important;
+  }
+}
+
+/* Chapter 4 Part 4 Scene 4.2: Night Library (matching Screenshot 1) */
+.story-scene-chapter4-night-library .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter4-night-library .story-person {
+  --size: calc(72 * var(--h)) !important;
+  left: 35% !important;
+  bottom: calc(-10 * var(--h)) !important;
+  transform: translateX(-50%) !important;
+}
+
+.story-scene-chapter4-night-library .story-bubble.story-bubble-white {
+  top: calc(41 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 38% !important;
+  right: auto !important;
+  transform: none !important;
+  width: min(34vw, calc(54 * var(--h))) !important;
+  min-width: 220px !important;
+  box-sizing: border-box !important;
+  padding: clamp(10px, 1.2vw, 16px) clamp(14px, 1.6vw, 22px) !important;
+  background: #fffff2 !important;
+  border-radius: 4px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter4-night-library .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -14px !important;
+  left: 14% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 14px 14px 0 0 !important;
+  border-color: #fffff2 transparent transparent transparent !important;
+}
+
+.story-scene-chapter4-night-library .story-bubble.story-bubble-white .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+  text-align: left !important;
+}
+
+.story-scene-chapter4-night-library .story-bubble.story-bubble-white .story-tap {
+  display: none !important;
+}
+
+@media (max-width: 680px) {
+  .story-scene-chapter4-night-library .story-person {
+    --size: calc(58 * var(--h)) !important;
+    left: 35% !important;
+    bottom: calc(-6 * var(--h)) !important;
+  }
+
+  .story-scene-chapter4-night-library .story-bubble.story-bubble-white {
+    top: calc(34 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 320px !important;
+  }
+
+  .story-scene-chapter4-night-library .story-bubble.story-bubble-white::after {
+    left: 20% !important;
+  }
+
+  .story-scene-chapter3-room .story-bubble.story-bubble-player {
+    top: calc(12 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 18% !important;
+    width: min(45vw, 220px) !important;
+  }
+}
+
+/* Chapter 5 Part 2 Retro Computer Foreground */
+.story-retropc-wrap {
+  position: absolute;
+  left: 6%;
+  bottom: calc(-3 * var(--h));
+  height: calc(82 * var(--h));
+  width: auto;
+  z-index: 5;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
+}
+
+.story-retropc-img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Chapter 5 Part 2 Scene 2.1 — Professor Reyes in Classroom (Image 1) */
+.story-scene-chapter5-prof-classroom .story-bubble.story-bubble-white {
+  top: calc(7.5 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 53% !important;
+  right: auto !important;
+  width: min(44vw, calc(76 * var(--h))) !important;
+  transform: none !important;
+  background: #fffff2 !important;
+  border-radius: 4px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter5-prof-classroom .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -14px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 14px 14px 0 0 !important;
+  border-color: #fffff2 transparent transparent transparent !important;
+}
+
+/* Chapter 5 Part 2 Scene 2.1 & 2.2 — Room 3 with PC (Images 2, 3, 4) */
+.story-scene-chapter5-room3-pc .story-person {
+  left: 55% !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(88 * var(--h)) !important;
+  z-index: 4 !important;
+}
+
+.story-scene-chapter5-room3-pc .story-bubble.story-bubble-white {
+  top: calc(7 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 63% !important;
+  right: auto !important;
+  width: min(38vw, calc(66 * var(--h))) !important;
+  transform: none !important;
+  background: #fffff2 !important;
+  border-radius: 4px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+}
+
+.story-scene-chapter5-room3-pc .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -14px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 14px 14px 0 0 !important;
+  border-color: #fffff2 transparent transparent transparent !important;
+}
+
+/* Chapter 5 Part 2 Scene 2.2 — Room 3 with PC and Classmate Girl (Images 5, 6) */
+.story-scene-chapter5-room3-pc-classmate .story-person {
+  left: 45% !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(88 * var(--h)) !important;
+  z-index: 4 !important;
+}
+
+.story-scene-chapter5-room3-pc-classmate .story-staff {
+  left: 72% !important;
+  right: auto !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(88 * var(--h)) !important;
+  z-index: 4 !important;
+}
+
+/* Image 5: Classmate girl speaking */
+.story-scene-chapter5-room3-pc-classmate .story-bubble.story-bubble-staff {
+  top: calc(4 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 65% !important;
+  right: auto !important;
+  width: min(34vw, calc(58 * var(--h))) !important;
+  transform: none !important;
+  background: #fffff6 !important;
+  border-radius: 8px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+  padding: clamp(14px, 1.6vw, 22px) clamp(16px, 1.8vw, 24px) !important;
+}
+
+.story-scene-chapter5-room3-pc-classmate .story-bubble.story-bubble-staff::after {
+  display: none !important;
+}
+
+/* Image 6: Student player replying */
+.story-scene-chapter5-room3-pc-classmate .story-bubble.story-bubble-player {
+  top: calc(4 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 52% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(34vw, calc(58 * var(--h))) !important;
+  background: #fffff6 !important;
+  border-radius: 8px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+  padding: clamp(14px, 1.6vw, 22px) clamp(16px, 1.8vw, 24px) !important;
+}
+
+.story-scene-chapter5-room3-pc-classmate .story-bubble.story-bubble-player::after {
+  display: none !important;
+}
+
+/* Chapter 5 Scene 3.1 — Room 3 with Upload Files PC (Image 1) */
+.story-scene-chapter5-room3-upload .story-person {
+  left: 55% !important;
+  bottom: calc(-4 * var(--h)) !important;
+  --size: calc(88 * var(--h)) !important;
+  z-index: 4 !important;
+}
+
+.story-scene-chapter5-room3-upload .story-bubble.story-bubble-white {
+  top: calc(5 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+  left: 65% !important;
+  right: auto !important;
+  width: min(34vw, calc(58 * var(--h))) !important;
+  transform: none !important;
+  background: #fffff6 !important;
+  border-radius: 8px !important;
+  color: #111111 !important;
+  z-index: 20 !important;
+  padding: clamp(14px, 1.6vw, 22px) clamp(16px, 1.8vw, 24px) !important;
+}
+
+.story-scene-chapter5-room3-upload .story-bubble.story-bubble-white::after {
+  display: none !important;
+}
+
+.story-scene-chapter5-prof-classroom .story-text,
+.story-scene-chapter5-room3-pc .story-text,
+.story-scene-chapter5-room3-pc-classmate .story-text,
+.story-scene-chapter5-room3-upload .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  line-height: 1.6 !important;
+  color: #000000 !important;
+}
+
+.story-scene-chapter5-prof-classroom .story-tap,
+.story-scene-chapter5-room3-pc .story-tap,
+.story-scene-chapter5-room3-pc-classmate .story-tap,
+.story-scene-chapter5-room3-upload .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #111111 !important;
+  margin-top: 1.2em !important;
+  display: block !important;
+}
+
+/* Chapter 6 Lab Scenes (matching reference 2.webp) */
+.story-scene-chapter6-lab .story-person {
+  position: absolute !important;
+  left: 14% !important;
+  right: auto !important;
+  bottom: calc(-9 * var(--h)) !important;
+  --size: calc(78 * var(--h)) !important;
+  height: var(--size) !important;
+  width: auto !important;
+  transform: translateX(-50%) !important;
+  z-index: 4 !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+}
+
+.story-scene-chapter6-lab .story-professor {
+  position: absolute !important;
+  left: 69% !important;
+  right: auto !important;
+  bottom: calc(-1 * var(--h)) !important;
+  --size: calc(54 * var(--h)) !important;
+  height: var(--size) !important;
+  width: auto !important;
+  /* Rotate/flip professor horizontally to look toward MC */
+  transform: translateX(-50%) scaleX(-1) !important;
+  z-index: 4 !important;
+  object-fit: contain !important;
+  object-position: bottom center !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+}
+
+.story-scene-chapter6-lab .story-speaker {
+  display: none !important;
+}
+
+.story-scene-chapter6-lab .story-bubble.story-bubble-white {
+  position: absolute !important;
+  top: calc(30 * var(--h)) !important;
+  left: 65% !important;
+  right: auto !important;
+  transform: none !important;
+  width: min(34vw, calc(58 * var(--h))) !important;
+  background: #fffff6 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  color: #000000 !important;
+  z-index: 20 !important;
+  box-sizing: border-box !important;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 24px) !important;
+  box-shadow: none !important;
+}
+
+.story-scene-chapter6-lab .story-bubble.story-bubble-white::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -16px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 16px 16px 0 0 !important;
+  border-color: #fffff6 transparent transparent transparent !important;
+  display: block !important;
+}
+
+.story-scene-chapter6-lab .story-bubble.story-bubble-left {
+  position: absolute !important;
+  top: calc(21 * var(--h)) !important;
+  left: 14% !important;
+  right: auto !important;
+  transform: none !important;
+  width: min(32vw, calc(54 * var(--h))) !important;
+  background: #fffff6 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  color: #000000 !important;
+  z-index: 20 !important;
+  box-sizing: border-box !important;
+  padding: clamp(12px, 1.4vw, 20px) clamp(16px, 1.8vw, 24px) !important;
+  box-shadow: none !important;
+}
+
+.story-scene-chapter6-lab .story-bubble.story-bubble-left::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -16px !important;
+  left: 18% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 16px 16px 0 0 !important;
+  border-color: #fffff6 transparent transparent transparent !important;
+  display: block !important;
+}
+
+.story-scene-chapter6-lab .story-text {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(9px, 1.05vw, 13px) !important;
+  line-height: 1.65 !important;
+  color: #000000 !important;
+  text-align: left !important;
+}
+
+.story-scene-chapter6-lab .story-tap {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: clamp(8px, 0.9vw, 11px) !important;
+  color: #111111 !important;
+  margin-top: 1em !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+@media (max-width: 680px) {
+  .story-scene-chapter6-lab .story-person {
+    left: 18% !important;
+    --size: calc(66 * var(--h)) !important;
+    bottom: calc(-7 * var(--h)) !important;
+  }
+
+  .story-scene-chapter6-lab .story-professor {
+    left: 78% !important;
+    --size: calc(50 * var(--h)) !important;
+    bottom: calc(-1 * var(--h)) !important;
+  }
+
+  .story-scene-chapter6-lab .story-bubble.story-bubble-white,
+  .story-scene-chapter6-lab .story-bubble.story-bubble-left {
+    top: calc(18 * var(--h) + env(safe-area-inset-top, 0px)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 32px) !important;
+  }
+}
+
+
+
+
 

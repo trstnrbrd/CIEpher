@@ -3,6 +3,7 @@ import type { Character } from '../api/client'
 import boyImg from '../assets/boy.webp'
 import girlImg from '../assets/girl.webp'
 import welcomerImg from '../assets/welcomeperson.webp'
+import { startTypingSound, stopTypingSound } from '../sound'
 import './PostSelectWelcome.css'
 
 interface PostSelectWelcomeProps {
@@ -93,16 +94,34 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
   // Typewriter: run per phase. Entering a phase resets the count in the
   // advance handlers below, not here.
   useEffect(() => {
+    if (done || total <= 0) {
+      stopTypingSound()
+      return
+    }
+
+    startTypingSound()
+
     const id = window.setInterval(() => {
-      setCount((c) => Math.min(c + 1, total))
+      setCount((c) => {
+        const next = Math.min(c + 1, total)
+        if (next >= total) {
+          stopTypingSound()
+        }
+        return next
+      })
     }, CHAR_MS)
-    return () => window.clearInterval(id)
-  }, [phase, total])
+
+    return () => {
+      window.clearInterval(id)
+      stopTypingSound()
+    }
+  }, [phase, total, done])
 
   // Advance or finish on Enter.
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key !== 'Enter') return
+      stopTypingSound()
       if (phase === 'intro' && done) {
         setCount(0)
         setPhase('mechanics')
@@ -118,7 +137,10 @@ function PostSelectWelcome({ character, onContinue }: PostSelectWelcomeProps) {
   }, [phase, done, onContinue])
 
   const skip = (): void => {
-    if (phase !== 'mechanics') setCount(total)
+    if (phase !== 'mechanics') {
+      stopTypingSound()
+      setCount(total)
+    }
   }
 
   const advance = (): void => {

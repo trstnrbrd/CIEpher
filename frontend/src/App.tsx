@@ -11,6 +11,7 @@ import NewPasswordScreen from './components/NewPasswordScreen'
 import SettingsScreen from './components/SettingsScreen'
 import WelcomeScreen from './components/WelcomeScreen'
 import { clearAllQuestionHints } from './progression'
+import { initBackgroundMusic, preloadTypingSound } from './sound'
 import './App.css'
 
 // Where the logged-in game screen is. The mission screen is the only one
@@ -93,6 +94,11 @@ function App() {
     } catch {
       // Navigation still works when browser storage is unavailable.
     }
+  }, [])
+
+  useEffect(() => {
+    initBackgroundMusic()
+    preloadTypingSound()
   }, [])
 
   // After a page refresh supabase-js still has the session, so pick the
