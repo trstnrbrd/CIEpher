@@ -4,7 +4,7 @@ begin;
 set local role postgres;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(9);
+select plan(11);
 
 -- The Data Privacy Act gives a player the right to have their data erased.
 -- We do that by hand in the SQL editor with one line:
@@ -70,6 +70,13 @@ select is(
   'the player has exam answers'
 );
 
+select is(
+  (select count(*)::int from public.answer_rate_limits
+   where player_id = '11111111-1111-1111-1111-111111111111'),
+  1,
+  'the player has an answer counter (the speed limit)'
+);
+
 -- The erasure itself: the one line from the runbook.
 delete from auth.users where id = '11111111-1111-1111-1111-111111111111';
 
@@ -93,6 +100,12 @@ select is_empty(
   $$select 1 from public.exam_attempts e
     where e.player_id = '11111111-1111-1111-1111-111111111111'$$,
   'their exam attempts and answers are gone'
+);
+
+select is_empty(
+  $$select 1 from public.answer_rate_limits
+    where player_id = '11111111-1111-1111-1111-111111111111'$$,
+  'their answer counter is gone'
 );
 
 -- 9. And nobody else's data was touched.

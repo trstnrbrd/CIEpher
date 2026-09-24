@@ -215,7 +215,14 @@ const REPORTS: Report[] = [
         a.chapter_id as chapter,
         a.mission_number as mission,
         a.question,
-        replace(replace(a.answer, chr(13), ''), chr(10), ' / ') as typed_answer,
+        -- Excel runs a cell that starts with = + - or @ as a formula, and
+        -- this column is whatever a student typed. An apostrophe in front
+        -- makes Excel treat it as text, so opening the file is safe.
+        case
+          when left(a.answer, 1) in ('=', '+', '-', '@')
+            then chr(39) || replace(replace(a.answer, chr(13), ''), chr(10), ' / ')
+          else replace(replace(a.answer, chr(13), ''), chr(10), ' / ')
+        end as typed_answer,
         count(*) as times
       from public.mission_attempts a
       where not a.correct and a.answer is not null
