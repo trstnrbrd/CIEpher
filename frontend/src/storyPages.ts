@@ -905,7 +905,7 @@ export const CH4_SCENE_CHOOSE_PC_PAGE: StoryPage = {
   scene: 'chapter4-choose-pc',
   bubble: 'white',
   speaker: 'player',
-  lines: ['Where should i sit?'],
+  lines: ['Where should I sit?']
 }
 
 // Chapter 4 Mission 2 Situation Card
