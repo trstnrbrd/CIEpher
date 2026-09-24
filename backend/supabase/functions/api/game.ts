@@ -7,7 +7,7 @@ import {
 } from "./accounts.ts";
 import { findMistakes, type Mistake, sameCode } from "./csharp.ts";
 import { isExam } from "./exam.ts";
-import { ApiError } from "./errors.ts";
+import { answerLimitError, ApiError } from "./errors.ts";
 import { buildProgress, findMission, type Progress } from "./progress.ts";
 import type { SubmitInput } from "./schemas.ts";
 
@@ -94,7 +94,7 @@ export function supabaseGame(config: SupabaseConfig): Game {
         p_correct: correct,
         p_answer: answer,
       });
-      if (recordError) throw recordError;
+      if (recordError) throw answerLimitError(recordError) ?? recordError;
 
       return correct
         ? { correct: true }

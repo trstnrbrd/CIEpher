@@ -101,7 +101,14 @@ export const submitSchema = z.object({
   answer: z
     .string({ error: "Type your answer first." })
     .max(500, "That answer is too long.")
-    .refine((answer) => answer.trim() !== "", "Type your answer first."),
+    .refine((answer) => answer.trim() !== "", "Type your answer first.")
+    // Postgres text cannot hold a 0 byte, and the answer is stored now
+    // (mission_attempts). Nobody can type one, but a script can send it,
+    // and without this it reaches the database and becomes a 500.
+    .refine(
+      (answer) => !answer.includes("\u0000"),
+      "That answer has a character we can't read. Please type it again.",
+    ),
 });
 
 export type SubmitInput = z.infer<typeof submitSchema>;

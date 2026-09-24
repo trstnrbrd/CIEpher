@@ -12,7 +12,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { type Player, serverOptions, type SupabaseConfig } from "./accounts.ts";
 import { sameCode } from "./csharp.ts";
-import { ApiError } from "./errors.ts";
+import { answerLimitError, ApiError } from "./errors.ts";
 import { findMission, type Progress } from "./progress.ts";
 import type { ExamAnswerInput } from "./schemas.ts";
 
@@ -176,7 +176,7 @@ export function supabaseExam(
         p_answer: answer,
         p_correct: correct,
       });
-      if (error) throw error;
+      if (error) throw answerLimitError(error) ?? error;
 
       // Deliberately silent about `correct`.
       return {
