@@ -646,17 +646,20 @@
 }
 
 .chapter-four-kiosk {
-  left: 50%;
+  left: 26.5%;
   transform: translateX(-50%);
-  bottom: 0;
-  width: clamp(200px, 28vw, 360px);
+  bottom: clamp(12px, 3.5vh, 28px);
+  height: min(56vh, 440px);
+  width: auto;
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.4));
 }
 
 .chapter-four-avatar {
-  left: clamp(14%, 18vw, 22%);
-  bottom: max(-4vh, -30px);
-  width: clamp(140px, 20vw, 280px);
+  left: 47%;
+  transform: translateX(-50%);
+  bottom: clamp(12px, 3.5vh, 28px);
+  height: min(60vh, 470px);
+  width: auto;
   filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.45));
   animation: ch4AvatarBreathe 3s ease-in-out infinite alternate;
 }
@@ -738,12 +741,271 @@
 }
 
 .chapter-three-mission .mission-choice.mission-choice-wrong,
-.chapter-three-mission .mission-choice-wrong {
+.chapter-three-mission .mission-choice-wrong,
+.chapter-four-mission .mission-choice.mission-choice-wrong,
+.chapter-four-mission .mission-choice-wrong,
+.chapter-five-mission .mission-choice.mission-choice-wrong,
+.chapter-five-mission .mission-choice-wrong,
+.chapter-six-mission .mission-choice.mission-choice-wrong,
+.chapter-six-mission .mission-choice-wrong {
   border-color: #9f131c !important;
   background: #e2454d !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(226, 69, 77, 0.45);
   animation: choiceWrongShake 0.35s ease-in-out;
+}
+
+/* ---- Chapter 5 (while loop) ---- */
+.chapter-five-mission {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  padding: max(76px, calc(16px + env(safe-area-inset-top, 0px))) 0
+    calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.chapter-five-mission .mission-content {
+  width: min(980px, calc(100vw - 36px));
+  padding: 0 0 24px;
+}
+
+.chapter-five-mission .mission-challenge {
+  min-height: 0;
+  padding: clamp(20px, 3.5vw, 42px);
+  gap: clamp(16px, 2.5vw, 28px);
+  border: 3px solid #ad201d;
+  border-radius: 28px;
+  background: #fffef5;
+}
+
+.chapter-five-mission .mission-challenge-badge-row {
+  margin-bottom: -6px;
+}
+
+.chapter-five-mission .mission-challenge-prompt {
+  font-size: clamp(13px, 1.8vw, 22px);
+  text-align: center;
+  color: #0b1020;
+}
+
+.chapter-five-mission .mission-choices {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: clamp(10px, 1.5vw, 18px);
+  width: 100%;
+}
+
+.chapter-five-mission .mission-choice {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: clamp(12px, 1.6vw, 18px) clamp(10px, 1.4vw, 16px);
+  font-size: clamp(8px, 0.95vw, 12px);
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  font-family: 'Press Start 2P', monospace;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 18px;
+  color: #171420;
+  cursor: default;
+  user-select: text;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.chapter-five-mission .mission-form {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 24px);
+  width: 100%;
+}
+
+.chapter-five-mission .mission-code-zone {
+  flex: 1;
+}
+
+.chapter-five-mission .mission-input {
+  width: 100%;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 16px;
+  color: #171420;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.chapter-five-mission .mission-input.highlighted {
+  border-color: #dc2626;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+  caret-color: #dc2626;
+}
+
+.chapter-five-mission .mission-code-overlay {
+  padding: 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.chapter-five-mission .mission-input::placeholder {
+  color: #ffffff;
+  -webkit-text-stroke: 1px #ad201d;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  font-size: clamp(12px, 1.6vw, 18px);
+}
+
+.chapter-five-mission .mission-execute {
+  padding: 14px clamp(20px, 2.8vw, 36px);
+  font-size: clamp(12px, 1.5vw, 18px);
+  background: #ffffff;
+  color: #0b1020;
+  border: 2px solid #ad201d;
+  border-radius: 22px;
+  box-shadow: 0 4px 0 #ad201d;
+  cursor: pointer;
+  flex: none;
+}
+
+.chapter-five-mission .mission-execute:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #ad201d;
+}
+
+/* ---- Chapter 6 (do...while loop) ---- */
+.chapter-six-mission {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  padding: max(76px, calc(16px + env(safe-area-inset-top, 0px))) 0
+    calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.chapter-six-mission .mission-content {
+  width: min(1040px, calc(100vw - 32px));
+  padding: 0 0 24px;
+}
+
+.chapter-six-mission .mission-challenge {
+  min-height: 0;
+  padding: clamp(24px, 3.5vw, 44px);
+  gap: clamp(16px, 2.4vw, 28px);
+  border: 3px solid #ad201d;
+  border-radius: 28px;
+  background: #fffef5;
+}
+
+.chapter-six-mission .mission-challenge-badge-row {
+  margin-bottom: -6px;
+}
+
+.chapter-six-mission .mission-challenge-prompt {
+  font-size: clamp(13px, 1.8vw, 22px);
+  text-align: center;
+  color: #0b1020;
+}
+
+.chapter-six-mission .mission-choices {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: clamp(10px, 1.4vw, 18px);
+  width: 100%;
+}
+
+.chapter-six-mission .mission-choice {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: clamp(12px, 1.5vw, 18px) clamp(10px, 1.4vw, 16px);
+  font-size: clamp(8px, 0.95vw, 12px);
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-wrap;
+  font-family: 'Press Start 2P', monospace;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 18px;
+  color: #171420;
+  cursor: default;
+  user-select: text;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chapter-six-mission .mission-form {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 24px);
+  width: 100%;
+}
+
+.chapter-six-mission .mission-code-zone {
+  flex: 1;
+}
+
+.chapter-six-mission .mission-input {
+  width: 100%;
+  background: #ede3c7;
+  border: 2px solid #ad201d;
+  border-radius: 16px;
+  color: #171420;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.chapter-six-mission .mission-input.highlighted {
+  border-color: #dc2626;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+  caret-color: #dc2626;
+}
+
+.chapter-six-mission .mission-code-overlay {
+  padding: 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 1.1vw, 13px);
+  line-height: 1.55;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.chapter-six-mission .mission-input::placeholder {
+  color: #ffffff;
+  -webkit-text-stroke: 1px #ad201d;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  font-size: clamp(12px, 1.6vw, 18px);
+}
+
+.chapter-six-mission .mission-execute {
+  padding: 14px clamp(20px, 2.8vw, 36px);
+  font-size: clamp(12px, 1.5vw, 18px);
+  background: #ffffff;
+  color: #0b1020;
+  border: 2px solid #ad201d;
+  border-radius: 22px;
+  box-shadow: 0 4px 0 #ad201d;
+  cursor: pointer;
+  flex: none;
+}
+
+.chapter-six-mission .mission-execute:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #ad201d;
 }
 
 .mission-challenge-prompt {
@@ -760,8 +1022,11 @@
 
 .mission-choices {
   display: flex;
-  justify-content: space-around;
-  gap: 24px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: clamp(12px, 1.6vw, 24px);
+  width: 100%;
   min-width: 0;
 }
 
@@ -779,12 +1044,16 @@
   border: 3px solid #ad201d;
   border-radius: 14px;
   box-shadow: none;
-  padding: 18px 24px;
-  min-width: 28%;
+  padding: 18px clamp(14px, 1.8vw, 24px);
+  flex: 1 1 0;
+  min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
   overflow-wrap: break-word;
   word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mission-choice-hint {
@@ -799,6 +1068,7 @@
   box-shadow: 0 4px 12px rgba(227, 61, 79, 0.45);
   animation: choiceWrongShake 0.35s ease-in-out;
 }
+
 
 /* The TYPE HERE box plus its red-character overlay. */
 .mission-code-zone {
