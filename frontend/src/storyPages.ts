@@ -1212,7 +1212,7 @@ export const CH5_SCENE_2_1_PAGES: StoryPage[] = [
     noSprite: true,
     bubble: 'white',
     lines: [
-      'Helllo everyone! download',
+      'Hello everyone! download',
       'the learning modules',
       'needed for the activity.',
     ],
