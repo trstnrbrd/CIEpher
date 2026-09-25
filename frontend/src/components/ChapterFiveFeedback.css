@@ -1,0 +1,232 @@
+/* Chapter 5 Feedback: "UNDERSTAND THE CODE" Program Flow Poster Screen */
+
+.ch5-workflow-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5vh 1.5vw;
+  background: rgba(8, 10, 28, 0.88);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.ch5-workflow-card {
+  --u: 11px;
+  position: relative;
+  width: 1220px;
+  height: 800px;
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.8 * var(--u));
+  padding: calc(1.2 * var(--u)) calc(1.6 * var(--u));
+  background: #1864ab;
+  border: calc(0.55 * var(--u)) solid #0b1020;
+  border-radius: calc(1.6 * var(--u));
+  box-shadow:
+    inset calc(0.5 * var(--u)) calc(0.5 * var(--u)) 0 rgba(255, 255, 255, 0.4),
+    inset calc(-0.5 * var(--u)) calc(-0.5 * var(--u)) 0 rgba(0, 0, 0, 0.35),
+    0 18px 40px rgba(0, 0, 0, 0.6);
+  color: #0b1020;
+  transform-origin: center center;
+}
+
+.ch5-workflow-card.is-portrait {
+  width: 860px;
+  height: 920px;
+  gap: calc(0.9 * var(--u));
+  padding: calc(1.4 * var(--u)) calc(1.6 * var(--u));
+}
+
+/* Header */
+.ch5-workflow-header-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(1 * var(--u));
+  width: 100%;
+  flex: none;
+}
+
+.ch5-header-cap-icon,
+.ch5-header-books-icon {
+  width: calc(4.5 * var(--u));
+  height: calc(4.5 * var(--u));
+  flex: none;
+}
+
+.ch5-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.4 * var(--u));
+}
+
+.ch5-workflow-title {
+  margin: 0;
+  padding: calc(0.55 * var(--u)) calc(1.8 * var(--u));
+  font-size: calc(2 * var(--u));
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  color: #ffffff;
+  background: #ffc21c;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+  letter-spacing: 0.5px;
+  box-shadow: calc(0.35 * var(--u)) calc(0.35 * var(--u)) 0 rgba(11, 16, 32, 0.25);
+  text-shadow:
+    calc(0.3 * var(--u)) 0 #0b1020,
+    calc(-0.3 * var(--u)) 0 #0b1020,
+    0 calc(0.3 * var(--u)) #0b1020,
+    0 calc(-0.3 * var(--u)) #0b1020;
+}
+
+.ch5-workflow-subtitle-pill {
+  margin: 0;
+  padding: calc(0.45 * var(--u)) calc(1.4 * var(--u));
+  font-size: calc(1.1 * var(--u));
+  line-height: 1;
+  text-align: center;
+  color: #0b1020;
+  background: #ffffff;
+  border: calc(0.35 * var(--u)) solid #0b1020;
+  border-radius: calc(1.2 * var(--u));
+  box-shadow: calc(0.25 * var(--u)) calc(0.25 * var(--u)) 0 rgba(11, 16, 32, 0.15);
+}
+
+/* Poster View */
+.ch5-workflow-poster-wrap {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: #ffffff;
+  border: calc(0.55 * var(--u)) solid #0b1020;
+  border-radius: calc(1.4 * var(--u));
+}
+
+.ch5-poster-scroll-area {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: calc(0.8 * var(--u));
+  box-sizing: border-box;
+}
+
+.ch5-poster-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  border: calc(0.35 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Footer */
+.ch5-workflow-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(1 * var(--u));
+  width: 100%;
+  flex: none;
+}
+
+.ch5-footer-badge-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.8 * var(--u));
+  padding: calc(0.6 * var(--u)) calc(1.8 * var(--u));
+  background: #ffc21c;
+  border: calc(0.5 * var(--u)) solid #0b1020;
+  border-radius: calc(1.4 * var(--u));
+  box-shadow: calc(0.3 * var(--u)) calc(0.3 * var(--u)) 0 rgba(11, 16, 32, 0.25);
+}
+
+.ch5-badge-star {
+  font-size: calc(1.4 * var(--u));
+  color: #0b1020;
+}
+
+.ch5-badge-text {
+  font-size: calc(1.15 * var(--u));
+  letter-spacing: 0.5px;
+  color: #0b1020;
+}
+
+.ch5-core-ok {
+  padding: calc(0.7 * var(--u)) calc(2.4 * var(--u));
+  font-size: calc(1.2 * var(--u));
+  color: #ffffff;
+  background: #2b8a3e;
+  border: calc(0.45 * var(--u)) solid #0b1020;
+  border-radius: calc(1 * var(--u));
+  box-shadow: calc(0.35 * var(--u)) calc(0.35 * var(--u)) 0 rgba(11, 16, 32, 0.3);
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.08s ease;
+}
+
+.ch5-core-ok:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.ch5-core-ok:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(11, 16, 32, 0.3);
+}
+
+/* Mobile responsive layout */
+.ch5-workflow-screen.is-mobile {
+  padding: 0;
+  align-items: stretch;
+}
+
+.ch5-workflow-card.is-mobile {
+  --u: 8.5px;
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  border: none;
+  transform: none !important;
+  padding: 10px 10px 14px 10px;
+  gap: 8px;
+}
+
+.ch5-workflow-card.is-mobile .ch5-workflow-title {
+  font-size: 14px;
+  padding: 6px 12px;
+}
+
+.ch5-workflow-card.is-mobile .ch5-workflow-subtitle-pill {
+  font-size: 10px;
+  padding: 4px 10px;
+}
+
+.ch5-workflow-card.is-mobile .ch5-footer-badge-pill {
+  padding: 6px 10px;
+}
+
+.ch5-workflow-card.is-mobile .ch5-badge-text {
+  font-size: 10px;
+}
+
+.ch5-workflow-card.is-mobile .ch5-core-ok {
+  font-size: 12px;
+  padding: 8px 18px;
+}

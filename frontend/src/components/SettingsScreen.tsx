@@ -1,5 +1,12 @@
 import { useState, type CSSProperties } from 'react'
-import { loadVolume, playClick, saveVolume, type SoundKind } from '../sound'
+import {
+  loadVolume,
+  playClick,
+  saveVolume,
+  setMusicVolume,
+  updateSfxVolume,
+  type SoundKind,
+} from '../sound'
 import './SettingsScreen.css'
 
 interface SettingsScreenProps {
@@ -75,13 +82,14 @@ function SettingsScreen({ onBack, onChapter, onLogout }: SettingsScreenProps) {
 
   const changeMusic = (next: number): void => {
     setMusic(next)
-    saveVolume('music', next)
+    setMusicVolume(next)
   }
 
   // A click at the new level, so the player hears what they picked.
   const changeSfx = (next: number): void => {
     setSfx(next)
     saveVolume('sfx', next)
+    updateSfxVolume()
     if (next > 0) playClick(next / 100)
   }
 

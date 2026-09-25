@@ -12,6 +12,7 @@ import bedroomImg from '../assets/prologue/player bedroom.webp'
 import closeDoorImg from '../assets/prologue/CloseDoor.webp'
 import GameTopBar from './GameTopBar'
 import type { StoryPage } from '../storyPages'
+import { startTypingSound, stopTypingSound } from '../sound'
 import './PrologueStory.css'
 
 interface PrologueStoryProps {
@@ -92,6 +93,8 @@ function PrologueStory({
     staff,
     scoreMonitor,
     monitorType,
+    retroPC,
+    pcImage,
     kiosk,
     kioskImage,
     destinationCard,
@@ -112,6 +115,7 @@ function PrologueStory({
     cardList,
     cardStyle,
     kioskCursor,
+    kioskCursorTarget,
   } = currentPageData
   const guardSpeaking = speaker === 'guard' && guard
   const kioskSpeaking = speaker === 'kiosk'
@@ -123,13 +127,31 @@ function PrologueStory({
 
   // Typewriter: re-runs for each new page and counts up to its total.
   useEffect(() => {
+    if (done || total <= 0) {
+      stopTypingSound()
+      return
+    }
+
+    startTypingSound()
+
     const id = window.setInterval(() => {
-      setCount((c) => Math.min(c + 1, total))
+      setCount((c) => {
+        const next = Math.min(c + 1, total)
+        if (next >= total) {
+          stopTypingSound()
+        }
+        return next
+      })
     }, CHAR_MS)
-    return () => window.clearInterval(id)
-  }, [safeIndex, total])
+
+    return () => {
+      window.clearInterval(id)
+      stopTypingSound()
+    }
+  }, [safeIndex, total, done])
 
   const advance = (): void => {
+    stopTypingSound()
     if (last) {
       onFinish()
     } else {
@@ -139,8 +161,12 @@ function PrologueStory({
   }
 
   const tapBubble = (): void => {
-    if (!done) setCount(total)
-    else advance()
+    if (!done) {
+      stopTypingSound()
+      setCount(total)
+    } else {
+      advance()
+    }
   }
 
   // Where the caret blinks, or -1 if typing is complete.
@@ -159,10 +185,13 @@ function PrologueStory({
     const onKey = (e: KeyboardEvent): void => {
       if (e.key !== 'Enter' || e.target instanceof HTMLButtonElement) return
       if (!done) {
+        stopTypingSound()
         setCount(total)
       } else if (safeIndex >= list.length - 1) {
+        stopTypingSound()
         onFinish()
       } else {
+        stopTypingSound()
         setCount(0)
         setPage((p) => Math.min(p + 1, list.length - 1))
       }
@@ -239,46 +268,50 @@ function PrologueStory({
       )}
       {monitorType && (
         <span className="story-screen-layer" aria-hidden="true">
-          <span className="story-screen-text story-screen-monitor-content">
-            {monitorType === 'wifi' && (
-              <div className="story-monitor-wifi">
-                <svg viewBox="0 0 32 32" className="story-monitor-wifi-svg" aria-hidden="true">
-                  <path
-                    d="M7 10 h18 v2 h-18 z M5 12 h2 v2 h-2 z M25 12 h2 v2 h-2 z M3 14 h2 v2 h-2 z M27 14 h2 v2 h-2 z"
-                    fill="#111111"
-                  />
-                  <path
-                    d="M11 15 h10 v2 h-10 z M9 17 h2 v2 h-2 z M21 17 h2 v2 h-2 z M7 19 h2 v2 h-2 z M23 19 h2 v2 h-2 z"
-                    fill="#111111"
-                  />
-                  <path
-                    d="M13 20 h6 v2 h-6 z M11 22 h2 v2 h-2 z M19 22 h2 v2 h-2 z"
-                    fill="#111111"
-                  />
-                  <path
-                    d="M15 24 h2 v6 h-2 z M13 26 h6 v2 h-6 z"
-                    fill="#111111"
-                  />
-                </svg>
-              </div>
-            )}
-            {monitorType === 'submitted' && (
-              <div className="story-monitor-submitted">
-                <span>ACTIVITY</span>
-                <span>SUBMITTED</span>
-                <span>SUCCESSFULLY</span>
-                <span className="story-monitor-exclaim">! ! !</span>
-              </div>
-            )}
-            {monitorType === 'medal' && (
-              <div className="story-monitor-medal">
-                <img src={medalImg} alt="Gold Medal" />
-              </div>
-            )}
-            {monitorType === 'score' && (
-              <div className="story-score-display">90</div>
-            )}
-          </span>
+          {monitorType === 'pc2' ? (
+            <div className="story-monitor-pc2-screen-digit">2</div>
+          ) : (
+            <span className="story-screen-text story-screen-monitor-content">
+              {monitorType === 'wifi' && (
+                <div className="story-monitor-wifi">
+                  <svg viewBox="0 0 32 32" className="story-monitor-wifi-svg" aria-hidden="true">
+                    <path
+                      d="M7 10 h18 v2 h-18 z M5 12 h2 v2 h-2 z M25 12 h2 v2 h-2 z M3 14 h2 v2 h-2 z M27 14 h2 v2 h-2 z"
+                      fill="#111111"
+                    />
+                    <path
+                      d="M11 15 h10 v2 h-10 z M9 17 h2 v2 h-2 z M21 17 h2 v2 h-2 z M7 19 h2 v2 h-2 z M23 19 h2 v2 h-2 z"
+                      fill="#111111"
+                    />
+                    <path
+                      d="M13 20 h6 v2 h-6 z M11 22 h2 v2 h-2 z M19 22 h2 v2 h-2 z"
+                      fill="#111111"
+                    />
+                    <path
+                      d="M15 24 h2 v6 h-2 z M13 26 h6 v2 h-6 z"
+                      fill="#111111"
+                    />
+                  </svg>
+                </div>
+              )}
+              {monitorType === 'submitted' && (
+                <div className="story-monitor-submitted">
+                  <span>ACTIVITY</span>
+                  <span>SUBMITTED</span>
+                  <span>SUCCESSFULLY</span>
+                  <span className="story-monitor-exclaim">! ! !</span>
+                </div>
+              )}
+              {monitorType === 'medal' && (
+                <div className="story-monitor-medal">
+                  <img src={medalImg} alt="Gold Medal" />
+                </div>
+              )}
+              {monitorType === 'score' && (
+                <div className="story-score-display">90</div>
+              )}
+            </span>
+          )}
         </span>
       )}
       <GameTopBar onJournal={onJournal} onSettings={onSettings} />
@@ -454,11 +487,21 @@ function PrologueStory({
           <img className="story-kiosk-img" src={kioskImage} alt="Campus Kiosk" />
           {kioskCursor && (
             <img
-              className="story-kiosk-mouse"
+              className={[
+                'story-kiosk-mouse',
+                kioskCursorTarget ? `story-kiosk-mouse-${kioskCursorTarget}` : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               src={mouseImg}
               alt="Cursor"
             />
           )}
+        </div>
+      )}
+      {retroPC && pcImage && (
+        <div className="story-retropc-wrap">
+          <img className="story-retropc-img" src={pcImage} alt="Computer Monitor" />
         </div>
       )}
       {destinationCard && (

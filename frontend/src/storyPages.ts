@@ -25,16 +25,43 @@ import ch4KioskBeginImg from './assets/chapter 4/kioskTaptobegin.webp'
 import ch4KioskMenuImg from './assets/chapter 4/kioskMenu.webp'
 import ch4SelectActivityPCImg from './assets/chapter 4/selectActivityPC.webp'
 import ch4ProgrammingActivityPCImg from './assets/chapter 4/programmingActivityPC.webp'
-import ch4PCActivityImg from './assets/chapter 4/programmingActivityPC.webp'
 import ch4SelectDestinationImg from './assets/chapter 4/SelectADestination.webp'
-import ch4DestinationImg from './assets/chapter 4/SelectADestination.webp'
 import ch4NightLibraryImg from './assets/chapter 4/nightLibraryRoom.webp'
+import ch4SelectCampusPCImg from './assets/chapter 4/selectACampusPC.webp'
+import room3Img from './assets/chapter 4/room3.webp'
+import clickedKioskImg from './assets/chapter 4/clickedKiosk.webp'
+import choosingPCRoomImg from './assets/chapter 4/choosingPCRoom.webp'
+import pc77Img from './chapter 5/pc77.webp'
+import pc89Img from './chapter 5/pc89.webp'
+import fileTransferPCImg from './chapter 5/fileTransferPC.webp'
+import fileStoragePCImg from './chapter 5/fileStoragePC.webp'
+import programmingActivityImg from './chapter 6/programmingActivity.webp'
+import loggedInImg from './chapter 6/loggedIn.webp'
+import ch6TitleCardImg from './chapter 6/all parts/1.webp'
+import ch6WelcomeModalImg from './chapter 6/all parts/6.webp'
+import ch6PracticeModalImg from './chapter 6/all parts/21.webp'
 
 export type StoryPage = {
   bg: string
   lines: string[]
   // A story-specific placement variant for the characters over a background.
-  scene?: 'chapter3-room' | 'chapter4-kiosk'
+  scene?:
+    | 'chapter3-room'
+    | 'chapter4-kiosk'
+    | 'chapter4-room3'
+    | 'chapter4-kiosk-room2'
+    | 'chapter4-room2'
+    | 'chapter4-kiosk-room3'
+    | 'chapter4-choose-pc'
+    | 'chapter4-pc2-working'
+    | 'chapter4-choose-activity'
+    | 'chapter4-choose-destination'
+    | 'chapter4-night-library'
+    | 'chapter5-prof-classroom'
+    | 'chapter5-room3-pc'
+    | 'chapter5-room3-pc-classmate'
+    | 'chapter5-room3-upload'
+    | 'chapter6-lab'
   // Where the background art is anchored (object-position). Defaults to the
   // bedroom look: centered, hugging the bottom. Per-page override so scenes
   // with a different focal point don't need to touch the shared styles.
@@ -50,16 +77,33 @@ export type StoryPage = {
   // Show retro computer with score 90 on the left.
   scoreMonitor?: boolean
   // Type of content to display inside the retro monitor:
-  monitorType?: 'score' | 'wifi' | 'submitted' | 'medal' | 'pc2Assigned' | 'controlStructures' | 'labMenu'
+  monitorType?:
+    | 'score'
+    | 'wifi'
+    | 'submitted'
+    | 'medal'
+    | 'pc2Assigned'
+    | 'controlStructures'
+    | 'labMenu'
+    | 'pc2'
   // Show kiosk machine in foreground
   kiosk?: boolean
   kioskImage?: string
   // Show animated mouse cursor clicking TAP TO BEGIN on kiosk
   kioskCursor?: boolean
+  kioskCursorTarget?:
+    | 'tapToBegin'
+    | 'checkSchedule'
+    | 'schedule'
+    | 'controlStructures'
+    | 'selectDestination'
   // Show campus destination card
   destinationCard?: boolean
   // Show purple notebook on student desk
   book?: boolean
+  // Show retro PC monitor on bottom left
+  retroPC?: boolean
+  pcImage?: string
   // Which character says the lines. Defaults to the player.
   speaker?: 'player' | 'guard' | 'kiosk' | 'professor' | 'cashier' | 'staff' | 'narrator'
   animation?: 'worksheet' | 'wifi'
@@ -758,88 +802,89 @@ export const CH3_COMPLETE_PAGE: StoryPage = {
 // Chapter 4 Story Pages
 // ========================================================
 
-// Chapter 4 Scene 1 — Professor Reyes at Campus Self-Service Kiosk, Mouse Click, and Menu
+// Chapter 4 Scene 1 — 5 Intro Pages:
+// Pages 1-3 in room2.webp (Professor Reyes on left, Kiosk in center, Player on right)
+// Page 4 in room3.png (Kiosk on left with animated mouse tapping TAP TO BEGIN, Player on right)
+// Page 5 in room3.png (Kiosk menu ready with clickedKiosk.png, Player on right)
 export const CH4_INTRO_PAGES: StoryPage[] = [
   {
-    bg: hallwayImg,
-    scene: 'chapter4-kiosk',
+    bg: chapterThreeRoom2Img,
+    scene: 'chapter4-room2',
     kiosk: true,
     kioskImage: ch4KioskBeginImg,
-    align: 'left',
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: ['Sometimes a program needs to choose from several fixed options.'],
+  },
+  {
+    bg: chapterThreeRoom2Img,
+    scene: 'chapter4-room2',
+    kiosk: true,
+    kioskImage: ch4KioskBeginImg,
     professor: true,
     bubble: 'white',
     speaker: 'professor',
     lines: [
-      'Sometimes a program needs to choose from several fixed options.',
       'Instead of checking many conditions one by one, C# provides the switch statement.',
-      "Today, you'll learn how to use it.",
     ],
   },
   {
-    bg: hallwayImg,
-    scene: 'chapter4-kiosk',
+    bg: chapterThreeRoom2Img,
+    scene: 'chapter4-room2',
+    kiosk: true,
+    kioskImage: ch4KioskBeginImg,
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: ["Today, you'll learn how to use it."],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter4-kiosk-room3',
     kiosk: true,
     kioskImage: ch4KioskBeginImg,
     kioskCursor: true,
-    align: 'left',
+    kioskCursorTarget: 'tapToBegin',
     bubble: 'white',
     speaker: 'player',
-    lines: [
-      'I want to check my class schedule.',
-      "Let's tap the kiosk screen to begin!",
-    ],
+    lines: ["Let's tap the kiosk screen to begin!"],
   },
   {
-    bg: hallwayImg,
-    scene: 'chapter4-kiosk',
+    bg: room3Img,
+    scene: 'chapter4-kiosk-room3',
     kiosk: true,
-    kioskImage: ch4KioskMenuImg,
-    align: 'left',
+    kioskImage: clickedKioskImg,
     bubble: 'white',
     speaker: 'player',
-    lines: [
-      'The kiosk menu is ready!',
-      'Now I can choose what service to access.',
-    ],
-  },
-  {
-    bg: hallwayImg,
-    scene: 'chapter4-kiosk',
-    kiosk: true,
-    kioskImage: ch4KioskMenuImg,
-    card: 'Situation',
-    lines: [
-      'The university kiosk offers different services:',
-      '• Option 1 ➡ View Schedule',
-      '• Option 2 ➡ View Grades',
-      '• Option 3 ➡ Print Registration Form',
-      '• Default ➡ Invalid Option',
-      '',
-      'Select the correct control structure for the kiosk.',
-    ],
+    lines: ['The kiosk menu is ready!'],
   },
 ]
 
-// Chapter 4 Scene 1.1 — Player at the kiosk wanting to check schedule
+// Chapter 4 Scene 1.1 — Player wanting to check class schedule at kiosk (matches part 1 question 2/image.png)
 export const CH4_SCENE_1_1_PAGE: StoryPage = {
-  bg: hallwayImg,
+  bg: room3Img,
+  scene: 'chapter4-kiosk-room3',
   kiosk: true,
-  kioskImage: ch4KioskBeginImg,
-  align: 'right',
+  kioskImage: clickedKioskImg,
+  kioskCursor: true,
+  kioskCursorTarget: 'checkSchedule',
   bubble: 'white',
   speaker: 'player',
-  lines: ['I want to check my class schedule.'],
+  lines: ['I want to check my class schedule'],
 }
 
-// Chapter 4 Scene 1.2 — Kiosk displays schedule timetable
+// Chapter 4 Scene 1.2 — Kiosk displays timetable schedule (matches part 1 question 2/image copy.png)
 export const CH4_SCENE_1_2_PAGE: StoryPage = {
-  bg: hallwayImg,
+  bg: room3Img,
+  scene: 'chapter4-kiosk-room3',
   kiosk: true,
   kioskImage: ch4KioskMenuImg,
-  align: 'right',
+  kioskCursor: true,
+  kioskCursorTarget: 'schedule',
   bubble: 'white',
   speaker: 'player',
-  lines: ['Great! I can see my schedule.'],
+  lines: ['I see my class schedule now'],
 }
 
 // Chapter 4 Scene 1.3 / Lab Entrance — Player enters Programming Lab
@@ -854,10 +899,20 @@ export const CH4_SCENE_ENTER_LAB_PAGE: StoryPage = {
   ],
 }
 
+// Chapter 4 Part 2 Scene 1 — In the computer lab deciding where to sit
+export const CH4_SCENE_CHOOSE_PC_PAGE: StoryPage = {
+  bg: choosingPCRoomImg,
+  scene: 'chapter4-choose-pc',
+  bubble: 'white',
+  speaker: 'player',
+  lines: ['Where should I sit?']
+}
+
 // Chapter 4 Mission 2 Situation Card
 export const CH4_M2_SITUATION_PAGE: StoryPage = {
-  bg: profClassroomImg,
+  bg: choosingPCRoomImg,
   card: 'Situation',
+  noSprite: true,
   lines: [
     'Students are assigned to different computers.',
     '• Computer 1',
@@ -867,33 +922,40 @@ export const CH4_M2_SITUATION_PAGE: StoryPage = {
   ],
 }
 
-// Chapter 4 Scene 2.1 — Workstation displays "COMPUTER 2 ASSIGNED"
+// Chapter 4 Part 2 Scene 2 — PC 2 Working, sitting down
 export const CH4_SCENE_2_1_PAGE: StoryPage = {
   bg: pcImg,
-  align: 'right',
-  scoreMonitor: true,
-  monitorType: 'pc2Assigned',
-  bubble: 'white',
-  speaker: 'player',
-  lines: ['This is my assigned computer.'],
-}
-
-// Chapter 4 Scene 2.2 — Computer displays lab activities list
-export const CH4_SCENE_2_2_PAGE: StoryPage = {
-  bg: ch4SelectActivityPCImg,
-  align: 'right',
+  scene: 'chapter4-pc2-working',
+  monitorType: 'pc2',
   bubble: 'white',
   speaker: 'player',
   lines: [
-    "The computer opens today's Programming Laboratory activities.",
-    'A list of programming exercises appears.',
+    'This computer is',
+    'working. I should',
+    'sit here.',
+  ],
+}
+
+// Chapter 4 Part 3 Scene 1 — In the computer lab deciding which activity to choose (1st image)
+export const CH4_SCENE_CHOOSE_ACTIVITY_PAGE: StoryPage = {
+  bg: room3Img,
+  scene: 'chapter4-choose-activity',
+  kiosk: true,
+  kioskImage: ch4SelectActivityPCImg,
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'Now which',
+    'activity should',
+    'we choose?',
   ],
 }
 
 // Chapter 4 Mission 3 Situation Card
 export const CH4_M3_SITUATION_PAGE: StoryPage = {
-  bg: ch4PCActivityImg,
+  bg: room3Img,
   card: 'Situation',
+  noSprite: true,
   lines: [
     "Today's laboratory lets students choose an exercise.",
     '• 1 ➡ Variables',
@@ -903,32 +965,54 @@ export const CH4_M3_SITUATION_PAGE: StoryPage = {
   ],
 }
 
-// Chapter 4 Scene 3.1 — Workstation displays "CONTROL STRUCTURES EXERCISE"
+// Chapter 4 Scene 3.1 — Workstation displays Control Structures selected (after program flow)
 export const CH4_SCENE_3_1_PAGE: StoryPage = {
-  bg: pcImg,
-  align: 'right',
-  scoreMonitor: true,
-  monitorType: 'controlStructures',
-  bubble: 'white',
-  speaker: 'player',
-  lines: ["I'll work on the Control Structures exercise."],
-}
-
-// Chapter 4 Scene 3.2 — Campus navigation system appears
-export const CH4_SCENE_3_2_PAGE: StoryPage = {
-  bg: ch4DestinationImg,
-  align: 'right',
+  bg: room3Img,
+  scene: 'chapter4-choose-activity',
+  kiosk: true,
+  kioskImage: ch4SelectActivityPCImg,
+  kioskCursor: true,
+  kioskCursorTarget: 'controlStructures',
   bubble: 'white',
   speaker: 'player',
   lines: [
-    'After completing the exercise, I need to visit another area of the university.',
+    "I'll work on the",
+    'Control',
+    'Structures',
+    'exercise.',
   ],
+}
+
+// Chapter 4 Part 4 Scene 1 — In the computer lab deciding destination (1st image)
+export const CH4_SCENE_CHOOSE_DESTINATION_PAGE_1: StoryPage = {
+  bg: room3Img,
+  scene: 'chapter4-choose-destination',
+  kiosk: true,
+  kioskImage: ch4SelectCampusPCImg,
+  kioskCursor: true,
+  kioskCursorTarget: 'selectDestination',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'Where should i go',
+    'right now?',
+  ],
+}
+
+// Chapter 4 Part 4 Scene 2 — Destination selection card modal (2nd image)
+export const CH4_SCENE_CHOOSE_DESTINATION_PAGE_2: StoryPage = {
+  bg: room3Img,
+  scene: 'chapter4-choose-destination',
+  destinationCard: true,
+  screenImage: ch4SelectDestinationImg,
+  lines: [],
 }
 
 // Chapter 4 Mission 4 Situation Card
 export const CH4_M4_SITUATION_PAGE: StoryPage = {
-  bg: ch4DestinationImg,
+  bg: room3Img,
   card: 'Situation',
+  noSprite: true,
   lines: [
     'The campus navigation system helps students find different locations.',
     '• 1 ➡ Library',
@@ -938,30 +1022,74 @@ export const CH4_M4_SITUATION_PAGE: StoryPage = {
   ],
 }
 
-// Chapter 4 Scene 4.1 — Player arrives at the library
+// Chapter 4 Scene 4.1 — In the computer lab deciding destination (I choose Library)
 export const CH4_SCENE_4_1_PAGE: StoryPage = {
-  bg: ch4NightLibraryImg,
-  align: 'right',
+  bg: room3Img,
+  scene: 'chapter4-choose-destination',
+  kiosk: true,
+  kioskImage: ch4SelectCampusPCImg,
+  kioskCursor: true,
+  kioskCursorTarget: 'selectDestination',
   bubble: 'white',
   speaker: 'player',
-  lines: ['I need to go to the library.'],
+  lines: ['I choose Library'],
 }
 
-// Chapter 4 Scene 4.2 — Return to lab, Professor Reyes gives final challenge
+// Chapter 4 Scene 4.2 — Library (Image 1: I got what i need here i should go back.)
 export const CH4_SCENE_4_2_PAGE: StoryPage = {
-  bg: profClassroomImg,
+  bg: ch4NightLibraryImg,
+  scene: 'chapter4-night-library',
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'I got what i need',
+    'here i should go',
+    'back.',
+  ],
+}
+
+// Chapter 4 Scene 4.3 — Return to lab, Professor Reyes and Player (Images 2 & 3)
+export const CH4_SCENE_4_3_PAGES: StoryPage[] = [
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    lines: [
+      "Great work! Let's see if you",
+      "can apply what you've learned.",
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    speaker: 'player',
+    lines: ['Okay sir.'],
+  },
+]
+
+// Chapter 4 Part 5 Scene 1 — Professor Reyes in classroom
+export const CH4_SCENE_5_1_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  scene: 'chapter3-room',
+  book: true,
   professor: true,
   bubble: 'white',
-  speaker: 'professor',
   lines: [
-    "Great work! Let's see if you can apply what you've learned.",
+    'Great work! Complete one final',
+    'exercise before we continue.',
   ],
 }
 
 // Chapter 4 Mission 5 Situation Card
 export const CH4_M5_SITUATION_PAGE: StoryPage = {
-  bg: profClassroomImg,
+  bg: chapterThreeRoomImg,
   card: 'Situation',
+  noSprite: true,
   lines: [
     'The Programming Laboratory menu lets students choose an action.',
     '• 1 ➡ Start Coding',
@@ -1000,6 +1128,566 @@ export const CH4_CLOSING_PAGE: StoryPage = {
   ],
 }
 
+// Chapter 5 Part 1 Scene 1.1 — Professor Reyes introduces loops (Images 1, 2, 3)
+export const CH5_SCENE_1_1_PAGES: StoryPage[] = [
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    lines: [
+      'Imagine doing the same task',
+      'again and again.',
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    lines: [
+      'Instead of repeating the same',
+      'instructions manually,',
+      'programmers can use loops.',
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    lines: [
+      "Today, you'll learn how to use",
+      'the while loop.',
+    ],
+  },
+]
+
+// Chapter 5 Mission 1 Situation Card
+export const CH5_M1_SITUATION_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The laboratory requires 5 programming books before the lesson can begin.',
+    'The student keeps collecting books until all 5 books have been gathered.',
+  ],
+}
+
+// Chapter 5 Part 1 Scene 1.2 — Intermediate dialog before Question 2 (Images 4, 5)
+export const CH5_SCENE_1_2_PAGES: StoryPage[] = [
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    lines: [
+      'We need five programming books',
+      "for today's activity.",
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'left',
+    speaker: 'player',
+    lines: [
+      "I'll collect the books until",
+      'we have all five.',
+    ],
+  },
+]
+
+// Chapter 5 Part 2 Scene 2.1 — Download Modules Intro (Images 1, 2, 3)
+export const CH5_SCENE_2_1_PAGES: StoryPage[] = [
+  {
+    bg: profClassroomImg,
+    scene: 'chapter5-prof-classroom',
+    noSprite: true,
+    bubble: 'white',
+    lines: [
+      'Hello everyone! download',
+      'the learning modules',
+      'needed for the activity.',
+    ],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-pc',
+    retroPC: true,
+    pcImage: pc77Img,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'I need to wait until the',
+      'download reaches 100%.',
+    ],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-pc',
+    retroPC: true,
+    pcImage: pc89Img,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'I need to wait until the',
+      'download reaches 100%.',
+    ],
+  },
+]
+
+// Chapter 5 Mission 2 Situation Card
+export const CH5_M2_SITUATION_PAGE: StoryPage = {
+  bg: room3Img,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The computer continues downloading the learning modules while the progress is below 100%.',
+    'When the progress reaches 100%, the download stops.',
+  ],
+}
+
+// Chapter 5 Part 2 Scene 2.2 — Post-Flow Module Ready & ID Printing Request (Images 4, 5, 6)
+export const CH5_SCENE_2_2_PAGES: StoryPage[] = [
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-pc',
+    retroPC: true,
+    pcImage: fileTransferPCImg,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'The learning modules are',
+      'ready.',
+    ],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-pc-classmate',
+    retroPC: true,
+    pcImage: fileTransferPCImg,
+    staff: true,
+    bubble: 'white',
+    speaker: 'staff',
+    lines: [
+      'We need to print an ID',
+      'for every student on the',
+      'list.',
+    ],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-pc-classmate',
+    retroPC: true,
+    pcImage: fileTransferPCImg,
+    staff: true,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'I can help with that.',
+    ],
+  },
+]
+
+// Chapter 5 Mission 3 Situation Card
+export const CH5_M3_SITUATION_PAGE: StoryPage = {
+  bg: room3Img,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The printer continues printing student IDs while there are still students who have not received one.',
+    'The process stops when all students have been processed.',
+  ],
+}
+
+// Chapter 5 Scene 3.1 — Upload All Files Dialogue (Image 1)
+export const CH5_SCENE_3_1_PAGE: StoryPage = {
+  bg: room3Img,
+  scene: 'chapter5-room3-upload',
+  retroPC: true,
+  pcImage: fileStoragePCImg,
+  bubble: 'white',
+  speaker: 'player',
+  lines: [
+    'I need to upload all of',
+    'these files.',
+  ],
+}
+
+// Chapter 5 Part 4 Opening Scenes (Images 1, 2)
+export const CH5_SCENE_4_1_PAGES: StoryPage[] = [
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-upload',
+    retroPC: true,
+    pcImage: fileStoragePCImg,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'The system keeps',
+      'uploading files while the',
+      'number of uploaded files',
+      'is less than the total',
+      'number of files.',
+    ],
+  },
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-upload',
+    retroPC: true,
+    pcImage: fileStoragePCImg,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'The process stops after',
+      'every file has been',
+      'uploaded.',
+    ],
+  },
+]
+
+// Chapter 5 Part 4 Post-Flow Scenes (Images 3, 4)
+export const CH5_SCENE_4_2_PAGES: StoryPage[] = [
+  {
+    bg: room3Img,
+    scene: 'chapter5-room3-upload',
+    retroPC: true,
+    pcImage: fileStoragePCImg,
+    bubble: 'white',
+    speaker: 'player',
+    lines: [
+      'All Laboratory Files',
+      'Uploaded.',
+    ],
+  },
+  {
+    bg: chapterThreeRoomImg,
+    scene: 'chapter3-room',
+    book: true,
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: [
+      'Great work. Let\'s see if you',
+      'can apply what you\'ve learned',
+      'about the while loop.',
+    ],
+  },
+]
+
+// Chapter 5 Mission 5 Situation Card
+export const CH5_M5_SITUATION_PAGE: StoryPage = {
+  bg: chapterThreeRoomImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The programming system must review all submitted activities.',
+    'It continues reviewing submissions while the number reviewed is less than the total number of submissions.',
+  ],
+}
+
+// Chapter 5 Complete card
+export const CH5_COMPLETE_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 5 – The while Loop',
+  ],
+  cardList: [
+    'Definition of while',
+    'Basic syntax',
+    'Common syntax errors',
+    'Real-world applications',
+  ],
+}
+
+// Chapter 5 Closing dialogue (Scene 5.1)
+export const CH5_CLOSING_PAGE: StoryPage = {
+  bg: profClassroomImg,
+  scene: 'chapter5-prof-classroom',
+  noSprite: true,
+  bubble: 'white',
+  speaker: 'professor',
+  lines: [
+    "Excellent work. You've learned how the while loop repeats a task as long as a condition remains true.",
+    'You also learned that the condition must eventually become false so the loop can stop.',
+  ],
+}
+
+// Chapter 6 Title Page
+export const CH6_TITLE_PAGE: StoryPage = {
+  bg: ch6TitleCardImg,
+  noSprite: true,
+  lines: [],
+}
+
+// Chapter 6 Scene 1 Opening Dialogue (Images 2, 3)
+export const CH6_SCENE_1_PAGES: StoryPage[] = [
+  {
+    bg: programmingActivityImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'professor',
+    bubble: 'white',
+    lines: [
+      'Last time, you learned how a',
+      'while loop checks its condition',
+      'before repeating a task.',
+    ],
+  },
+  {
+    bg: programmingActivityImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'professor',
+    bubble: 'white',
+    lines: [
+      'But some tasks need to happen',
+      'first before the program checks',
+      'whether they should repeat.',
+    ],
+  },
+  {
+    bg: programmingActivityImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'professor',
+    bubble: 'white',
+    lines: [
+      "Today, you'll learn the",
+      'do...while loop.',
+    ],
+  },
+]
+
+// Chapter 6 Mission 1 Situation Card
+export const CH6_M1_SITUATION_PAGE: StoryPage = {
+  bg: programmingActivityImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'When students open the Programming Learning System, a welcome message should appear at least once.',
+    'After displaying the message, the system checks whether the student wants to view it again.',
+  ],
+}
+
+// Chapter 6 Scene 1.1 Dialogue (Image 5)
+export const CH6_SCENE_1_1_PAGE: StoryPage = {
+  bg: programmingActivityImg,
+  scene: 'chapter6-lab',
+  professor: true,
+  speaker: 'player',
+  bubble: 'left',
+  lines: [
+    "Let's open the learning",
+    'system.',
+  ],
+}
+
+// Chapter 6 Scene 1.2 Welcome Screen (Image 6)
+export const CH6_SCENE_1_2_PAGE: StoryPage = {
+  bg: ch6WelcomeModalImg,
+  noSprite: true,
+  lines: [],
+}
+
+// Chapter 6 Scene 2 Student Login Intro (Images 7, 8)
+export const CH6_SCENE_2_PAGES: StoryPage[] = [
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'player',
+    bubble: 'left',
+    lines: [
+      'I need to log in before I',
+      'can continue.',
+    ],
+  },
+]
+
+// Chapter 6 Mission 2 Situation Card
+export const CH6_M2_SITUATION_PAGE: StoryPage = {
+  bg: loggedInImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    "The system must process the student's first login attempt.",
+    'After the attempt, it checks whether another login attempt is needed.',
+  ],
+}
+
+// Chapter 6 Scene 2.1 Login Successful (Image 10)
+export const CH6_SCENE_2_1_PAGE: StoryPage = {
+  bg: loggedInImg,
+  scene: 'chapter6-lab',
+  professor: true,
+  speaker: 'player',
+  bubble: 'left',
+  lines: [
+    "I'm logged in.",
+  ],
+}
+
+// Chapter 6 Scene 2.2 ID Scanner Narrative (Images 11, 12, 13)
+export const CH6_SCENE_2_2_PAGES: StoryPage[] = [
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'player',
+    bubble: 'left',
+    lines: [
+      'I need to scan my ID',
+      'first.',
+    ],
+  },
+]
+
+// Chapter 6 Mission 3 Situation Card (Image 14)
+export const CH6_M3_SITUATION_PAGE: StoryPage = {
+  bg: loggedInImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The ID scanner must scan one student ID first.',
+    'After the scan is completed, the system checks whether another ID needs to be scanned.',
+  ],
+}
+
+// Chapter 6 Scene 3.1 & 3.2 ID Verified & Practice Activity (Image 16)
+export const CH6_SCENE_3_1_PAGES: StoryPage[] = [
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'professor',
+    bubble: 'white',
+    lines: [
+      'Before we continue, answer',
+      'at least one practice problem.',
+    ],
+  },
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'player',
+    bubble: 'left',
+    lines: [
+      'Okay, Sir.',
+    ],
+  },
+]
+
+// Chapter 6 Mission 4 Situation Card (Image 18)
+export const CH6_M4_SITUATION_PAGE: StoryPage = {
+  bg: loggedInImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The student must answer at least one programming practice problem.',
+    'After submitting the answer, the system asks whether the student wants another question.',
+  ],
+}
+
+// Chapter 6 Scene 4.1 Answer Submitted Modal (Image 21)
+export const CH6_SCENE_4_1_PAGES: StoryPage[] = [
+  {
+    bg: ch6PracticeModalImg,
+    noSprite: true,
+    lines: [],
+  },
+]
+
+// Chapter 6 Scene 4.2 Professor Reyes Final Challenge (Image 22)
+export const CH6_SCENE_4_2_PAGES: StoryPage[] = [
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'professor',
+    bubble: 'white',
+    lines: [
+      'One final challenge before',
+      "today's lesson ends.",
+    ],
+  },
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    speaker: 'player',
+    bubble: 'left',
+    lines: [
+      "I'm ready, Sir.",
+    ],
+  },
+]
+
+// Chapter 6 Mission 5 Situation Card (Image 23)
+export const CH6_M5_SITUATION_PAGE: StoryPage = {
+  bg: loggedInImg,
+  card: 'Situation',
+  noSprite: true,
+  lines: [
+    'The Programming Learning System must display the completion screen at least once.',
+    'After displaying it, the student may choose whether to review the lesson again.',
+  ],
+}
+
+// Chapter 6 Complete Card
+export const CH6_COMPLETE_PAGE: StoryPage = {
+  bg: pcImg,
+  noSprite: true,
+  card: 'CHAPTER COMPLETE',
+  cardStyle: 'complete',
+  lines: [
+    'The CIEpher Code Journal is automatically updated:',
+    'Lesson 6 – The do...while Loop',
+  ],
+  cardList: [
+    'Definition of do...while',
+    'Basic syntax',
+    'Common syntax errors',
+    'Real-world applications',
+  ],
+}
+
+// Chapter 6 Scene 5.1 Closing Dialogue (Images 25, 26)
+export const CH6_CLOSING_PAGE: StoryPage[] = [
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: [
+      "Excellent work. You've learned that a do...while loop performs its task first and checks its condition afterward.",
+    ],
+  },
+  {
+    bg: loggedInImg,
+    scene: 'chapter6-lab',
+    professor: true,
+    bubble: 'white',
+    speaker: 'professor',
+    lines: [
+      'That is why its code always executes at least once.',
+    ],
+  },
+]
+
 export {
   schoolImg,
   classroomImg,
@@ -1019,6 +1707,10 @@ export {
   ch4SelectActivityPCImg,
   ch4ProgrammingActivityPCImg,
   ch4SelectDestinationImg,
+  ch4SelectCampusPCImg,
   ch4NightLibraryImg,
+  fileStoragePCImg,
+  programmingActivityImg,
+  loggedInImg,
 }
 

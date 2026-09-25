@@ -18,9 +18,10 @@ import noWifiImg from './chapter 2/no wifi.webp'
 import pcImg from './chapter 2/pc.webp'
 import chapterThreeRoomImg from './chapter 3/room.webp'
 import chapterThreeRoom2Img from './chapter 3/room2.webp'
-import hallwayImg from './chapter1/Hallway.webp'
-import ch4PCActivityImg from './assets/chapter 4/programmingActivityPC.webp'
-import ch4DestinationImg from './assets/chapter 4/SelectADestination.webp'
+import room3Img from './assets/chapter 4/room3.webp'
+import choosingPCRoomImg from './assets/chapter 4/choosingPCRoom.webp'
+import programmingActivityImg from './chapter 6/programmingActivity.webp'
+import loggedInImg from './chapter 6/loggedIn.webp'
 
 // One piece of the code being taught, e.g. the name of a method.
 export type CodeAnatomy = {
@@ -999,7 +1000,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'The switch statement is best when selecting one action from multiple fixed options.',
     code: 'switch(option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n    case 2:\n        ViewGrades();\n        break;\n    default:\n        ShowInvalidOption();\n        break;\n}',
-    sceneBg: hallwayImg,
+    sceneBg: room3Img,
     questions: [
       {
         prompt: 'Which C# control structure is most appropriate for this situation?',
@@ -1054,7 +1055,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'Each case represents a possible value. When pcNumber matches a case, the statements inside that case are executed.',
     code: 'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2:\n        OpenPC2();\n        break;\n    default:\n        DisplayUnavailable();\n        break;\n}',
-    sceneBg: profClassroomImg,
+    sceneBg: choosingPCRoomImg,
     prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n    case 2\n        OpenPC2();\n        break;\n}',
@@ -1101,7 +1102,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'The default block executes when none of the listed case values match the selected value.',
     code: 'switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n    case 2:\n        ShowOperators();\n        break;\n    case 3:\n        ShowControlStructures();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
-    sceneBg: ch4PCActivityImg,
+    sceneBg: room3Img,
     prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'switch(choice)\n{\ncase 1:\nShowVariables();\nbreak;\ncase 2:\nShowOperators();\nbreak;\n}',
@@ -1147,7 +1148,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'Each case label uses the keyword case, followed by a value and a colon :.',
     code: 'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n    case 2:\n        GoToCafeteria();\n        break;\n    case 3:\n        GoToProgrammingLab();\n        break;\n    default:\n        ShowInvalidDestination();\n        break;\n}',
-    sceneBg: ch4DestinationImg,
+    sceneBg: room3Img,
     prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n    case 2:\n        GoToCafeteria();\n        break;\n    case 3:\n        GoToProgrammingLab();\n        break;\n    default:\n        ShowInvalidDestination();\n        break;\n}',
@@ -1193,7 +1194,7 @@ const LESSONS: Record<string, Lesson> = {
     lesson:
       'The switch statement allows a program to select one action from several fixed options cleanly and efficiently.',
     code: 'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n    case 2:\n        ViewInstructions();\n        break;\n    case 3:\n        ExitLab();\n        break;\n    default:\n        InvalidChoice();\n        break;\n}',
-    sceneBg: profClassroomImg,
+    sceneBg: chapterThreeRoomImg,
     prompt: 'CHALLENGE: CHOOSE THE CORRECT SYNTAX, THEN TYPE IT EXACTLY.',
     choices: [
       'switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n    case 2:\n        ViewInstructions();\n        break;\n    case 3:\n        ExitLab();\n        break;\n    default\n        InvalidChoice();\n        break;\n}',
@@ -1230,7 +1231,535 @@ const LESSONS: Record<string, Lesson> = {
         'switch checks one value, runs the matching case, and break stops the switch.',
     },
   },
+  '5:1': {
+    chapter: 5,
+    mission: 1,
+    title: 'The while loop',
+    story:
+      'The laboratory requires 5 programming books before the lesson can begin.\n\nThe student keeps collecting books until all 5 books have been gathered.',
+    lesson:
+      'The while loop repeatedly executes a block of code as long as a specified condition remains true. Once the condition evaluates to false, the loop terminates.',
+    code: 'while(books < 5)\n{\n    CollectBook();\n    books++;\n}',
+    sceneBg: chapterThreeRoomImg,
+    questions: [
+      {
+        prompt: 'Which C# control structure is most appropriate?',
+        choices: ['if', 'switch', 'while'],
+      },
+      {
+        prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+        choices: [
+          'while(books < 5)\n{\n    CollectBook();\n    books++;\n}',
+          'while books < 5\n{\n    CollectBook();\n    books++;\n}',
+          'while(books < 5)\n{\n    CollectBook()\n    books++;\n}',
+        ],
+      },
+    ],
+    core: {
+      incorrectExample: 'while books < 5\n{\n    CollectBook();\n    books++;\n}',
+      incorrectNote: 'The condition of a while loop must be enclosed in parentheses ( ).',
+      correctNote: 'The while loop repeatedly executes while books < 5 is true.',
+      anatomy: [
+        { text: 'while', label: 'Tells the program to repeat while condition is true.' },
+        { text: '(books < 5)', label: 'The loop condition checked before each iteration.' },
+        { text: '{ }', label: 'The block of code executed on each repetition.' },
+        { text: 'CollectBook();', label: 'The action performed inside the loop.' },
+        { text: 'books++;', label: 'Increments the counter so the loop eventually ends.' },
+      ],
+      flow: [
+        'START',
+        'Check books < 5',
+        'books < 5 == true?',
+        'YES → CollectBook()',
+        'books++',
+        'Repeat loop',
+        'NO → Stop loop',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'A while loop runs as long as its condition is true and stops when it becomes false.',
+    },
+  },
+  '5:2': {
+    chapter: 5,
+    mission: 2,
+    title: 'Download Learning Modules',
+    story:
+      'The computer continues downloading the learning modules while the progress is below 100%.\n\nWhen the progress reaches 100%, the download stops.',
+    lesson:
+      'A while loop executes repeatedly as long as its condition is true. Once the condition becomes false, the loop terminates.',
+    code: 'while(progress < 100)\n{\n    DownloadModule();\n    progress += 20;\n}',
+    sceneBg: room3Img,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'while(progress < 100)\n{\n    DownloadModule()\n    progress += 20;\n}',
+      'while(progress < 100)\n{\n    DownloadModule();\n    progress += 20;\n}',
+      'while progress < 100\n{\n    DownloadModule();\n    progress += 20;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'while(progress < 100)\n{\n    DownloadModule()\n    progress += 20;\n}',
+      incorrectNote:
+        'Each statement inside the loop body must end with a semicolon (;).',
+      correctNote:
+        'The while loop repeatedly executes while progress < 100 is true.',
+      anatomy: [
+        {
+          text: 'while',
+          label: 'Tells the program to repeat while condition is true.',
+        },
+        {
+          text: '(progress < 100)',
+          label: 'The loop condition checked before each iteration.',
+        },
+        { text: '{ }', label: 'The block of code executed on each repetition.' },
+        { text: 'DownloadModule();', label: 'Downloads 20% of the module.' },
+        {
+          text: 'progress += 20;',
+          label: 'Increments progress so the loop will stop at 100%.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check progress < 100',
+        'progress < 100 == true?',
+        'YES → DownloadModule()',
+        'progress += 20',
+        'Repeat loop',
+        'NO → Download complete',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The while loop continues downloading modules as long as the progress is below 100%.',
+    },
+  },
+  '5:3': {
+    chapter: 5,
+    mission: 3,
+    title: 'Print Student Identification Cards',
+    story:
+      'The printer continues printing student IDs while there are still students who have not received one.\n\nThe process stops when all students have been processed.',
+    lesson:
+      'A while loop repeats an action as long as its condition is true. Once studentCount reaches totalStudents, the condition evaluates to false and printing stops.',
+    code: 'while(studentCount < totalStudents)\n{\n    PrintID();\n    studentCount++;\n}',
+    sceneBg: room3Img,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'while(studentCount < totalStudents\n{\n    PrintID();\n    studentCount++;\n}',
+      'while(studentCount < totalStudents)\n{\n    PrintID()\n    studentCount++;\n}',
+      'while(studentCount < totalStudents)\n{\n    PrintID();\n    studentCount++;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'while(studentCount < totalStudents\n{\n    PrintID();\n    studentCount++;\n}',
+      incorrectNote:
+        'The while loop condition is missing a closing parenthesis ).',
+      correctNote:
+        'The while loop continues printing IDs while studentCount is less than totalStudents.',
+      anatomy: [
+        {
+          text: 'while',
+          label: 'Tells the program to repeat while condition is true.',
+        },
+        {
+          text: '(studentCount < totalStudents)',
+          label: 'The loop condition checked before each iteration.',
+        },
+        { text: '{ }', label: 'The block of code executed on each repetition.' },
+        { text: 'PrintID();', label: 'Prints one student ID.' },
+        {
+          text: 'studentCount++;',
+          label: 'Increments student count so the loop will stop when all IDs are printed.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check studentCount < totalStudents',
+        'studentCount < totalStudents == true?',
+        'YES → PrintID()',
+        'studentCount++',
+        'Repeat loop',
+        'NO → Stop loop',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The while loop continues printing student IDs as long as studentCount is less than totalStudents.',
+    },
+  },
+  '5:4': {
+    chapter: 5,
+    mission: 4,
+    title: 'Upload Laboratory Files',
+    story:
+      'The system keeps uploading files while the number of uploaded files is less than the total number of files.\n\nThe process stops after every file has been uploaded.',
+    lesson:
+      'A while loop executes repeatedly as long as its condition remains true. When uploadedFiles reaches totalFiles, the condition becomes false and the loop terminates.',
+    code: 'while(uploadedFiles < totalFiles)\n{\n    UploadFile();\n    uploadedFiles++;\n}',
+    sceneBg: room3Img,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'while(uploadedFiles < totalFiles)\n{\n    UploadFile();\n    uploadedFiles++;\n}',
+      'while(uploadedFiles < totalFiles)\n{\n    UploadFile()\n    uploadedFiles++;\n}',
+      'while uploadedFiles < totalFiles\n{\n    UploadFile();\n    uploadedFiles++;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'while(uploadedFiles < totalFiles)\n{\n    UploadFile()\n    uploadedFiles++;\n}',
+      incorrectNote:
+        'Each statement inside the loop body must end with a semicolon (;).',
+      correctNote:
+        'The while loop repeatedly executes while uploadedFiles < totalFiles is true.',
+      anatomy: [
+        {
+          text: 'while',
+          label: 'Tells the program to repeat while condition is true.',
+        },
+        {
+          text: '(uploadedFiles < totalFiles)',
+          label: 'The loop condition checked before each iteration.',
+        },
+        { text: '{ }', label: 'The block of code executed on each repetition.' },
+        { text: 'UploadFile();', label: 'Uploads one laboratory file.' },
+        {
+          text: 'uploadedFiles++;',
+          label: 'Increments the counter so the loop will finish when all files are uploaded.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check uploadedFiles < totalFiles',
+        'uploadedFiles < totalFiles == true?',
+        'YES → UploadFile()',
+        'uploadedFiles++',
+        'Repeat loop',
+        'NO → Upload complete',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The loop continues uploading files while uploadedFiles is less than totalFiles.',
+    },
+  },
+  '5:5': {
+    chapter: 5,
+    mission: 5,
+    title: 'Review Submissions',
+    story:
+      'The programming system must review all submitted activities.\n\nIt continues reviewing submissions while the number reviewed is less than the total number of submissions.',
+    lesson:
+      'A while loop repeats a block of code as long as a specified condition remains true. Once reviewed reaches totalSubmissions, the condition evaluates to false and the loop terminates.',
+    code: 'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission();\n    reviewed++;\n}',
+    sceneBg: chapterThreeRoomImg,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission()\n    reviewed++;\n}',
+      'while reviewed < totalSubmissions\n{\n    ReviewSubmission();\n    reviewed++;\n}',
+      'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission();\n    reviewed++;\n}',
+    ],
+    core: {
+      incorrectExample:
+        'while(reviewed < totalSubmissions)\n{\n    ReviewSubmission()\n    reviewed++;\n}',
+      incorrectNote:
+        'Each statement inside the loop body must end with a semicolon (;).',
+      correctNote:
+        'The while loop repeatedly executes while reviewed < totalSubmissions is true.',
+      anatomy: [
+        {
+          text: 'while',
+          label: 'Tells the program to repeat while condition is true.',
+        },
+        {
+          text: '(reviewed < totalSubmissions)',
+          label: 'The loop condition checked before each iteration.',
+        },
+        { text: '{ }', label: 'The block of code executed on each repetition.' },
+        { text: 'ReviewSubmission();', label: 'Reviews one submission.' },
+        {
+          text: 'reviewed++;',
+          label: 'Increments the counter so the loop will stop when all submissions are reviewed.',
+        },
+      ],
+      flow: [
+        'START',
+        'Check reviewed < totalSubmissions',
+        'reviewed < totalSubmissions == true?',
+        'YES → ReviewSubmission()',
+        'reviewed++',
+        'Repeat loop',
+        'NO → Review complete',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The while loop repeats the code as long as its condition remains true. Once reviewed reaches totalSubmissions, the condition becomes false and the loop ends.',
+    },
+  },
+  '6:1': {
+    chapter: 6,
+    mission: 1,
+    title: 'The do...while loop',
+    story:
+      'When students open the Programming Learning System, a welcome message should appear at least once.\n\nAfter displaying the message, the system checks whether the student wants to view it again.',
+    lesson:
+      'A do...while loop executes its block of code first before checking the condition. This guarantees that the loop runs at least once, even if the condition is false.',
+    code: 'do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain);',
+    sceneBg: programmingActivityImg,
+    questions: [
+      {
+        prompt: 'Which C# control structure is most appropriate?',
+        choices: ['while', 'do...while', 'switch', 'if'],
+      },
+      {
+        prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+        choices: [
+          'do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain);',
+          'do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain)',
+          'do\n{\n    ShowWelcomeMessage()\n}\nwhile(showAgain);',
+          'do\n{\n    ShowWelcomeMessage();\n}\nwhile showAgain;',
+        ],
+      },
+    ],
+    core: {
+      incorrectExample:
+        'do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain)',
+      incorrectNote:
+        'The do...while loop must end with a semicolon (;) after the while condition.',
+      correctNote:
+        'The do...while loop executes the code first and checks showAgain afterward.',
+      anatomy: [
+        {
+          text: 'do',
+          label: 'Tells the program to execute the code block first.',
+        },
+        {
+          text: '{ }',
+          label: 'Encloses the statements that execute inside the loop.',
+        },
+        {
+          text: 'ShowWelcomeMessage();',
+          label: 'Displays the welcome message.',
+        },
+        {
+          text: 'while',
+          label: 'Checks the condition after running the code.',
+        },
+        {
+          text: '(showAgain);',
+          label: 'The loop condition followed by a required semicolon.',
+        },
+      ],
+      flow: [
+        'START',
+        'ShowWelcomeMessage()',
+        'Check showAgain',
+        'showAgain == true?',
+        'YES → Repeat loop',
+        'NO → End loop',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'A do...while loop executes at least once because its condition is tested at the bottom.',
+    },
+  },
+  '6:2': {
+    chapter: 6,
+    mission: 2,
+    title: 'Retry Login',
+    story:
+      "The system must process the student's first login attempt.\n\nAfter the attempt, it checks whether another login attempt is needed.",
+    lesson:
+      'In a do...while loop, the code block executes once before checking the condition. If retry is true, the loop repeats; otherwise, it stops.',
+    code: 'do\n{\n    Login();\n}\nwhile(retry);',
+    sceneBg: loggedInImg,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'do\n{\n    Login();\n}\nwhile(retry)',
+      'do\n{\n    Login();\n}\nwhile(retry);',
+      'do\n{\n    Login()\n}\nwhile(retry);',
+      'do\n{\n    Login();\n}\nwhile retry;',
+    ],
+    core: {
+      incorrectExample: 'do\n{\n    Login();\n}\nwhile(retry)',
+      incorrectNote:
+        'A do...while loop requires a semicolon (;) after the while condition.',
+      correctNote:
+        'The do...while loop performs the login attempt first, then checks retry.',
+      anatomy: [
+        { text: 'do', label: 'Executes the block at least once.' },
+        { text: 'Login();', label: 'Attempts to log in the student.' },
+        {
+          text: 'while(retry);',
+          label: 'Checks if another login attempt is required.',
+        },
+      ],
+      flow: [
+        'START',
+        'Login()',
+        'Check retry',
+        'retry == true?',
+        'YES → Repeat login',
+        'NO → Continue',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The login action runs first, ensuring the user gets at least one attempt before checking retry.',
+    },
+  },
+  '6:3': {
+    chapter: 6,
+    mission: 3,
+    title: 'Scan Student ID',
+    story:
+      'The ID scanner must scan one student ID first.\n\nAfter the scan is completed, the system checks whether another ID needs to be scanned.',
+    lesson:
+      'The do...while loop is ideal when an operation must be performed at least once before testing whether to repeat it.',
+    code: 'do\n{\n    ScanID();\n}\nwhile(scanAgain);',
+    sceneBg: loggedInImg,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'do\n{\n    ScanID();\n}\nwhile(scanAgain)',
+      'do\n{\n    ScanID()\n}\nwhile(scanAgain);',
+      'do\n{\n    ScanID();\n}\nwhile(scanAgain);',
+      'do\n{\n    ScanID();\n}\nwhile scanAgain;',
+    ],
+    core: {
+      incorrectExample: 'do\n{\n    ScanID()\n}\nwhile(scanAgain);',
+      incorrectNote:
+        'Statements inside the do block must end with a semicolon (;).',
+      correctNote:
+        'ScanID() runs first, and scanAgain is checked afterward.',
+      anatomy: [
+        { text: 'do', label: 'Starts the post-test loop.' },
+        {
+          text: 'ScanID();',
+          label: 'Scans the student identification card.',
+        },
+        {
+          text: 'while(scanAgain);',
+          label: 'Checks if another ID needs scanning.',
+        },
+      ],
+      flow: [
+        'START',
+        'ScanID()',
+        'Check scanAgain',
+        'scanAgain == true?',
+        'YES → Repeat scan',
+        'NO → Finished scanning',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The scanner scans an ID first, then checks scanAgain to decide whether to scan another.',
+    },
+  },
+  '6:4': {
+    chapter: 6,
+    mission: 4,
+    title: 'Continue Solving Practice Problems',
+    story:
+      'The student must answer at least one programming practice problem.\n\nAfter submitting the answer, the system asks whether the student wants another question.',
+    lesson:
+      'With a do...while loop, the student answers at least one question. The loop continues only if nextQuestion is true.',
+    code: 'do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion);',
+    sceneBg: loggedInImg,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion);',
+      'do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion)',
+      'do\n{\n    AnswerQuestion()\n}\nwhile(nextQuestion);',
+      'do\n{\n    AnswerQuestion();\n}\nwhile nextQuestion;',
+    ],
+    core: {
+      incorrectExample: 'do\n{\n    AnswerQuestion();\n}\nwhile nextQuestion;',
+      incorrectNote:
+        'The condition in while must be enclosed in parentheses ( ).',
+      correctNote:
+        'The student answers a question first, then nextQuestion is evaluated.',
+      anatomy: [
+        { text: 'do', label: 'Executes the question prompt first.' },
+        {
+          text: 'AnswerQuestion();',
+          label: 'Presents and checks the practice question.',
+        },
+        {
+          text: 'while(nextQuestion);',
+          label: 'Checks if the user wants another question.',
+        },
+      ],
+      flow: [
+        'START',
+        'AnswerQuestion()',
+        'Check nextQuestion',
+        'nextQuestion == true?',
+        'YES → Next question',
+        'NO → Finish practice',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'The student completes one practice problem first before deciding whether to continue.',
+    },
+  },
+  '6:5': {
+    chapter: 6,
+    mission: 5,
+    title: 'Show The Completion Screen',
+    story:
+      'The Programming Learning System must display the completion screen at least once.\n\nAfter displaying it, the student may choose whether to review the lesson again.',
+    lesson:
+      'The completion screen is displayed once upon finishing. The loop tests reviewLesson to determine if the lesson should be shown again.',
+    code: 'do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson);',
+    sceneBg: loggedInImg,
+    prompt: 'Syntax Challenge: Choose the correct syntax, then type it exactly.',
+    choices: [
+      'do\n{\n    ShowCompletionScreen()\n}\nwhile(reviewLesson);',
+      'do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson);',
+      'do\n{\n    ShowCompletionScreen();\n}\nwhile reviewLesson;',
+      'do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson)',
+    ],
+    core: {
+      incorrectExample:
+        'do\n{\n    ShowCompletionScreen()\n}\nwhile(reviewLesson);',
+      incorrectNote:
+        'ShowCompletionScreen() must end with a semicolon (;).',
+      correctNote:
+        'The completion screen is displayed first before checking reviewLesson.',
+      anatomy: [
+        {
+          text: 'do',
+          label: 'Executes the block before checking the condition.',
+        },
+        {
+          text: 'ShowCompletionScreen();',
+          label: 'Renders the lesson completion screen.',
+        },
+        {
+          text: 'while(reviewLesson);',
+          label: 'Repeats the review if reviewLesson is true.',
+        },
+      ],
+      flow: [
+        'START',
+        'ShowCompletionScreen()',
+        'Check reviewLesson',
+        'reviewLesson == true?',
+        'YES → Review lesson',
+        'NO → Exit',
+        'END',
+      ],
+      flowGraphic: 'terminal',
+      takeaway:
+        'A do...while loop guarantees that the completion screen is displayed at least once.',
+    },
+  },
 }
+
 
 export function getLesson(
   chapter: number,
