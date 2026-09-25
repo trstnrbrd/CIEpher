@@ -930,8 +930,8 @@ export const CH4_SCENE_2_1_PAGE: StoryPage = {
   bubble: 'white',
   speaker: 'player',
   lines: [
-    'This computer',
-    'working i should',
+    'This computer is',
+    'working. I should',
     'sit here.',
   ],
 }
