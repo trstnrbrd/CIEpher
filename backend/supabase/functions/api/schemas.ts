@@ -4,6 +4,37 @@ import { ApiError } from "./errors.ts";
 // What each endpoint accepts. These rules must match the database (profiles
 // table) and Supabase Auth's settings (config.toml), and Documents/api-contract.md.
 
+// The most commonly leaked/guessed passwords, checked with any trailing
+// digits stripped and the case ignored - so "Password1", "password123" and
+// "PASSWORD9999" are all caught by the one entry "password". This is a
+// deliberately short list of the obvious ones, not a full breach-list
+// lookup: the point is to block the passwords a script (or a student
+// helping a classmate register) would try first, not to replace the length
+// and character rules below.
+const COMMON_PASSWORDS = new Set([
+  "password",
+  "12345678",
+  "123456789",
+  "1234567890",
+  "qwerty",
+  "qwertyuiop",
+  "letmein",
+  "welcome",
+  "admin",
+  "iloveyou",
+  "abcd1234",
+  "abcdefgh",
+  "changeme",
+  "ciepher",
+  "programming1",
+]);
+
+function isCommonPassword(password: string): boolean {
+  const lower = password.toLowerCase();
+  const withoutDigits = lower.replace(/\d+$/, "");
+  return COMMON_PASSWORDS.has(lower) || COMMON_PASSWORDS.has(withoutDigits);
+}
+
 // The token from the "I'm not a robot" widget, sent with register and forgot
 // password. Required only while the check is switched on (humanCheck in
 // app.ts).
@@ -25,7 +56,7 @@ export const registerSchema = z.object({
     .max(254, "That email is too long."),
   password: z
     .string({ error: "Password is required." })
-    .min(8, "Password must be at least 8 characters.")
+    .min(10, "Password must be at least 10 characters.")
     .max(72, "Password must be at most 72 characters.")
     // Supabase Auth (bcrypt) counts bytes, not characters: an accented or
     // multibyte password of 72 characters could be rejected as "too weak".
@@ -35,7 +66,11 @@ export const registerSchema = z.object({
       "Password is too long.",
     )
     .regex(/[A-Za-z]/, "Password must include a letter and a number.")
-    .regex(/[0-9]/, "Password must include a letter and a number."),
+    .regex(/[0-9]/, "Password must include a letter and a number.")
+    .refine(
+      (password) => !isCommonPassword(password),
+      "That password is too easy to guess. Please choose a different one.",
+    ),
   privacyConsent: z.literal(true, {
     error: "You must agree to the privacy notice.",
   }),

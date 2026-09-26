@@ -105,7 +105,7 @@ Request:
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `username`       | 3–20 letters, numbers, or `_`. Unique ignoring capitals (`Vhan` and `vhan` are the same).                                    |
 | `email`          | A valid email address.                                                                                                       |
-| `password`       | 8–72 characters, with at least one letter and one number.                                                                    |
+| `password`       | 10-72 characters, with at least one letter and one number, and not on a short list of common weak passwords (e.g. "password1"). |
 | `privacyConsent` | Must be `true`: the player ticked "I agree to the privacy notice". Required by the Data Privacy Act.                         |
 | `turnstileToken` | The token from the "I'm not a robot" widget (Cloudflare Turnstile). Required wherever the check is on (staging, production). |
 
@@ -172,7 +172,8 @@ Errors: `400 VALIDATION_ERROR` (`field` is `username` or `turnstileToken`), `400
 
 - At most one email a minute per player, so nobody can flood an inbox.
 - **The link** opens the game with a one-time session. `src/api/supabase.ts` reads it (`resetLink`), and `App.tsx` shows the **New Password** screen instead of logging in.
-- **Saving:** `await setNewPassword(password)`. It saves the password (8-72 characters, a letter and a number), then logs the player out, so they sign in with the new one. A `401` means the link has expired or was already used: ask for a new one.
+- **Saving:** `await setNewPassword(password)`. It saves the password (10-72 characters, a letter and a number), then logs the player out, so they sign in with the new one. A `401` means the link has expired or was already used: ask for a new one.
+  Note: this call talks to Supabase Auth directly, so the common-weak-password check on `/auth/register` does not run here - only the length and letter/number rule does (enforced by Supabase Auth’s own settings).
 - A link works **once** and expires after 1 hour.
 - If the username was locked by wrong passwords, the lock still runs out after its 15 minutes.
 
