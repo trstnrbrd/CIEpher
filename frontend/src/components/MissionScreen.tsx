@@ -2030,7 +2030,16 @@ function MissionScreen({
         pages={[CH3_COMPLETE_PAGE]}
         onFinish={() => {
           setShowingCh3Complete(false)
-          onJournal(3)
+          // Like chapters 2 and 4, finishing leaves for the chapter board,
+          // through the "level unlocked" popup when chapter 4 opens. Opening
+          // the Journal here instead left the player on the mission screen,
+          // whose CHAPTER CLEARED button brought this card back forever.
+          const nextChapter = progress?.chapters.find((c) => c.id === 4)
+          if (nextChapter?.unlocked) {
+            setUnlockChapter(4)
+          } else {
+            onChapter()
+          }
         }}
         onJournal={() => {
           setShowingCh3Complete(false)
@@ -3311,11 +3320,18 @@ function MissionScreen({
         onUnauthorized()
         return
       }
-      if (err instanceof ApiError) {
-        setServerError(err.message)
-      } else {
-        setServerError('Something went wrong. Please try again.')
-      }
+      // Anything else (no connection, a timeout, answering too fast, a
+      // server hiccup) is shown under the question, where SYNTAX ERROR
+      // appears. serverError would replace the whole screen with no way
+      // back for the typed answer: on school Wi-Fi the player just presses
+      // EXECUTE again.
+      setFeedback({
+        ok: false,
+        text:
+          err instanceof ApiError
+            ? err.message
+            : 'Something went wrong. Please try again.',
+      })
     } finally {
       submittingRef.current = false
       setChecking(false)
