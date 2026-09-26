@@ -36,7 +36,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$BRANCH" in
-            feat/be-*|fix/be-*|chore/*|docs/*|hotfix/*)
+            develop|feat/be-*|fix/be-*|chore/*|docs/*|hotfix/*)
               echo "Backend branch ($BRANCH): any files may change."
               exit 0
               ;;
