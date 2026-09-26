@@ -69,38 +69,81 @@ export function playClick(volume = 1): void {
 }
 
 // =========================================================================
+// Wait for the player's first tap, click or key press.
+//
+// The music and the typing sound together are about 6 MB. Fetching them the
+// moment the app opens competes with the game's own code and the login
+// screen for bandwidth on a slow connection, for no benefit: browsers
+// already refuse to play audio before a user gesture, so nothing plays
+// until one happens anyway. This lines the network fetch up with that same
+// first gesture instead of doing it earlier for nothing.
+// =========================================================================
+
+let firstInteractionDone = false
+let firstInteractionArmed = false
+const firstInteractionWaiters: Array<() => void> = []
+
+function onFirstInteraction(run: () => void): void {
+  if (typeof window === 'undefined') return
+  if (firstInteractionDone) {
+    run()
+    return
+  }
+  firstInteractionWaiters.push(run)
+  if (firstInteractionArmed) return
+  firstInteractionArmed = true
+  const fire = (): void => {
+    window.removeEventListener('pointerdown', fire)
+    window.removeEventListener('keydown', fire)
+    window.removeEventListener('click', fire)
+    firstInteractionDone = true
+    const waiting = firstInteractionWaiters.splice(0)
+    for (const w of waiting) w()
+  }
+  // pointerdown/keydown for real taps and key presses; click too, so a
+  // button activated by other means (e.g. an assistive tool) still counts.
+  window.addEventListener('pointerdown', fire, { once: true })
+  window.addEventListener('keydown', fire, { once: true })
+  window.addEventListener('click', fire, { once: true })
+}
+
+// =========================================================================
 // Background Music (BGM): Loops continuously across gameplay
 // =========================================================================
 
 let bgmInstance: HTMLAudioElement | null = null
 let bgmUserInteractionBound = false
 
-export function initBackgroundMusic(): void {
-  if (typeof window === 'undefined') return
+// Creates the <audio> element (this is the moment the browser actually
+// requests the file) if it doesn't exist yet. Safe to call from anywhere
+// that already knows a gesture has happened - a button click, a dragged
+// slider - since playing it is allowed by then.
+function ensureBgmInstance(): HTMLAudioElement {
   if (!bgmInstance) {
     bgmInstance = new Audio(bgmAudio)
     bgmInstance.loop = true
-    const vol = loadVolume('music') / 100
-    bgmInstance.volume = vol
   }
+  return bgmInstance
+}
 
+function startBackgroundMusicNow(): void {
+  const audio = ensureBgmInstance()
   const vol = loadVolume('music') / 100
-  bgmInstance.volume = vol
+  audio.volume = vol
 
-  if (vol > 0 && bgmInstance.paused) {
-    const playPromise = bgmInstance.play()
+  if (vol > 0 && audio.paused) {
+    const playPromise = audio.play()
     if (playPromise) {
       playPromise.catch(() => {
-        // Autoplay policy prevented playback. Wait for user interaction to resume.
+        // Should be rare now that we already waited for a gesture, but keep
+        // the fallback in case the browser still refuses this once.
         if (!bgmUserInteractionBound) {
           bgmUserInteractionBound = true
           const unlock = () => {
-            if (bgmInstance) {
-              const currentVol = loadVolume('music') / 100
-              bgmInstance.volume = currentVol
-              if (currentVol > 0) {
-                void bgmInstance.play().catch(() => {})
-              }
+            const currentVol = loadVolume('music') / 100
+            audio.volume = currentVol
+            if (currentVol > 0) {
+              void audio.play().catch(() => {})
             }
             window.removeEventListener('pointerdown', unlock)
             window.removeEventListener('keydown', unlock)
@@ -114,6 +157,13 @@ export function initBackgroundMusic(): void {
   }
 }
 
+// Called once when the app starts. Doesn't touch the network itself: it
+// just waits for the player's first interaction, then starts the music.
+export function initBackgroundMusic(): void {
+  if (typeof window === 'undefined') return
+  onFirstInteraction(startBackgroundMusicNow)
+}
+
 let bgmFadeTimer: number | null = null
 
 export function setMusicVolume(volume: number): void {
@@ -122,19 +172,18 @@ export function setMusicVolume(volume: number): void {
     window.clearInterval(bgmFadeTimer)
     bgmFadeTimer = null
   }
-  if (!bgmInstance) {
-    initBackgroundMusic()
-    return
-  }
+  // Moving the slider is itself a gesture, so it's always fine to load the
+  // file now if it hasn't started yet.
+  const audio = ensureBgmInstance()
   const normalized = clamp(volume) / 100
-  bgmInstance.volume = normalized
+  audio.volume = normalized
   if (normalized > 0) {
-    if (bgmInstance.paused) {
-      void bgmInstance.play().catch(() => {})
+    if (audio.paused) {
+      void audio.play().catch(() => {})
     }
   } else {
     // If volume reaches 0, mute
-    bgmInstance.volume = 0
+    audio.volume = 0
   }
 }
 
@@ -170,10 +219,9 @@ export function fadeBgmOut(durationMs = 700): void {
 
 export function fadeBgmIn(durationMs = 1000): void {
   if (typeof window === 'undefined') return
-  if (!bgmInstance) {
-    initBackgroundMusic()
-  }
-  if (!bgmInstance) return
+  // This is called from mid-game (SakayAnimation), well after the player's
+  // first interaction, so it's always fine to load the file now.
+  const bgmInstance = ensureBgmInstance()
 
   if (bgmFadeTimer !== null) {
     window.clearInterval(bgmFadeTimer)
@@ -240,22 +288,27 @@ function getAudioContext(): AudioContext | null {
 
 export function preloadTypingSound(): void {
   if (typeof window === 'undefined' || typingBuffer || typingBufferLoading) return
-  const ctx = getAudioContext()
-  if (!ctx) return
-  typingBufferLoading = true
-  fetch(talkingAudio)
-    .then((res) => res.arrayBuffer())
-    .then((buf) => ctx.decodeAudioData(buf))
-    .then((decoded) => {
-      typingBuffer = decoded
-      typingBufferLoading = false
-      if (typingActive && !typingSourceNode) {
-        startTypingSound()
-      }
-    })
-    .catch(() => {
-      typingBufferLoading = false
-    })
+  // Waits for the same first interaction as the music, so this ~300 KB file
+  // isn't fetched before the player has done anything either.
+  onFirstInteraction(() => {
+    if (typingBuffer || typingBufferLoading) return
+    const ctx = getAudioContext()
+    if (!ctx) return
+    typingBufferLoading = true
+    fetch(talkingAudio)
+      .then((res) => res.arrayBuffer())
+      .then((buf) => ctx.decodeAudioData(buf))
+      .then((decoded) => {
+        typingBuffer = decoded
+        typingBufferLoading = false
+        if (typingActive && !typingSourceNode) {
+          startTypingSound()
+        }
+      })
+      .catch(() => {
+        typingBufferLoading = false
+      })
+  })
 }
 
 function getTypingAudio(): HTMLAudioElement | null {
