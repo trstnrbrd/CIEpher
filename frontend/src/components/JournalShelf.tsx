@@ -179,6 +179,7 @@ function JournalShelf({
                   className="journal-shelf-picture"
                   src={BOOK_PICTURES[lesson.chapter]}
                   alt=""
+                  loading="lazy"
                 />
               ) : (
                 <Book number={lesson.chapter} />
