@@ -16,7 +16,9 @@ const SESSION = { accessToken: "test-access", refreshToken: "test-refresh" };
 const VALID_REGISTRATION = {
   username: "player_one",
   email: "player@example.com",
-  password: "secret123",
+  // 10 characters exactly: the new minimum. Not "secret123" - that's only
+  // 9, which the stronger password rule below now refuses.
+  password: "secret1234",
   privacyConsent: true,
 };
 
@@ -431,6 +433,66 @@ Deno.test("register: rejects a password without a number", async () => {
   const body = await res.json();
   assertEquals(body.error.field, "password");
 });
+
+Deno.test(
+  "register: rejects a password shorter than 10 characters",
+  async () => {
+    const res = await postJson(testApp(), "/api/auth/register", {
+      ...VALID_REGISTRATION,
+      password: "secret123", // 9 characters
+    });
+    assertEquals(res.status, 400);
+    const body = await res.json();
+    assertEquals(body.error.field, "password");
+    assertEquals(
+      body.error.message,
+      "Password must be at least 10 characters.",
+    );
+  },
+);
+
+Deno.test(
+  "register: rejects common weak passwords, even with digits added",
+  async () => {
+    // Long enough and has a letter and a number, but each is one of the
+    // passwords a script (or a classmate) would try first.
+    for (const weak of [
+      "password123",
+      "Password9999",
+      "qwertyuiop1",
+      "programming1",
+      "ciepher1234",
+    ]) {
+      const res = await postJson(testApp(), "/api/auth/register", {
+        ...VALID_REGISTRATION,
+        password: weak,
+      });
+      assertEquals(res.status, 400, `expected ${weak} to be refused`);
+      const body = await res.json();
+      assertEquals(body.error.field, "password");
+      assertEquals(
+        body.error.message,
+        "That password is too easy to guess. Please choose a different one.",
+      );
+    }
+  },
+);
+
+Deno.test(
+  "register: a strong password that happens to contain a common word is fine",
+  async () => {
+    // "passwordless1234" is not itself in the common list, and stripping its
+    // trailing digits ("passwordless") isn't either - only an exact common
+    // password (with or without trailing digits) is refused.
+    const res = await postJson(testApp(), "/api/auth/register", {
+      ...VALID_REGISTRATION,
+      username: "player_two",
+      email: "player2@example.com",
+      password: "passwordless1234",
+    });
+    assertEquals(res.status, 201);
+  },
+);
 
 Deno.test("register: requires privacy consent", async () => {
   const res = await postJson(testApp(), "/api/auth/register", {
