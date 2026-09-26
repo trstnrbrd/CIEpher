@@ -1,0 +1,72 @@
+{
+  "chapter": 6,
+  "title": "The do...while loop",
+  "source": "Documents/g. CHAPTER 6.docx.pdf",
+  "program": [
+    "bool showAgain, retry, scanAgain, nextQuestion, reviewLesson;",
+    "void ShowWelcomeMessage() {}",
+    "void Login() {}",
+    "void ScanID() {}",
+    "void AnswerQuestion() {}",
+    "void ShowCompletionScreen() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "do...while",
+      "wrong": ["while", "switch", "if"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain);",
+      "wrong": [
+        "do\n{\n    ShowWelcomeMessage();\n}\nwhile(showAgain)",
+        "do\n{\n    ShowWelcomeMessage()\n}\nwhile(showAgain);",
+        "do\n{\n    ShowWelcomeMessage();\n}\nwhile showAgain;"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "do\n{\n    Login();\n}\nwhile(retry);",
+      "wrong": [
+        "do\n{\n    Login();\n}\nwhile(retry)",
+        "do\n{\n    Login()\n}\nwhile(retry);",
+        "do\n{\n    Login();\n}\nwhile retry;"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "do\n{\n    ScanID();\n}\nwhile(scanAgain);",
+      "wrong": [
+        "do\n{\n    ScanID();\n}\nwhile(scanAgain)",
+        "do\n{\n    ScanID()\n}\nwhile(scanAgain);",
+        "do\n{\n    ScanID();\n}\nwhile scanAgain;"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion);",
+      "wrong": [
+        "do\n{\n    AnswerQuestion();\n}\nwhile(nextQuestion)",
+        "do\n{\n    AnswerQuestion()\n}\nwhile(nextQuestion);",
+        "do\n{\n    AnswerQuestion();\n}\nwhile nextQuestion;"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson);",
+      "wrong": [
+        "do\n{\n    ShowCompletionScreen()\n}\nwhile(reviewLesson);",
+        "do\n{\n    ShowCompletionScreen();\n}\nwhile reviewLesson;",
+        "do\n{\n    ShowCompletionScreen();\n}\nwhile(reviewLesson)"
+      ]
+    }
+  ]
+}

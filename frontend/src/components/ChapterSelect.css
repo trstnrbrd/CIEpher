@@ -1,0 +1,221 @@
+/* Select Chapter, drawn from the client's mockup: a wooden board on a blue
+   sky, holding the seven story chapters (five on top, two below). --u is 1%
+   of the screen height, or less on narrow screens, so the board keeps the
+   mockup's proportions. */
+.chapter-select {
+  --u: min(var(--h), 0.5556vw);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(4 * var(--u));
+  /* Keep the sign and the board above the grass strip at the bottom. */
+  padding-bottom: max(calc(10 * var(--h)), 44px);
+  background: #5ccdfb url('/src/assets/welcome background.webp') center / cover
+    no-repeat;
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* BACK to the home menu, the same cream pill as the journal notebook's. */
+.chapter-back {
+  position: absolute;
+  z-index: 2;
+  left: calc(3.4 * var(--u));
+  bottom: calc(2 * var(--u) + env(safe-area-inset-bottom, 0px));
+  padding: calc(1.6 * var(--u)) calc(3.8 * var(--u));
+  font-family: inherit;
+  font-size: max(calc(2.2 * var(--u)), 11px);
+  line-height: 1;
+  color: #1e1a14;
+  background: #f6efd9;
+  border: max(calc(0.45 * var(--u)), 2px) solid #2e2418;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.chapter-back:hover {
+  transform: translateY(-2px);
+}
+
+.chapter-back:active {
+  transform: translateY(1px);
+}
+
+.chapter-back:focus-visible {
+  outline: max(2px, calc(0.45 * var(--u))) solid #fffdf0;
+  outline-offset: calc(0.6 * var(--u));
+}
+
+/* ---------- the SELECT Chapter sign ---------- */
+
+.chapter-plaque {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: calc(2.4 * var(--u));
+  margin: 0;
+  padding: calc(1.6 * var(--u)) calc(2.6 * var(--u));
+  background: #5f3a17;
+  border: max(5px, calc(1.4 * var(--u))) solid #c08b3c;
+  border-radius: calc(1.2 * var(--u));
+  box-shadow:
+    0 0 0 max(2px, calc(0.45 * var(--u))) #2f1c07,
+    0 calc(0.6 * var(--u)) 0 rgba(0, 0, 0, 0.25);
+  font-weight: normal;
+  line-height: 1;
+}
+
+.chapter-plaque-select {
+  font-size: calc(7 * var(--u));
+  color: #ffffff;
+  letter-spacing: calc(0.6 * var(--u));
+  text-shadow: calc(0.4 * var(--u)) calc(0.4 * var(--u)) 0 #3a2008;
+}
+
+.chapter-plaque-word {
+  font-size: calc(7 * var(--u));
+  color: #ffffff;
+  letter-spacing: calc(0.6 * var(--u));
+  text-shadow: calc(0.4 * var(--u)) calc(0.4 * var(--u)) 0 #3a2008;
+}
+
+/* ---------- the board and its chapter tiles ---------- */
+
+/* The box is the board itself. The art has wide transparent margins (the
+   board fills 62.92% x 65.08% of the PNG, starting at 17.25% / 20.63%), so
+   the image is blown up and shifted until only the board shows. */
+.chapter-board {
+  position: relative;
+  z-index: 1;
+  width: min(63.7vw, calc(116 * var(--u)));
+  aspect-ratio: 755 / 410;
+  overflow: hidden;
+}
+
+.chapter-board-art {
+  position: absolute;
+  left: -27.41%;
+  top: -31.7%;
+  width: 158.93%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+/* The wooden area inside the board's frame, measured on the mockup. The
+   board's wood runs from about 6% on the left, 5% on the right, 15% on the
+   top and bottom, so the tiles are inset a touch further to sit on the
+   panel while clearing the frame. */
+.chapter-tiles {
+  position: absolute;
+  left: 7.2%;
+  right: 6.2%;
+  top: 17.2%;
+  bottom: 16.4%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.chapter-row {
+  display: flex;
+  justify-content: center;
+  gap: 2.2%;
+}
+
+.chapter-tile {
+  width: 15.6%;
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.chapter-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 rgba(24, 12, 0, 0.45));
+}
+
+button.chapter-tile:hover {
+  transform: translateY(-4%);
+}
+
+.chapter-tile.is-locked {
+  cursor: default;
+}
+
+button.chapter-tile:active {
+  transform: translateY(2%);
+}
+
+button.chapter-tile:focus-visible {
+  outline: max(2px, 0.6%) solid #ffffff;
+  outline-offset: 4%;
+}
+
+/* Loading and errors, on the board itself. */
+.chapter-notice {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+  font-size: calc(2.2 * var(--u));
+  line-height: 1.8;
+  text-align: center;
+  color: #3a2008;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 80%;
+}
+
+/* Phones and small windows: the board fills the width, and the sign shrinks
+   so it stays on one line. */
+@media (max-width: 640px), (max-aspect-ratio: 1/1) {
+  .chapter-select {
+    gap: 18px;
+  }
+
+  .chapter-board {
+    width: 92vw;
+  }
+
+  .chapter-plaque {
+    gap: 2vw;
+    padding: 1.6vw 2.4vw;
+    border-width: 4px;
+    border-radius: 6px;
+  }
+
+  .chapter-plaque-select {
+    font-size: clamp(14px, 6vw, 40px);
+    letter-spacing: 1px;
+  }
+
+  .chapter-plaque-word {
+    font-size: clamp(14px, 6vw, 40px);
+    letter-spacing: 1px;
+  }
+
+  .chapter-notice {
+    font-size: clamp(9px, 2.6vw, 14px);
+  }
+
+  .chapter-back {
+    left: 16px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 18px;
+    font-size: 12px;
+    border-width: 3px;
+  }
+}

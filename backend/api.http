@@ -1,0 +1,36 @@
+# Try the API from VS Code: click "Send Request" above any request.
+# Local test values only. Never put a real password in this file.
+@api = http://127.0.0.1:54321/functions/v1/api
+
+### Health check
+GET {{api}}/health
+
+### Register a test player
+POST {{api}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_player",
+  "email": "test_player@test.local",
+  "password": "secret123",
+  "privacyConsent": true
+}
+
+### Login (the username isn't case-sensitive)
+# @name login
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "TRISTAN",
+  "password": "secret123"
+}
+
+### Wrong password: expect 401 INVALID_CREDENTIALS
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "tristan",
+  "password": "wrongpass1"
+}

@@ -1,0 +1,63 @@
+/* The "THE CODE EXPLAINED" recap shown when a chapter unlocks. Sits above
+   the mission screen like the UNDERSTAND THE CORE panel (same z-index). */
+.ce-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 28, 0.88);
+  padding: 18px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.ce-card {
+  width: min(980px, 96vw);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ce-kicker {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #7dff94;
+  margin: 0;
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* The decision step of the flow (where the program branches). */
+.flow-decision .flow-step-text {
+  background: #8a6d1a;
+  color: #ffe9a8;
+}
+
+.ce-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ce-journal-btn {
+  background: #2b6dd4;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.ce-journal-btn:hover {
+  background: #3f8cff;
+}
+
+/* Narrow screens: the two columns stack like CoreBreakdown. */
+@media (max-width: 720px) {
+  .ce-card {
+    padding: 18px 14px;
+  }
+}

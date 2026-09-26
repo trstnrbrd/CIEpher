@@ -1,0 +1,426 @@
+/* The Code Journal: a spiral notebook lying open on the grass under a blue
+   sky. Sizes use --u: 1% of the screen height, or less on narrower screens
+   so the notebook still leaves room for BACK beside it. --line is the gap
+   between the ruled lines, and every block of text is a whole number of
+   lines tall so the text stays on the lines. */
+.journal-screen {
+  --u: min(var(--h), 0.533vw);
+  --line: max(calc(2.6 * var(--u)), 18px);
+  --ink: #2b2733;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 16px calc(2 * var(--u));
+  background: #5ccdfb;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.journal-cloud {
+  position: absolute;
+  height: auto;
+}
+
+.journal-cloud-1 {
+  left: 4.5%;
+  top: 9%;
+  width: 11vw;
+}
+
+.journal-cloud-2 {
+  left: 85%;
+  top: 7%;
+  width: 13vw;
+}
+
+.journal-cloud-3 {
+  left: 93%;
+  top: 40%;
+  width: 10vw;
+}
+
+.journal-cloud-4 {
+  left: -3%;
+  top: 79%;
+  width: 10vw;
+}
+
+/* A strip of pixel grass over brown soil along the bottom. */
+.journal-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: max(calc(9 * var(--h)), 40px);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10' shape-rendering='crispEdges'%3E%3Cpath fill='%235fc23b' d='M0 3h16v3H0zM1 2h3v1H1zM6 1h2v2H6zM11 2h3v1h-3z'/%3E%3Cpath fill='%2342a02c' d='M2 5h2v1H2zM8 4h1v2H8zM12 5h3v1h-3zM5 3h1v1H5zM14 3h1v1h-1z'/%3E%3Cpath fill='%237a4a25' d='M0 6h16v4H0z'/%3E%3Cpath fill='%235d3518' d='M1 7h2v1H1zM6 8h3v1H6zM12 7h2v1h-2zM4 9h1v1H4zM14 9h2v1h-2z'/%3E%3C/svg%3E")
+    left bottom / auto 100% repeat-x;
+}
+
+.journal-title {
+  --outline: #2d1c0c;
+  --o: max(calc(0.35 * var(--u)), 1px);
+  position: relative;
+  z-index: 1;
+  margin: 0 0 calc(4.6 * var(--u));
+  font-size: calc(3.8 * var(--u));
+  font-weight: normal;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: #ffd21f;
+  text-shadow:
+    var(--o) 0 0 var(--outline),
+    calc(-1 * var(--o)) 0 0 var(--outline),
+    0 var(--o) 0 var(--outline),
+    0 calc(-1 * var(--o)) 0 var(--outline),
+    var(--o) var(--o) 0 var(--outline),
+    calc(-1 * var(--o)) var(--o) 0 var(--outline),
+    var(--o) calc(-1 * var(--o)) 0 var(--outline),
+    calc(-1 * var(--o)) calc(-1 * var(--o)) 0 var(--outline),
+    0 calc(3 * var(--o)) 0 var(--outline);
+  transform: translateY(calc(-5 * var(--u)));
+}
+
+/* The brown cover around the two pages. */
+.journal-book {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: calc(144.3 * var(--u));
+  height: calc(80 * var(--u));
+  padding: calc(1.2 * var(--u));
+  background: #9a5130;
+  border: calc(0.5 * var(--u)) solid #4a2414;
+  border-radius: calc(2.4 * var(--u));
+  box-shadow: 0 calc(0.6 * var(--u)) 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(calc(-5 * var(--u)));
+}
+
+/* The notch where the two halves of the cover meet at the top. */
+.journal-book::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: calc(-0.5 * var(--u));
+  left: 50%;
+  width: calc(2.6 * var(--u));
+  height: calc(2 * var(--u));
+  transform: translateX(-50%);
+  background: #4a2414;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.journal-spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  overflow: hidden;
+  background: #fdfcf7;
+  border: calc(0.3 * var(--u)) solid #4a2414;
+  border-radius: calc(1.2 * var(--u));
+}
+
+/* A ruled page with a red margin line. The lines scroll with the text. */
+.journal-page {
+  --margin-x: calc(9.5 * var(--u));
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c9b9a6 transparent;
+  padding: var(--line) calc(5 * var(--u)) calc(2 * var(--line))
+    calc(var(--margin-x) + 2 * var(--u));
+  font-size: max(calc(1.6 * var(--u)), 11px);
+  line-height: var(--line);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  background:
+    linear-gradient(
+        to right,
+        transparent var(--margin-x),
+        #e2625c var(--margin-x),
+        #e2625c calc(var(--margin-x) + 2px),
+        transparent calc(var(--margin-x) + 2px)
+      )
+      local,
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--line) - 1px),
+        #b4d2ef calc(var(--line) - 1px),
+        #b4d2ef var(--line)
+      )
+      local;
+}
+
+/* Its text stops short of the next-page arrow's column. */
+.journal-page-right {
+  --margin-x: calc(13.5 * var(--u));
+  padding-right: calc(7.5 * var(--u));
+}
+
+.journal-heading {
+  margin: 0;
+  font-size: max(calc(1.8 * var(--u)), 12px);
+  font-weight: normal;
+  line-height: var(--line);
+  color: #2f5ec4;
+}
+
+.journal-text {
+  margin: 0 0 var(--line);
+}
+
+.journal-code,
+.journal-wrong {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: max(calc(2.3 * var(--u)), 14px);
+  line-height: var(--line);
+}
+
+.journal-code {
+  margin: 0 0 var(--line);
+  white-space: pre-wrap;
+  color: #1c7a3c;
+}
+
+/* One line of code; the component sets its hanging indent. min-height keeps
+   blank lines. */
+.journal-code-line {
+  display: block;
+  min-height: var(--line);
+}
+
+/* Wrong code is red, with a pixel-art X in front. */
+.journal-wrong {
+  display: block;
+  color: #d23a3a;
+}
+
+.journal-wrong::before {
+  content: '';
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.5em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 5' shape-rendering='crispEdges'%3E%3Cpath fill='%23d23a3a' d='M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM4 4h1v1H4zM4 0h1v1H4zM3 1h1v1H3zM1 3h1v1H1zM0 4h1v1H0z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.journal-list {
+  margin: 0 0 var(--line);
+  padding: 0;
+  list-style: none;
+}
+
+.journal-list li {
+  padding-left: calc(1.6 * var(--u) + 1em);
+  text-indent: calc(-1.6 * var(--u) - 1em);
+}
+
+.journal-list li::before {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin: 0 calc(1.6 * var(--u)) 0 0.5em;
+  vertical-align: 0.15em;
+  background: var(--ink);
+}
+
+/* The spiral binding down the middle. */
+.journal-spiral {
+  position: absolute;
+  z-index: 1;
+  top: calc(1.2 * var(--u));
+  bottom: calc(1.2 * var(--u));
+  left: 50%;
+  width: calc(6.9 * var(--u));
+  transform: translateX(-50%);
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 5' shape-rendering='crispEdges'%3E%3Cpath fill='%2334343e' d='M1 0h10v1H1zM0 1h12v2H0zM1 3h10v1H1z'/%3E%3Cpath fill='%23d3d4db' d='M1 1h10v1H1z'/%3E%3Cpath fill='%23868894' d='M1 2h10v1H1z'/%3E%3C/svg%3E")
+      center top / 100% auto repeat-y,
+    linear-gradient(#34343e, #34343e) center top /
+      max(2px, calc(0.3 * var(--u))) 100% no-repeat;
+}
+
+/* The page-turn arrows in the bottom corners, beside the text: the left one
+   in the margin, the right one past the end of the lines. */
+.journal-arrow {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(7.2 * var(--u));
+  width: calc(3.7 * var(--u));
+  height: calc(5.6 * var(--u));
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.journal-arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.journal-arrow polygon {
+  fill: #fdfcf7;
+  stroke: #5c5b66;
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+
+.journal-arrow:hover:not(:disabled) polygon {
+  fill: #ffe98a;
+}
+
+.journal-arrow:focus-visible {
+  outline: 2px solid #2f5ec4;
+  outline-offset: 2px;
+}
+
+.journal-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.journal-arrow-previous {
+  left: calc(4.5 * var(--u));
+}
+
+.journal-arrow-next {
+  right: calc(4.5 * var(--u));
+}
+
+.journal-arrow-next svg {
+  transform: scaleX(-1);
+}
+
+.journal-back {
+  position: absolute;
+  z-index: 2;
+  left: calc(3.4 * var(--u));
+  bottom: calc(1.1 * var(--u));
+  padding: calc(1.6 * var(--u)) calc(3.8 * var(--u));
+  font-family: inherit;
+  font-size: max(calc(2.2 * var(--u)), 11px);
+  line-height: 1;
+  color: #1e1a14;
+  background: #f6efd9;
+  border: max(calc(0.45 * var(--u)), 2px) solid #2e2418;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.journal-back:hover {
+  transform: translateY(-2px);
+}
+
+.journal-back:active {
+  transform: translateY(1px);
+}
+
+/* Phones, tablets held upright and small windows: one column. The pages sit
+   one under the other in a scrolling notebook, with the spiral along the top
+   and BACK below. */
+@media (max-width: 640px), (max-height: 480px), (max-aspect-ratio: 4/3) {
+  .journal-screen {
+    justify-content: flex-start;
+    padding: 12px 16px calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .journal-cloud-3,
+  .journal-cloud-4 {
+    display: none;
+  }
+
+  .journal-title {
+    margin-bottom: 12px;
+    font-size: clamp(14px, 4.4vw, 22px);
+    transform: none;
+  }
+
+  .journal-book {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 22px 8px 8px;
+    border-width: 3px;
+    border-radius: 14px;
+    transform: none;
+  }
+
+  .journal-book::before {
+    display: none;
+  }
+
+  .journal-spread {
+    display: block;
+    overflow-y: auto;
+    border-width: 2px;
+    border-radius: 8px;
+  }
+
+  /* flow-root keeps the blank line after a page's last block inside the
+     page, so the ruled lines don't break between the two pages. */
+  .journal-page,
+  .journal-page-right {
+    --margin-x: 28px;
+    display: flow-root;
+    overflow: visible;
+    padding: 0 40px;
+  }
+
+  .journal-page-left {
+    padding-top: var(--line);
+  }
+
+  .journal-page-right {
+    padding-bottom: calc(2 * var(--line));
+  }
+
+  .journal-spiral {
+    top: 4px;
+    bottom: auto;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    height: 26px;
+    transform: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 12' shape-rendering='crispEdges'%3E%3Cpath fill='%2334343e' d='M0 1h1v10H0zM1 0h2v12H1zM3 1h1v10H3z'/%3E%3Cpath fill='%23d3d4db' d='M1 1h1v10H1z'/%3E%3Cpath fill='%23868894' d='M2 1h1v10H2z'/%3E%3C/svg%3E")
+      left top / auto 100% repeat-x;
+  }
+
+  .journal-arrow {
+    bottom: 16px;
+    width: 18px;
+    height: 27px;
+  }
+
+  .journal-arrow-previous {
+    left: 16px;
+  }
+
+  .journal-arrow-next {
+    right: 16px;
+  }
+
+  .journal-back {
+    left: 16px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 18px;
+    font-size: 12px;
+    border-width: 3px;
+  }
+}

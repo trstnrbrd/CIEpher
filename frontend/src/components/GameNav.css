@@ -1,0 +1,69 @@
+.game-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(13, 12, 34, 0.92);
+  border-top: 4px solid #ffffff;
+  box-shadow: 0 -4px 0 #000000;
+  z-index: 10;
+}
+
+.nav-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #ffffff;
+  background: #2b6dd4;
+  border: 3px solid #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 0 #000000;
+  padding: 12px 26px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.nav-btn:hover {
+  background: #3f86ff;
+}
+
+.nav-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #000000;
+}
+
+/* Tablet: keep the full-height bar, slightly tighter sizes. */
+@media (max-width: 768px) {
+  .game-nav {
+    gap: 12px;
+  }
+
+  .nav-btn {
+    font-size: 14px;
+    padding: 12px 18px;
+  }
+}
+
+/* Phone: shrink to fit 320px-wide screens, keep touch targets big. */
+@media (max-width: 480px) {
+  .game-nav {
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
+    padding: 0 8px env(safe-area-inset-bottom, 0px);
+  }
+
+  .nav-btn {
+    font-size: 12px;
+    padding: 12px 14px;
+    border-width: 2px;
+    border-radius: 5px;
+    width: 0;
+    flex: 1 1 0;
+    text-align: center;
+  }
+}

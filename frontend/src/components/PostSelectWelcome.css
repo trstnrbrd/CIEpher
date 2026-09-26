@@ -1,0 +1,460 @@
+.post-select-welcome {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* The sky, clouds and grass of the client's wireframes, at full brightness. */
+.post-select-welcome::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/src/assets/welcome background.webp') center/cover no-repeat;
+  z-index: 0;
+}
+
+/* ---------- Character (static, left, standing on the grass) ---------- */
+
+/* The grass starts 87.8% down the background, and "cover" makes the
+   background max(full height, 100vw / 1.8) tall, so the grass top is
+   50% - max(37.8%, 21vw) above the bottom. --feet is how far above the
+   bottom of its PNG a sprite's feet are. */
+.welcome-person {
+  --size: calc(48 * var(--h));
+  --feet: 0.173;
+  position: absolute;
+  left: 0;
+  bottom: calc(
+    50 * var(--h) - max(37.8 * var(--h), 21vw) - var(--feet) * var(--size)
+  );
+  height: var(--size);
+  width: auto;
+  object-fit: contain;
+  z-index: 2;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* The player's own character on MECHANICS. Their PNGs are framed tighter
+   than the guide's, so these sizes make them as tall as the guide. */
+.welcome-person-boy {
+  --size: calc(34 * var(--h));
+  --feet: 0.101;
+}
+
+.welcome-person-girl {
+  --size: calc(38 * var(--h));
+  --feet: 0.136;
+}
+
+/* ---------- Intro + "Are you ready?" (the client's wireframes) ---------- */
+
+/* The ellipse's box, measured on the wireframe: 84.7% x 56.9% of the
+   screen, centered at 51.5% across and 43.8% down. The title and YES are
+   placed relative to it. */
+.intro-scene {
+  position: absolute;
+  left: 51.5%;
+  top: 43.8%;
+  width: 84.7vw;
+  height: calc(56.9 * var(--h));
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+/* The title's arc sits above the ellipse, with the same gap as the
+   wireframe (the SVG's top is 75% of its height above the ellipse). */
+.intro-title {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 0.8vw);
+  width: min(55.7vw, calc(103.8 * var(--h)));
+  transform: translate(-50%, -75%);
+  line-height: 0;
+  z-index: 1;
+}
+
+.intro-title svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Both arched titles. Sizes are in the SVG's own units (the wireframe's
+   pixels): 18px-tall letters. The stroke is drawn behind the yellow, so it
+   shows as an outline. */
+.intro-title text,
+.mech-title text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20.5px;
+  fill: #ffcf00;
+  stroke: #2a2d74;
+  stroke-width: 4px;
+  stroke-linejoin: miter;
+  paint-order: stroke;
+}
+
+/* 9px gaps between words: a space in this font is a whole letter wide. */
+.intro-title text {
+  word-spacing: -0.55em;
+}
+
+.intro-bubble {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #fffff3;
+  border: max(2px, 0.16vw) solid #29c4f6;
+  border-radius: 50%;
+  color: #000000;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+}
+
+.intro-bubble:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 4px;
+}
+
+.intro-text {
+  display: block;
+  text-align: center;
+}
+
+/* 50 letters per line and the wireframe's size (1.53% of its width), so
+   the lines break at the same words. */
+.intro-text-intro {
+  width: 50.5ch;
+  font-size: min(1.53vw, calc(2.85 * var(--h)));
+  line-height: 1.41;
+  transform: translateY(5%);
+}
+
+.intro-text-ready {
+  font-size: min(3.48vw, calc(6.47 * var(--h)));
+  line-height: 1.4;
+  transform: translateY(-4%);
+}
+
+.intro-line {
+  display: block;
+  white-space: pre-line;
+}
+
+/* A blank line between paragraphs. */
+.intro-line + .intro-line {
+  margin-top: 1.41em;
+}
+
+.intro-rest {
+  color: transparent;
+}
+
+/* Zero width, so the text never moves: the block shows where the next
+   letter will appear. */
+.intro-caret {
+  position: relative;
+}
+
+.intro-caret::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0.1em;
+  width: 0.7em;
+  height: 0.9em;
+  background: currentColor;
+  animation: caret-blink 0.8s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* "Tap to next", small, just inside the bottom of the ellipse. */
+.intro-tap {
+  position: absolute;
+  bottom: 1.5%;
+  left: calc(50% + 0.6vw);
+  transform: translateX(-50%);
+  font-size: min(1.29vw, calc(2.4 * var(--h)));
+  white-space: nowrap;
+}
+
+.intro-hidden {
+  visibility: hidden;
+}
+
+/* The client's YES on "Are you ready?", in the START button's green. */
+.intro-yes {
+  position: absolute;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.6vw, calc(3 * var(--h)));
+  color: #ffffff;
+  background: #4caf50;
+  border: 4px solid #2e7d32;
+  border-radius: 12px;
+  padding: 0.9em 2.4em;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000000;
+  box-shadow:
+    0 4px 0 #2e7d32,
+    0 6px 12px rgba(0, 0, 0, 0.3);
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.intro-yes:hover {
+  background: #66bb6a;
+  transform: translate(-50%, -2px);
+}
+
+.intro-yes:active {
+  transform: translate(-50%, 2px);
+  box-shadow: 0 2px 0 #2e7d32;
+}
+
+/* ---------- MECHANICS (how to play; the client's wireframe) ---------- */
+
+/* The card's box, measured on the wireframe: 81% x 45% of the screen,
+   centered at 51.3% across and 43.8% down. The title and START are placed
+   relative to it. */
+.mech-scene {
+  position: absolute;
+  left: 51.3%;
+  top: 43.8%;
+  width: min(81vw, calc(144.4 * var(--h)));
+  height: calc(45 * var(--h));
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+.mech-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffbf00;
+  border-radius: min(2.6vw, calc(4.6 * var(--h)));
+}
+
+/* 56 letters per line and the wireframe's size (1.32% of its width). */
+.mech-text {
+  width: 56.5ch;
+  max-width: 100%;
+  font-family: 'Press Start 2P', monospace;
+  font-size: min(1.32vw, calc(2.35 * var(--h)));
+  line-height: 1.39;
+  color: #000000;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* The title's SVG top is 85.8% of its height above the card. */
+.mech-title {
+  position: absolute;
+  top: 0;
+  left: 48.45%;
+  width: 79.65%;
+  transform: translate(-50%, -85.8%);
+  line-height: 0;
+  z-index: 1;
+}
+
+.mech-title svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* START sits under the card: its center is 122.7% of the card's height
+   down, and it's 18.4% of the card's width. */
+.mech-start {
+  position: absolute;
+  top: 122.7%;
+  left: 47.57%;
+  width: 18.36%;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  background: none;
+  border: 0;
+  line-height: 0;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.mech-start svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mech-start:hover {
+  filter: brightness(1.1);
+  transform: translate(-50%, calc(-50% - 2px));
+}
+
+.mech-start:active {
+  transform: translate(-50%, calc(-50% + 2px));
+}
+
+.mech-start:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 4px;
+}
+
+/* In the button's own units (the wireframe's pixels): 21px-tall letters. */
+.mech-start text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 24px;
+}
+
+.mech-start-text {
+  fill: #ffbf00;
+}
+
+.mech-start-shadow {
+  fill: #4f722a;
+}
+
+/* ---------- Small screens ---------- */
+
+/* Phones held upright: an ellipse can't hold this much text, so the
+   bubble becomes a rounded box under the title, in the same colors. The
+   MECHANICS card and START stack the same way. */
+@media (max-aspect-ratio: 1/1) {
+  .welcome-person {
+    --size: calc(34 * var(--h));
+  }
+
+  .welcome-person-boy {
+    --size: calc(24 * var(--h));
+  }
+
+  .welcome-person-girl {
+    --size: calc(27 * var(--h));
+  }
+
+  .intro-scene {
+    top: calc(20 * var(--h));
+    left: 50%;
+    width: 92vw;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .intro-title {
+    left: 50%;
+    width: 88vw;
+  }
+
+  .intro-bubble {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    padding: 6vw 5vw 12vw;
+    border-radius: 28px;
+  }
+
+  .intro-text-intro {
+    width: auto;
+    font-size: clamp(10px, 3.3vw, 15px);
+    line-height: 1.6;
+    transform: none;
+  }
+
+  .intro-text-ready {
+    font-size: clamp(14px, 5.2vw, 22px);
+    transform: none;
+  }
+
+  .intro-tap {
+    bottom: 4vw;
+    font-size: clamp(9px, 2.8vw, 12px);
+  }
+
+  .intro-yes {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    display: block;
+    margin: calc(3 * var(--h)) auto 0;
+    font-size: clamp(12px, 4vw, 16px);
+    transform: none;
+  }
+
+  .intro-yes:hover {
+    transform: translateY(-2px);
+  }
+
+  .intro-yes:active {
+    transform: translateY(2px);
+  }
+
+  .mech-scene {
+    top: calc(16 * var(--h));
+    left: 50%;
+    width: 92vw;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .mech-title {
+    left: 50%;
+    width: 86%;
+  }
+
+  .mech-card {
+    position: relative;
+    inset: auto;
+    padding: 6vw 5vw;
+    border-radius: 24px;
+  }
+
+  /* A little smaller than the intro's text, so the long card ends above
+     the character's head. */
+  .mech-text {
+    width: auto;
+    font-size: clamp(9px, 2.9vw, 13px);
+    line-height: 1.5;
+  }
+
+  .mech-start {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: block;
+    width: 40vw;
+    margin: calc(3 * var(--h)) auto 0;
+    transform: none;
+  }
+
+  .mech-start:hover {
+    transform: translateY(-2px);
+  }
+
+  .mech-start:active {
+    transform: translateY(2px);
+  }
+}

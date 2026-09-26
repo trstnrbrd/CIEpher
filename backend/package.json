@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "check": "deno check --config supabase/functions/api/deno.json supabase/functions/api/index.ts supabase/functions/api/app.test.ts supabase/functions/api/csharp.test.ts supabase/functions/api/humans.test.ts tools/answers.ts tools/study.ts",
+    "test": "deno test --config supabase/functions/api/deno.json supabase/functions/api/",
+    "lint": "deno lint --config supabase/functions/api/deno.json supabase/functions/api/ tools/ content/",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "answers:check": "deno run --config supabase/functions/api/deno.json --allow-read --allow-write --allow-run=docker tools/answers.ts check",
+    "answers:sql": "deno run --config supabase/functions/api/deno.json --allow-read --allow-write=supabase/migrations,supabase/tests/database tools/answers.ts sql",
+    "answers:tests": "deno run --config supabase/functions/api/deno.json --allow-read --allow-write=supabase/tests/database tools/answers.ts tests",
+    "study:export": "deno run --config supabase/functions/api/deno.json --allow-read --allow-write=study-export --allow-run=docker --allow-env=STUDY_DB_URL tools/study.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "deno": "2.9.6",
+    "supabase": "2.117.0"
+  }
+}

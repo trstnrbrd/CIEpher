@@ -1,0 +1,26 @@
+/* Cloudflare draws the widget itself (at least 300px wide, 65px tall); this
+   only centres it on the Register card. */
+.turnstile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The wide box fills this; the compact one (small phones) sits in the middle. */
+.turnstile-box {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 340px;
+  min-height: 65px;
+}
+
+.turnstile-box > * {
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+
+.turnstile-box.is-compact > * {
+  flex: 0 0 auto;
+}

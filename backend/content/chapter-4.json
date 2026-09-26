@@ -1,0 +1,79 @@
+{
+  "chapter": 4,
+  "title": "The switch statement",
+  "source": "Documents/e. CHAPTER 4.pdf",
+  "program": [
+    "int option, pcNumber, choice, destination, menu;",
+    "void ViewSchedule() {}",
+    "void ViewGrades() {}",
+    "void ShowInvalidOption() {}",
+    "void OpenPC1() {}",
+    "void OpenPC2() {}",
+    "void DisplayUnavailable() {}",
+    "void ShowVariables() {}",
+    "void ShowOperators() {}",
+    "void ShowControlStructures() {}",
+    "void InvalidChoice() {}",
+    "void GoToLibrary() {}",
+    "void GoToCafeteria() {}",
+    "void GoToProgrammingLab() {}",
+    "void ShowInvalidDestination() {}",
+    "void StartCoding() {}",
+    "void ViewInstructions() {}",
+    "void ExitLab() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "switch",
+      "wrong": ["else if", "while"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "switch(option)\n{\n    case 1:\n        ViewSchedule();\n        break;\n\n    case 2:\n        ViewGrades();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}",
+      "wrong": [
+        "switch(option)\n{\n    case 1\n        ViewSchedule();\n        break;\n\n    default:\n        ShowInvalidOption();\n        break;\n}",
+        "switch(option)\n{\n    case 1:\n        ViewSchedule();\n\n    default:\n        ShowInvalidOption();\n}"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n\n    case 2:\n        OpenPC2();\n        break;\n\n    default:\n        DisplayUnavailable();\n        break;\n}",
+      "wrong": [
+        "switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n        break;\n\n    case 2\n        OpenPC2();\n        break;\n}",
+        "switch(pcNumber)\n{\n    case 1:\n        OpenPC1();\n\n    case 2:\n        OpenPC2();\n\n    default:\n        DisplayUnavailable();\n}"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n\n    case 2:\n        ShowOperators();\n        break;\n\n    case 3:\n        ShowControlStructures();\n        break;\n\n    default:\n        InvalidChoice();\n        break;\n}",
+      "wrong": [
+        "switch(choice)\n{\ncase 1:\nShowVariables();\nbreak;\ncase 2:\nShowOperators();\n}",
+        "switch(choice)\n{\n    case 1:\n        ShowVariables();\n        break;\n\n    case 2:\n        ShowOperators();\n        break;\n\n    default\n        InvalidChoice();\n        break;\n}"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "switch(destination)\n{\n    case 1:\n        GoToLibrary();\n        break;\n\n    case 2:\n        GoToCafeteria();\n        break;\n\n    case 3:\n        GoToProgrammingLab();\n        break;\n\n    default:\n        ShowInvalidDestination();\n        break;\n}",
+      "wrong": [
+        "switch(destination)\n{\n    case 1:\n        GoToLibrary();\n\n    case 2:\n        GoToCafeteria();\n\n    case 3:\n        GoToProgrammingLab();\n}",
+        "switch(destination)\n{\ncase1:\nGoToLibrary();\nbreak;\n}"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n\n    case 2:\n        ViewInstructions();\n        break;\n\n    case 3:\n        ExitLab();\n        break;\n\n    default:\n        InvalidChoice();\n        break;\n}",
+      "wrong": [
+        "switch(menu)\n{\n    case 1:\n        StartCoding();\n        break;\n\n    case 2:\n        ViewInstructions();\n        break;\n\n    case 3:\n        ExitLab();\n        break;\n\n    default\n        InvalidChoice();\n        break;\n}",
+        "switch(menu)\n{\n    case 1\n        StartCoding();\n        break;\n}"
+      ]
+    }
+  ]
+}

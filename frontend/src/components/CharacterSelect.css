@@ -1,0 +1,233 @@
+/* Choose your character, drawn from Tristan's mockup: a plain night-blue
+   screen, a tall purple card with a dashed border, green pixel arrows and a
+   green SELECT button. Everything is measured in --u (about 1% of the screen
+   height, less on narrow screens), so the group keeps the mockup's
+   proportions and sits in the middle of any screen. Upright phones get their
+   own arrangement at the bottom of this file. */
+.character-select {
+  --u: min(calc(1.05 * var(--h)), 1.1vw);
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #13113f;
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* Title on top, then the arrows either side of the card, then SELECT. */
+.character-stage {
+  display: grid;
+  grid-template-columns:
+    calc(15 * var(--u))
+    calc(42.3 * var(--u))
+    calc(15 * var(--u));
+  grid-template-areas:
+    'head head head'
+    'prev card next'
+    '.    save .';
+  column-gap: calc(6.7 * var(--u));
+  align-items: center;
+  justify-items: center;
+}
+
+.character-head {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(1.5 * var(--u));
+  margin-bottom: calc(6.7 * var(--u));
+}
+
+.character-title {
+  --o: max(1px, calc(0.3 * var(--u)));
+  margin: 0;
+  white-space: nowrap;
+  font-size: calc(3.8 * var(--u));
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  color: #ffffff;
+  text-shadow:
+    var(--o) 0 #07061c,
+    calc(-1 * var(--o)) 0 #07061c,
+    0 var(--o) #07061c,
+    0 calc(-1 * var(--o)) #07061c,
+    var(--o) var(--o) #07061c,
+    calc(-1 * var(--o)) calc(-1 * var(--o)) #07061c,
+    var(--o) calc(-1 * var(--o)) #07061c,
+    calc(-1 * var(--o)) var(--o) #07061c,
+    0 calc(2.5 * var(--o)) #07061c;
+}
+
+.character-error {
+  max-width: calc(80 * var(--u));
+  margin: 0;
+  font-size: max(9px, calc(1.5 * var(--u)));
+  line-height: 1.5;
+  text-align: center;
+  color: #ff8a80;
+}
+
+.character-card {
+  grid-area: card;
+  position: relative;
+  width: calc(42.3 * var(--u));
+  height: calc(60.4 * var(--u));
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #2f1b5c;
+  border: max(1px, calc(0.28 * var(--u))) dashed #f0a93a;
+  border-radius: calc(1.5 * var(--u));
+}
+
+/* The character fills 94% of the card's height whatever the empty space
+   around it in its picture (the --fit-* values come from the component). */
+.character-image {
+  position: absolute;
+  top: calc(3% - var(--fit-top) * 94% / var(--fit-span));
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: calc(94% / var(--fit-span));
+  transform: translateX(calc(var(--fit-middle) * -100%));
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
+.character-arrow {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease;
+}
+
+.character-arrow svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.character-arrow-previous {
+  grid-area: prev;
+}
+
+.character-arrow-next {
+  grid-area: next;
+}
+
+.character-arrow-next svg {
+  transform: scaleX(-1);
+}
+
+.character-arrow:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+}
+
+.character-arrow:active {
+  transform: translateY(1px);
+}
+
+.character-arrow:focus-visible {
+  outline: 2px solid #f0a93a;
+  outline-offset: 4px;
+}
+
+.character-save {
+  --o: max(1px, calc(0.25 * var(--u)));
+  grid-area: save;
+  /* Never smaller than an easy tap on a phone. */
+  width: max(130px, calc(28.5 * var(--u)));
+  height: max(40px, calc(7.9 * var(--u)));
+  margin-top: calc(1.4 * var(--u));
+  box-sizing: border-box;
+  padding: 0;
+  font-family: inherit;
+  font-size: max(11px, calc(2.5 * var(--u)));
+  line-height: 1;
+  color: #ffffff;
+  text-shadow:
+    var(--o) 0 #0d3f0d,
+    calc(-1 * var(--o)) 0 #0d3f0d,
+    0 var(--o) #0d3f0d,
+    0 calc(-1 * var(--o)) #0d3f0d;
+  background: #10cf10;
+  border: max(1px, calc(0.3 * var(--u))) solid #6fd8ea;
+  border-radius: calc(1.5 * var(--u));
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease;
+}
+
+.character-save:hover:not(:disabled) {
+  background: #35de35;
+  transform: translateY(-2px);
+}
+
+.character-save:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.character-save:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.character-save:disabled {
+  background: #5d6b5d;
+  border-color: #8a9aa0;
+  cursor: not-allowed;
+}
+
+/* Upright phones and tablets: the title on two lines, a bigger card, and the
+   arrows either side of SELECT underneath it. */
+@media (max-aspect-ratio: 4/5) {
+  .character-select {
+    --u: min(calc(1.05 * var(--h)), 1.85vw);
+  }
+
+  .character-stage {
+    grid-template-columns:
+      calc(9 * var(--u))
+      auto
+      calc(9 * var(--u));
+    grid-template-areas:
+      'head head head'
+      'card card card'
+      'prev save next';
+    column-gap: calc(2.5 * var(--u));
+  }
+
+  .character-head {
+    margin-bottom: calc(5 * var(--u));
+  }
+
+  .character-title {
+    width: calc(44 * var(--u));
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .character-error {
+    max-width: calc(48 * var(--u));
+  }
+
+  .character-arrow,
+  .character-save {
+    margin-top: calc(3 * var(--u));
+  }
+
+  .character-save {
+    width: max(130px, calc(26 * var(--u)));
+  }
+}

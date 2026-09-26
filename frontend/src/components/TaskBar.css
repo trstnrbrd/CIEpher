@@ -1,0 +1,356 @@
+/* The floating part tracker: a pixel-art bar pinned to the middle of the
+   screen's top edge. It first appears on the prologue's bedroom story scene
+   and stays through every chapter's gameplay. Below the overlays (top bar
+   icons live at z 60, journal/settings at 90), above the fantasy backdrops. */
+.task-bar {
+  position: fixed;
+  top: calc(1.1 * var(--h) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+}
+
+/* The bar itself: a button, so tapping it opens the part list. */
+.task-bar-track {
+  display: flex;
+  align-items: center;
+  gap: calc(1.1 * var(--h));
+  padding: calc(0.9 * var(--h)) calc(1.6 * var(--h));
+  background: #0c0f22;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 0 #000000;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffffff;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.task-bar-track:hover {
+  border-color: #ffe066;
+}
+
+.task-bar-track:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 3px;
+}
+
+.task-bar-label {
+  font-size: calc(1.5 * var(--h));
+  color: #ffe066;
+  white-space: nowrap;
+  overflow-wrap: break-word;
+}
+
+/* Books on top, the green progress cells chugging along underneath. */
+.task-bar-meters {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--h));
+  min-width: 0;
+}
+
+.task-books {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(0.8 * var(--h));
+  justify-content: center;
+}
+
+/* A closed book with pages, a center fold and a hard cover, all CSS pixels. */
+.task-book {
+  position: relative;
+  width: calc(3.2 * var(--h));
+  height: calc(2.6 * var(--h));
+  background: #f5f0dc;
+  border: calc(0.28 * var(--h)) solid #000000;
+  box-shadow: 0 calc(0.3 * var(--h)) 0 rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.task-book::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: calc(0.24 * var(--h));
+  background: #b9a37a;
+  transform: translateX(-50%);
+}
+
+.task-book::after {
+  content: '';
+  position: absolute;
+  left: calc(-0.28 * var(--h));
+  right: calc(-0.28 * var(--h));
+  bottom: calc(-0.28 * var(--h));
+  height: calc(0.8 * var(--h));
+  background: #8a4f2e;
+  border-top: calc(0.24 * var(--h)) solid #000000;
+}
+
+/* The green check on top of a finished book. */
+.task-book-check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(1.6 * var(--h));
+  color: #0c4d22;
+  z-index: 1;
+}
+
+.task-book.done {
+  background: #39d353;
+  border-color: #103a1c;
+}
+
+.task-book.done::before {
+  background: #2e8b43;
+}
+
+.task-book.done::after {
+  background: #103a1c;
+  border-top-color: #103a1c;
+}
+
+.task-book.locked {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+/* The part the player is on glows yellow. */
+.task-book.current {
+  animation: task-book-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes task-book-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 calc(0.3 * var(--h)) 0 rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(255, 224, 102, 0);
+  }
+  50% {
+    box-shadow:
+      0 calc(0.3 * var(--h)) 0 rgba(0, 0, 0, 0.35),
+      0 0 0 calc(0.3 * var(--h)) rgba(255, 224, 102, 0.85);
+  }
+}
+
+/* One cell per part; filled green once it's done. */
+.task-bar-segments {
+  display: flex;
+  gap: calc(0.35 * var(--h));
+}
+
+.task-seg {
+  flex: 1;
+  height: calc(0.7 * var(--h));
+  min-width: calc(1.6 * var(--h));
+  background: #0f1226;
+  border: calc(0.2 * var(--h)) solid #39416e;
+  border-radius: 2px;
+}
+
+.task-seg.done {
+  background: #39d353;
+  border-color: #39d353;
+  box-shadow: 0 0 0 calc(0.12 * var(--h)) #2e8b43 inset;
+}
+
+.task-bar-step-pill {
+  font-size: calc(1.1 * var(--h));
+  color: #fffef5;
+  background: #ad201d;
+  padding: calc(0.24 * var(--h)) calc(0.6 * var(--h));
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.task-bar-count {
+  font-size: calc(1.4 * var(--h));
+  color: #9fb8e8;
+  white-space: nowrap;
+}
+
+.task-bar-chevron {
+  font-size: calc(1.2 * var(--h));
+  color: #ffe066;
+}
+
+/* The part list drops from under the bar. */
+.task-bar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  background: transparent;
+  cursor: pointer;
+  border: 0;
+}
+
+.task-bar-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(360px, 92vw);
+  max-width: calc(100vw - 16px);
+  min-width: 0;
+  box-sizing: border-box;
+  z-index: 58;
+  background: #161b36;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 0 #000000;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-panel-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #ffe066;
+  margin: 0 0 2px;
+  text-align: center;
+  text-shadow: 2px 2px 0 #000000;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.task-part {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: #0c0f22;
+  border: 2px solid #39416e;
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffffff;
+  text-align: left;
+}
+
+.task-part:hover:not(:disabled) {
+  border-color: #ffe066;
+}
+
+.task-part:focus-visible {
+  outline: 3px solid #2a2d74;
+  outline-offset: 2px;
+}
+
+.task-part.current {
+  border-color: #ffe066;
+}
+
+.task-part.locked {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.task-part-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-part-tag {
+  font-size: 8px;
+  color: #9fb8e8;
+}
+
+.task-part-title {
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-part-status {
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.task-part-status.done {
+  color: #39d353;
+}
+
+.task-part-status.open {
+  color: #ffe066;
+}
+
+.task-part-status.locked {
+  color: #9fb8e8;
+}
+
+/* Phone: the bar slides clear of the hamburger (top-right) so the menu
+   button never sits on top of the progress bar. Anchored to the left edge,
+   ending a safe margin before the hamburger on the right. The redundant
+   segments row is dropped (the books already show progress) so it fits. */
+@media (max-width: 620px) {
+  .task-bar {
+    top: calc(0.9 * var(--h) + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: calc(10.4 * var(--h));
+    transform: none;
+  }
+
+  .task-bar-track {
+    width: 100%;
+    min-width: 0;
+    gap: calc(0.6 * var(--h));
+    padding: calc(0.6 * var(--h)) calc(0.9 * var(--h));
+    border-width: 2px;
+  }
+
+  .task-bar-label {
+    font-size: calc(1.05 * var(--h));
+  }
+
+  .task-bar-segments {
+    display: none;
+  }
+
+  .task-books {
+    flex: 1;
+    min-width: 0;
+    gap: calc(0.55 * var(--h));
+  }
+
+  .task-book {
+    width: calc(2.3 * var(--h));
+    height: calc(1.9 * var(--h));
+  }
+
+  .task-book-check {
+    font-size: calc(1.1 * var(--h));
+  }
+
+  .task-bar-count {
+    font-size: calc(1.05 * var(--h));
+  }
+
+  .task-bar-chevron {
+    font-size: calc(1 * var(--h));
+  }
+
+  /* The bar is anchored to the left now, so center the dropped list on the
+     actual viewport instead of on the bar's own (shifted) box. */
+  .task-bar-panel {
+    left: 50vw;
+  }
+}

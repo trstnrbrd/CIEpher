@@ -1,0 +1,52 @@
+{
+  "chapter": 1,
+  "title": "The if statement",
+  "source": "Documents/b. CHAPTER 1.pdf",
+  "program": [
+    "bool hasSchoolID, isPresent, hasPower, isCompleted, hasAttendance;",
+    "void EnterSchool() {}",
+    "void RecordAttendance() {}",
+    "void StartComputer() {}",
+    "void SubmitActivity() {}",
+    "void OpenQuiz() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "if",
+      "wrong": ["while"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "if(hasSchoolID)\n{\n    EnterSchool();\n}",
+      "wrong": ["if hasSchoolID\n{\n    EnterSchool();\n}"]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "if(isPresent)\n{\n    RecordAttendance();\n}",
+      "wrong": ["if(isPresent)\n{\n    RecordAttendance();"]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "if(hasPower)\n{\n    StartComputer();\n}",
+      "wrong": ["if(hasPower)\n{\n    StartComputer()\n}"]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "if(isCompleted)\n{\n    SubmitActivity();\n}",
+      "wrong": ["IF(isCompleted)\n{\n   SubmitActivity();\n}"]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "if(hasAttendance)\n{\n    OpenQuiz();\n}",
+      "wrong": ["if(hasAttendance)\n    OpenQuiz();\n}"]
+    }
+  ]
+}

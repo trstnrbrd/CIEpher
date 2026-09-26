@@ -1,0 +1,71 @@
+{
+  "chapter": 7,
+  "title": "The for loop",
+  "source": "Documents/h. CHAPTER 7.docx.pdf",
+  "program": [
+    "void PrintStudentID() {}",
+    "void CheckComputer() {}",
+    "void DistributeModule() {}",
+    "void GenerateReport() {}",
+    "void DisplayStudent() {}"
+  ],
+  "questions": [
+    {
+      "mission": 1,
+      "question": 1,
+      "answer": "for",
+      "wrong": ["while", "do...while", "switch"],
+      "code": false
+    },
+    {
+      "mission": 1,
+      "question": 2,
+      "answer": "for(int i = 0; i < 10; i++)\n{\n    PrintStudentID();\n}",
+      "wrong": [
+        "for int i = 0; i < 10; i++\n{\n    PrintStudentID();\n}",
+        "for(int i = 0 i < 10; i++)\n{\n    PrintStudentID();\n}",
+        "for(int i = 0; i < 10; i++)\n{\n    PrintStudentID()\n}"
+      ]
+    },
+    {
+      "mission": 2,
+      "question": 1,
+      "answer": "for(int i = 0; i < 20; i++)\n{\n    CheckComputer();\n}",
+      "wrong": [
+        "for(int i = 0; i < 20; i++)\n{\n    CheckComputer()\n}",
+        "for(int i = 0 i < 20; i++)\n{\n    CheckComputer();\n}",
+        "for int i = 0; i < 20; i++\n{\n    CheckComputer();\n}"
+      ]
+    },
+    {
+      "mission": 3,
+      "question": 1,
+      "answer": "for(int i = 0; i < 30; i++)\n{\n    DistributeModule();\n}",
+      "wrong": [
+        "for(int i = 0; i < 30 i++)\n{\n    DistributeModule();\n}",
+        "for(int i = 0; i < 30; i++)\n{\n    DistributeModule()\n}",
+        "for(int i = 0; i < 30; i+)\n{\n    DistributeModule();\n}"
+      ]
+    },
+    {
+      "mission": 4,
+      "question": 1,
+      "answer": "for(int i = 0; i < 15; i++)\n{\n    GenerateReport();\n}",
+      "wrong": [
+        "for(int i = 0 i < 15; i++)\n{\n    GenerateReport();\n}",
+        "for(int i = 0; i < 15; i++)\n{\n    GenerateReport()\n}",
+        "for(int i = 0; i < 15 i++)\n{\n    GenerateReport();\n}"
+      ]
+    },
+    {
+      "mission": 5,
+      "question": 1,
+      "answer": "for(int i = 0; i < 25; i++)\n{\n    DisplayStudent();\n}",
+      "wrong": [
+        "for(int i = 0 i < 25; i++)\n{\n    DisplayStudent();\n}",
+        "for(int i = 0; i < 25; i++)\n{\n    DisplayStudent()\n}",
+        "for(int i = 0; i < 25 i++)\n{\n    DisplayStudent();\n}"
+      ]
+    }
+  ]
+}

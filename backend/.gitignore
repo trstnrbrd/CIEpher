@@ -1,0 +1,9 @@
+node_modules/
+supabase/functions/.env
+
+# Study data pulled from the database: student data, never commit it.
+study-export/
+
+# Load test: the shared password of the fake accounts, and the raw results.
+loadtest/accounts.json
+loadtest/last-run.json

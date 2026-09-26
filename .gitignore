@@ -1,0 +1,19 @@
+# Client files: never commit
+Documents/*.pdf
+
+# Local-only Claude instructions 
+CLAUDE.md
+
+# Backups
+*.key
+*.age
+*.tar.gz
+backups/*.sql
+!backups/before-schema.sql
+ChristianDocument
+.env.production
+
+# Raw PNG master art: the game loads the WebP next to it. The masters live in
+# ChristianDocument, so don't commit the same picture twice.
+frontend/src/chapter 3/programflow/*.png
+frontend/src/assets/chapter 4/programFlow/*.png

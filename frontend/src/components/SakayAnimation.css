@@ -1,0 +1,46 @@
+/* The full-screen "sakay" animation after the last prologue puzzle. Sits
+   above the mission screen (z 95), like the "UNDERSTAND THE CORE" panel. */
+.sakay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 28, 0.9);
+  padding: 18px;
+}
+
+.sakay-card {
+  width: min(920px, 96vw);
+  background: #161b36;
+  border: 4px solid #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 0 #000000;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.sakay-video {
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+  background: #000000;
+}
+
+/* Same look as the mission screen's blue NEXT MISSION button. */
+.sakay-skip {
+  background: #2b6dd4;
+  border-radius: 0 !important;
+  padding: 14px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.sakay-skip:hover {
+  background: #3f86ff;
+}

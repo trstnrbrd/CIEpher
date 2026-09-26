@@ -1,0 +1,497 @@
+/* The full-screen "UNDERSTAND THE CORE" learning panel after a correct
+   answer. Lives above the mission screen (z 95), below the confirm dialog. */
+.core-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 28, 0.82);
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.core-card {
+  width: min(920px, 96vw);
+  max-height: 94vh;
+  overflow-y: auto;
+  background: #161b36;
+  border: 4px solid #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 0 #000000;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.core-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 3.4vw, 1.6rem);
+  /* Two lines on narrow screens must not sit on top of each other. */
+  line-height: 1.5;
+  color: #ffe066;
+  -webkit-text-stroke: 1px #000000;
+  text-shadow: 3px 3px 0 #000000;
+  margin: 0;
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Green "this is correct" banner. */
+.core-valid {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #a7ffb8;
+  background: #2e8b43;
+  border: 3px solid #39d353;
+  border-radius: 8px;
+  box-shadow: 0 4px 0 #000000;
+  margin: 0 auto;
+  padding: 12px 18px;
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* The INCORRECT / CORRECT comparison panels. */
+.core-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.core-panel {
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 0 #000000;
+  min-width: 0;
+}
+
+.core-panel-wrong {
+  background: #3a1414;
+  border: 3px solid #ff5c5c;
+}
+
+.core-panel-right {
+  background: #143a1d;
+  border: 3px solid #39d353;
+  animation: core-glow 2s ease-in-out infinite;
+}
+
+@keyframes core-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 6px 0 #000000,
+      0 0 0 rgba(57, 211, 83, 0);
+  }
+  50% {
+    box-shadow:
+      0 6px 0 #000000,
+      0 0 22px rgba(57, 211, 83, 0.55);
+  }
+}
+
+.core-panel-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  margin: 0;
+  color: #ffffff;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.core-panel-wrong .core-panel-tag {
+  color: #ff8a8a;
+}
+
+.core-panel-right .core-panel-tag {
+  color: #7dff94;
+}
+
+.core-code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  font-weight: 700;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #0c0f22;
+  border: 2px solid #39416e;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.core-code-wrong {
+  color: #ff5c5c;
+}
+
+.core-code-right {
+  color: #39d353;
+}
+
+.core-note {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  margin: 0;
+  text-align: center;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.core-panel-wrong .core-note {
+  color: #ffc9c9;
+}
+
+.core-panel-right .core-note {
+  color: #b8ffc4;
+}
+
+/* Lower row: code explanation + program flow. */
+.core-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.core-block {
+  background: #0c0f22;
+  border: 3px solid #39416e;
+  border-radius: 10px;
+  box-shadow: 0 5px 0 #000000;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.core-block-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #ffe066;
+  margin: 0;
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Code anatomy: color-coded rows. */
+.core-anatomy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.core-anatomy-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.core-anatomy-chip {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0c0f22;
+  border-radius: 6px;
+  padding: 6px 10px;
+  flex-shrink: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.anatomy-0 {
+  background: #4fa3ff;
+}
+
+.anatomy-1 {
+  background: #4be04b;
+}
+
+.anatomy-2 {
+  background: #ffe066;
+}
+
+.anatomy-3 {
+  background: #ff6fc3;
+}
+
+.anatomy-4 {
+  background: #c678ff;
+}
+
+.core-anatomy-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #ffffff;
+  line-height: 1.6;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Program flow: vertical blocks + the door graphic. */
+.core-flow-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.core-flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.core-flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.flow-step-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(12px, 1.35vw, 15px);
+  line-height: 1.45;
+  color: #ffffff;
+  background: #39416e;
+  border: 2px solid #5a659e;
+  border-radius: 8px;
+  padding: 10px 18px;
+  text-align: center;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+.flow-point-start .flow-step-text {
+  background: #2b6dd4;
+  color: #ffffff;
+}
+
+/* YES / NO branches of a decision: green vs red, used by the flow-only and
+   code-explained screens. */
+.flow-yes .flow-step-text {
+  background: #1f7a33;
+  color: #c8ffd3;
+}
+
+.flow-no .flow-step-text {
+  background: #7a241c;
+  color: #ffd4cf;
+}
+
+/* The typed syntax accepted before a flow: green on dark, with margins. */
+.core-code-ok {
+  color: #39d353;
+  border: 3px solid #39d353;
+  align-self: center;
+  max-width: 100%;
+  text-align: left;
+  width: auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.flow-point-end .flow-step-text {
+  background: #b0392e;
+  color: #ffffff;
+}
+
+.flow-arrow {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffe066;
+}
+
+.core-door {
+  width: clamp(120px, 22vw, 180px);
+  height: auto;
+  border: 3px solid #39416e;
+  border-radius: 8px;
+  box-shadow: 0 5px 0 #000000;
+  image-rendering: pixelated;
+}
+
+/* The computer terminal monitor shown beside flows that end at one: a dark
+   bezel with a green-on-black screen, blocky Press Start 2P text and a
+   blinking caret, all pixel-art corners and hard shadows. */
+.core-terminal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.4 * var(--h));
+  width: clamp(130px, 20vw, 180px);
+}
+
+.core-monitor {
+  width: 100%;
+  background: #0c0f22;
+  border: 3px solid #39416e;
+  border-radius: 8px;
+  box-shadow: 0 5px 0 #000000;
+  padding: 10px;
+}
+
+.core-monitor-screen {
+  background: #04170a;
+  border: 2px solid #2e8b43;
+  border-radius: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(8px, 1.2vw, 11px);
+  color: #39d353;
+  padding: 10px 8px;
+  min-height: 2.5em;
+  line-height: 1.5;
+  text-shadow: 0 0 6px rgba(57, 211, 83, 0.6);
+}
+
+.terminal-prompt {
+  white-space: nowrap;
+}
+
+.terminal-caret {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.9em;
+  background: #39d353;
+  vertical-align: middle;
+  margin-left: 0.2em;
+  animation: core-caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes core-caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.core-monitor-stand {
+  width: 22%;
+  height: calc(2.2 * var(--h));
+  background: #0c0f22;
+  border-left: 3px solid #39416e;
+  border-right: 3px solid #39416e;
+  border-bottom: 3px solid #39416e;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Yellow key takeaway banner. */
+.core-takeaway {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #1d1a2e;
+  background: #ffe066;
+  border: 3px solid #2a2d74;
+  border-radius: 8px;
+  box-shadow: 0 5px 0 #000000;
+  margin: 0;
+  padding: 12px 16px;
+  text-align: center;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.core-takeaway strong {
+  color: #7a241c;
+}
+
+.core-ok {
+  align-self: center;
+  background: #3f8c2b;
+  border-radius: 0 !important;
+  padding: 14px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.core-ok:hover {
+  background: #53b537;
+}
+
+/* Nested scrolling inside the card. */
+.core-card::-webkit-scrollbar {
+  width: 10px;
+}
+
+.core-card::-webkit-scrollbar-thumb {
+  background: #39416e;
+  border-radius: 5px;
+}
+
+/* Narrow screens: make full screen on mobile and stack panels. */
+@media (max-width: 768px) {
+  .core-screen {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .core-card {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 16px 12px 24px;
+    gap: 12px;
+  }
+
+  .core-title {
+    font-size: clamp(0.95rem, 4.2vw, 1.3rem);
+  }
+
+  .core-compare,
+  .core-lower {
+    grid-template-columns: 1fr;
+  }
+
+  .core-flow-wrap {
+    flex-direction: column;
+  }
+
+  .core-door {
+    width: min(220px, 70vw);
+  }
+
+  .core-anatomy-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
